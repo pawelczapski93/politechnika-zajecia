@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Particle Kinematics</title>
+<link rel="stylesheet" href="assets/lecture.css">
+</head>
+<body data-lecture="3">
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lecture 3 · Kinematics</div>
+  <h1>Kinematics of a particle</h1>
+  <p class="lead">Kinematics is the geometry of motion: where a point is, how fast it moves and how quickly its velocity changes. We ignore the forces that cause the motion; they come in Lecture 5. Every cam, robot arm and vehicle trajectory starts here.</p>
+  <div class="goals">
+    <h3>After this lecture you can…</h3>
+    <ul>
+      <li>relate position, velocity and acceleration by differentiation and integration;</li>
+      <li>determine the motion when the acceleration is given as a(t), a(x) or a(v);</li>
+      <li>analyse projectile motion using rectangular components;</li>
+      <li>split acceleration into tangential and normal components and use the radius of curvature.</li>
+    </ul>
+    <p style="margin:0;color:var(--muted);font-size:.88rem">Syllabus outcomes: 1MEC1.1, 1MEC3.1 · Reading: Beer &amp; Johnston – Dynamics, ch. 11; Meriam &amp; Kraige vol. 2, ch. 2.</p>
+  </div>
+  <aside class="notes">90 min plan: rectilinear motion 25 · determination of motion 15 (board derivations) · projectile 20 · n–t components 20 · quiz 10. Prerequisite reminder: derivatives and integrals of polynomials, exp, sin/cos.</aside>
+</header>
+
+<section class="slide" id="rectilinear">
+  <h2>Rectilinear motion: x, v, a</h2>
+  <div class="prose"><p>A particle moving along a straight line is described by its position <span class="m">x(t)</span>. Velocity is the rate of change of position, and acceleration is the rate of change of velocity:</p></div>
+  <div class="eq"><span class="m">v</span> = d<span class="m">x</span>/d<span class="m">t</span>, &nbsp;&nbsp; <span class="m">a</span> = d<span class="m">v</span>/d<span class="m">t</span> = d²<span class="m">x</span>/d<span class="m">t</span>², &nbsp;&nbsp; <span class="m">a</span> = <span class="m">v</span> d<span class="m">v</span>/d<span class="m">x</span>
+    <span class="lbl">geometrically: v is the slope of x(t), a is the slope of v(t). Areas: Δx = ∫v dt, Δv = ∫a dt</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Motion graphs: slope and area</h3><span class="hint">The tangent on x(t) has slope v</span></div>
+    <div class="demo-body">
+      <canvas id="d1" data-aspect="0.9" aria-label="Position velocity acceleration graphs"></canvas>
+      <div class="ctrl" id="d1c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--ink)">position x</span><span style="--c:var(--velocity)">velocity v</span><span style="--c:var(--accel)">acceleration a</span></div>
+  </div>
+  <div class="key"><strong>Uniformly accelerated motion (a = const):</strong> &nbsp; v = v₀ + a t, &nbsp; x = x₀ + v₀ t + ½ a t², &nbsp; v² = v₀² + 2a (x − x₀). These hold <em>only</em> when a is constant!</div>
+  <aside class="notes">Ask students to predict the shape of v(t) before switching the preset. A classic mistake is using the constant-a formulas for the harmonic or drag case.</aside>
+</section>
+
+<section class="slide" id="determination">
+  <h2>Determination of the motion of a particle</h2>
+  <div class="prose"><p>Usually acceleration comes from forces (Newton’s law). We then <b>integrate</b> to get velocity and position. The method depends on what a depends on:</p></div>
+  <table class="data" style="max-width:820px">
+    <tr><th>Given</th><th>Separate &amp; integrate</th><th>Typical source</th></tr>
+    <tr><td>a = f(t)</td><td>dv = f(t) dt → v(t), then dx = v dt</td><td>prescribed thrust, cam program</td></tr>
+    <tr><td>a = f(x)</td><td>v dv = f(x) dx → v(x), then dt = dx / v</td><td>spring force −kx</td></tr>
+    <tr><td>a = f(v)</td><td>dt = dv / f(v) &nbsp; or &nbsp; dx = v dv / f(v)</td><td>air / fluid drag</td></tr>
+  </table>
+  <div class="example">
+    <h3>acceleration given as a function of time</h3>
+    <p>A slider moves with a = 6t m/s². At t = 0: x₀ = 0, v₀ = 2 m/s. Find v and x at t = 2 s.</p>
+    <details class="step"><summary>Step 1: integrate a(t)</summary>v = v₀ + ∫₀ᵗ 6t dt = 2 + 3t² → v(2) = <b>14 m/s</b></details>
+    <details class="step"><summary>Step 2: integrate v(t)</summary>x = ∫₀ᵗ (2 + 3t²) dt = 2t + t³ → x(2) = <b>12 m</b></details>
+    <details class="step"><summary>Step 3: why not v² = v₀² + 2aΔx?</summary>Because a is not constant here. That formula would give a wrong answer.</details>
+  </div>
+  <div class="example">
+    <h3>drag, a = −k v</h3>
+    <p>A boat cuts its engine at v₀ = 8 m/s, with k = 0.5 s⁻¹. How far does it glide?</p>
+    <details class="step"><summary>Solution</summary>v dv/dx = −k v ⇒ dv = −k dx ⇒ v = v₀ − kx. The boat stops when v = 0: x<sub>max</sub> = v₀/k = <b>16 m</b>. In time: v = v₀e<sup>−kt</sup>, so it never quite stops, yet the distance is finite. Check it with the “drag” preset above.</details>
+  </div>
+</section>
+
+<section class="slide" id="projectile">
+  <h2>Curvilinear motion: rectangular components and projectiles</h2>
+  <div class="prose"><p>In the plane, position is a vector <span class="m vec">r</span> = x<span class="m vec">i</span> + y<span class="m vec">j</span>. Velocity <span class="m vec">v</span> = d<span class="m vec">r</span>/dt is always <b>tangent to the path</b>, and acceleration <span class="m vec">a</span> = d<span class="m vec">v</span>/dt in general is <b>not</b>. With rectangular components each direction can be handled separately. For a projectile (no air resistance):</p></div>
+  <div class="eq"><span class="m">a<sub>x</sub></span> = 0, &nbsp; <span class="m">a<sub>y</sub></span> = −<span class="m">g</span> &nbsp;⇒&nbsp; <span class="m">x</span> = <span class="m">v₀</span> cos θ · <span class="m">t</span>, &nbsp; <span class="m">y</span> = <span class="m">h₀</span> + <span class="m">v₀</span> sin θ · <span class="m">t</span> − ½ <span class="m">g t</span>²
+    <span class="lbl">flat ground: range R = v₀² sin 2θ / g, max height H = v₀² sin²θ / 2g</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Projectile motion</h3><span class="hint">Horizontal velocity never changes</span></div>
+    <div class="demo-body">
+      <canvas id="d2" data-aspect="0.55" aria-label="Projectile trajectory"></canvas>
+      <div class="ctrl" id="d2c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--velocity)">velocity v and components</span><span style="--c:var(--accel)">acceleration g</span><span style="--c:var(--muted)">45° reference trajectory</span></div>
+  </div>
+  <aside class="notes">Poll: “Which angle gives the longest range when thrown from a cliff (h₀ &gt; 0)?” It is less than 45°. Verify in the demo.</aside>
+</section>
+
+<section class="slide" id="nt">
+  <h2>Tangential and normal components</h2>
+  <div class="prose"><p>Path coordinates are often more natural, e.g. a car on a curved road. The unit vector <span class="m vec">e<sub>t</sub></span> is tangent to the path and <span class="m vec">e<sub>n</sub></span> points toward the centre of curvature:</p></div>
+  <div class="eq"><span class="m vec">v</span> = <span class="m">v</span> <span class="m vec">e<sub>t</sub></span>, &nbsp;&nbsp; <span class="m vec">a</span> = <span class="m">a<sub>t</sub></span> <span class="m vec">e<sub>t</sub></span> + <span class="m">a<sub>n</sub></span> <span class="m vec">e<sub>n</sub></span>, &nbsp;&nbsp; <span class="m">a<sub>t</sub></span> = d<span class="m">v</span>/d<span class="m">t</span>, &nbsp;&nbsp; <span class="m">a<sub>n</sub></span> = <span class="m">v</span>²/<span class="m">ρ</span>
+    <span class="lbl">a<sub>t</sub> changes the speed · a<sub>n</sub> changes the direction · ρ = radius of curvature</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Particle on an elliptical track</h3><span class="hint">The osculating circle has radius ρ</span></div>
+    <div class="demo-body">
+      <canvas id="d3" data-aspect="0.6" aria-label="Tangential and normal acceleration"></canvas>
+      <div class="ctrl" id="d3c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--velocity)">velocity v</span><span style="--c:var(--accel)">acceleration a</span><span style="--c:var(--force)">a<sub>t</sub></span><span style="--c:var(--moment)">a<sub>n</sub> and osculating circle</span></div>
+  </div>
+  <div class="two">
+    <div class="key"><strong>Polar (radial–transverse) components</strong> are useful for rotating arms and orbits:<br>
+      v<sub>r</sub> = ṙ, &nbsp; v<sub>θ</sub> = r θ̇<br>a<sub>r</sub> = r̈ − r θ̇², &nbsp; a<sub>θ</sub> = r θ̈ + 2 ṙ θ̇ (Coriolis term)</div>
+    <div class="key"><strong>Circular motion</strong> (ρ = r = const):<br>v = r ω, &nbsp; a<sub>t</sub> = r ε, &nbsp; a<sub>n</sub> = r ω² = v²/r.<br>We use these again for rigid bodies in Lecture 4.</div>
+  </div>
+  <aside class="notes">Make the track a circle (a = b) with constant speed: a<sub>t</sub> = 0 and a points to the centre. Then switch to the ellipse to show that a<sub>n</sub> peaks where the curvature is largest, at the ends of the major axis.</aside>
+</section>
+
+<section class="slide" id="check">
+  <h2>Quick check</h2>
+  <div class="quiz">
+    <p class="q">1. At the top of its trajectory, a projectile’s acceleration is…</p>
+    <div class="opts">
+      <button class="opt">zero</button>
+      <button class="opt" data-ok>g, pointing down</button>
+      <button class="opt">horizontal</button>
+    </div>
+    <p class="why">The velocity is horizontal at the top (v<sub>y</sub> = 0), but the acceleration is always g downward.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">2. A car drives round a bend at constant speed. Its acceleration is…</p>
+    <div class="opts">
+      <button class="opt">zero, because the speed is constant</button>
+      <button class="opt" data-ok>v²/ρ, toward the centre of the bend</button>
+      <button class="opt">tangent to the road</button>
+    </div>
+    <p class="why">a<sub>t</sub> = dv/dt = 0, but the direction changes, so a<sub>n</sub> = v²/ρ ≠ 0.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">3. Given a = −k x (a spring), which integration route do you use?</p>
+    <div class="opts">
+      <button class="opt">dv = a dt</button>
+      <button class="opt" data-ok>v dv = a dx</button>
+      <button class="opt">x = ½at²</button>
+    </div>
+    <p class="why">When a depends on x, use a = v dv/dx. This gives v² = v₀² − k(x² − x₀²).</p>
+  </div>
+</section>
+
+<section class="slide" id="summary">
+  <h2>Summary</h2>
+  <ul class="prose">
+    <li>v = dx/dt, a = dv/dt = v dv/dx. Slopes and areas link the graphs.</li>
+    <li>Constant-a formulas are a special case. Otherwise separate variables and integrate.</li>
+    <li>Projectile: independent x (uniform) and y (uniformly accelerated) motions.</li>
+    <li>n–t components: a<sub>t</sub> = dv/dt, a<sub>n</sub> = v²/ρ.</li>
+  </ul>
+  <p class="prose"><b>Next lecture:</b> motion of rigid bodies: translation, rotation, general plane motion and the instantaneous centre of rotation.</p>
+</section>
+
+</main>
+</div>
+
+<script src="assets/lecture.js"></script>
+<script>
+/* ---------- Demo 1: x, v, a graphs ---------- */
+(function () {
+  const T = 6;
+  const st = { t: 1.5 };
+  const v = BME.controls('d1c', [
+    { type: 'select', id: 'mode', label: 'Motion type', options: [['const', 'Constant acceleration'], ['harm', 'Harmonic (spring)'], ['drag', 'Drag: a = −k v']], value: 'const' },
+    { id: 'p1', label: 'Initial position x₀', min: -5, max: 5, step: 0.5, value: 0, unit: 'm' },
+    { id: 'p2', label: 'Initial velocity v₀', min: -10, max: 10, step: 0.5, value: 6, unit: 'm/s' },
+    { id: 'p3', label: 'Acceleration a', min: -4, max: 4, step: 0.1, value: -2, unit: 'm/s²' },
+    { id: 't', label: 'time t', min: 0, max: T, step: 0.01, value: 1.5, unit: 's' },
+    { type: 'button', id: 'play', label: '▶ Play' },
+    { html: '<dl class="readout" id="d1r"></dl>' }
+  ], (vals, k) => {
+    if (k === 't' && !st.anim) st.t = vals.t;
+    if (k === 'mode') {
+      const L = { const: [['Initial position x₀', 'm'], ['Initial velocity v₀', 'm/s'], ['Acceleration a', 'm/s²']],
+                  harm: [['Amplitude A', 'm'], ['(not used)', ''], ['Angular frequency ω', 'rad/s']],
+                  drag: [['(not used)', ''], ['Initial velocity v₀', 'm/s'], ['Drag constant k', '1/s']] }[vals.mode];
+      ['p1', 'p2', 'p3'].forEach((id, i) => vals.relabel(id, L[i][0], L[i][1]));
+    }
+    o.redraw();
+  });
+
+  function fns() {
+    const m = v.mode;
+    if (m === 'const') {
+      const x0 = v.p1, v0 = v.p2, a = v.p3;
+      return { x: (t) => x0 + v0 * t + 0.5 * a * t * t, v: (t) => v0 + a * t, a: () => a, desc: 'x = x₀ + v₀t + ½at²' };
+    }
+    if (m === 'harm') {
+      const A = Math.abs(v.p1) || 2, w = Math.abs(v.p3) || 1.5;
+      return { x: (t) => A * Math.sin(w * t), v: (t) => A * w * Math.cos(w * t), a: (t) => -A * w * w * Math.sin(w * t), desc: 'x = A sin ωt,  a = −ω²x' };
+    }
+    const v0 = v.p2 || 6, k = Math.abs(v.p3) || 0.8;
+    return { x: (t) => v0 / k * (1 - Math.exp(-k * t)), v: (t) => v0 * Math.exp(-k * t), a: (t) => -k * v0 * Math.exp(-k * t), desc: 'v = v₀e^(−kt),  x → v₀/k' };
+  }
+
+  const o = BME.canvas('d1', (ctx, w, h) => {
+    const F = fns();
+    const N = 240, ts = [], xs = [], vs = [], as = [];
+    for (let i = 0; i <= N; i++) { const t = T * i / N; ts.push(t); xs.push(F.x(t)); vs.push(F.v(t)); as.push(F.a(t)); }
+    const rng = (arr) => { let a = Math.min(...arr), b = Math.max(...arr); if (b - a < 1e-6) { a -= 1; b += 1; } const p = (b - a) * 0.1; return [a - p, b + p]; };
+    const t = st.t;
+    const ink = BME.c('--ink'), vc = BME.c('--velocity'), ac = BME.c('--accel'), muted = BME.c('--muted');
+    // track
+    const xr = rng(xs);
+    const tx0 = 60, tx1 = w - 20, ty = 34;
+    const TX = (x) => tx0 + (x - xr[0]) / (xr[1] - xr[0]) * (tx1 - tx0);
+    BME.line(ctx, tx0, ty, tx1, ty, muted, 1.5);
+    BME.text(ctx, 'track', tx0 - 8, ty, { color: muted, size: 11, align: 'right' });
+    const px = TX(F.x(t));
+    ctx.save(); ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.fillRect(px - 14, ty - 11, 28, 22); ctx.strokeRect(px - 14, ty - 11, 28, 22); ctx.restore();
+    const vn = F.v(t);
+    if (Math.abs(vn) > 0.01) BME.arrow(ctx, px, ty + 18, px + BME.clamp(vn * 6, -120, 120), ty + 18, vc, { width: 2, head: 8 });
+    // plots
+    const top = 70, gap = 34, ph = (h - top - 3 * gap) / 3;
+    const R = (i) => ({ x: 60, y: top + i * (ph + gap), w: w - 80, h: ph });
+    const mk = (arr) => arr.map((y, i) => [ts[i], y]);
+    const xr2 = rng(xs), vr = rng(vs), ar = rng(as);
+    const p1 = BME.plot(ctx, R(0), { xmin: 0, xmax: T, ymin: xr2[0], ymax: xr2[1], ylabel: 'x [m]', series: [{ pts: mk(xs), color: ink }], vlines: [{ x: t }], noXTicks: true });
+    const p2 = BME.plot(ctx, R(1), { xmin: 0, xmax: T, ymin: vr[0], ymax: vr[1], ylabel: 'v [m/s]', series: [{ pts: mk(vs).filter((p) => p[0] <= t), color: vc, fill: true }, { pts: mk(vs), color: vc, width: 1.4 }], vlines: [{ x: t }], noXTicks: true });
+    const p3 = BME.plot(ctx, R(2), { xmin: 0, xmax: T, ymin: ar[0], ymax: ar[1], ylabel: 'a [m/s²]', xlabel: 't [s]', series: [{ pts: mk(as), color: ac }], vlines: [{ x: t }] });
+    // tangent on x(t)
+    const x0 = F.x(t), s = F.v(t), dt = 0.8;
+    ctx.save(); ctx.beginPath(); const r0 = R(0); ctx.rect(r0.x, r0.y, r0.w, r0.h); ctx.clip();
+    BME.line(ctx, p1.X(t - dt), p1.Y(x0 - s * dt), p1.X(t + dt), p1.Y(x0 + s * dt), vc, 2, [6, 4]);
+    ctx.restore();
+    BME.dot(ctx, p1.X(t), p1.Y(x0), 5, ink);
+    BME.dot(ctx, p2.X(t), p2.Y(F.v(t)), 5, vc);
+    BME.dot(ctx, p3.X(t), p3.Y(F.a(t)), 5, ac);
+    BME.text(ctx, 'slope = v', p1.X(t) + 10, p1.Y(x0) - 16, { color: vc, size: 12, align: 'left', bg: true });
+    BME.text(ctx, 'shaded area = Δx', R(1).x + R(1).w - 4, R(1).y + 10, { color: vc, size: 12, align: 'right', bg: true });
+    BME.readout('d1r', [
+      ['model', F.desc],
+      ['x(t)', BME.fmt(F.x(t), 3) + ' m'],
+      ['v(t)', BME.fmt(F.v(t), 3) + ' m/s'],
+      ['a(t)', BME.fmt(F.a(t), 3) + ' m/s²'],
+      ['Δx = x(t) − x(0)', BME.fmt(F.x(t) - F.x(0), 3) + ' m']
+    ]);
+  });
+  const an = BME.anim(o, (dt) => { st.t += dt * 0.8; if (st.t > T) st.t = 0; st.anim = true; v.set('t', +st.t.toFixed(2)); st.anim = false; });
+  BME.playButton(document.getElementById('d1c-play'), an);
+})();
+
+/* ---------- Demo 2: projectile ---------- */
+(function () {
+  const st = { t: 0 };
+  const v = BME.controls('d2c', [
+    { id: 'v0', label: 'Launch speed v₀', min: 2, max: 40, step: 0.5, value: 20, unit: 'm/s' },
+    { id: 'th', label: 'Launch angle θ', min: 0, max: 90, step: 1, value: 60, unit: '°' },
+    { id: 'h0', label: 'Launch height h₀', min: 0, max: 40, step: 1, value: 0, unit: 'm' },
+    { id: 'g', label: 'Gravity g', min: 1.6, max: 25, step: 0.01, value: 9.81, unit: 'm/s²' },
+    { type: 'check', id: 'ref', label: 'Show 45° reference', value: true },
+    { type: 'button', id: 'play', label: '▶ Play' },
+    { html: '<dl class="readout" id="d2r"></dl>' }
+  ], () => { st.t = 0; o.redraw(); });
+
+  const traj = (v0, th, h0, g) => {
+    const vx = v0 * Math.cos(th), vy = v0 * Math.sin(th);
+    const tf = (vy + Math.sqrt(vy * vy + 2 * g * h0)) / g;
+    return { vx, vy, tf, R: vx * tf, H: h0 + (vy > 0 ? vy * vy / (2 * g) : 0) };
+  };
+
+  const o = BME.canvas('d2', (ctx, w, h) => {
+    const th = v.th * BME.deg, g = v.g;
+    const P = traj(v.v0, th, v.h0, g);
+    const P45 = traj(v.v0, 45 * BME.deg, v.h0, g);
+    const xmax = Math.max(P.R, v.ref ? P45.R : 0, 5) * 1.08, ymax = Math.max(P.H, v.ref ? P45.H : 0, 3) * 1.15;
+    const sc = Math.min((w - 70) / xmax, (h - 60) / ymax);
+    const ox = 50, oy = h - 30;
+    const X = (x) => ox + x * sc, Y = (y) => oy - y * sc;
+    const muted = BME.c('--muted'), vc = BME.c('--velocity'), ac = BME.c('--accel');
+    BME.hatch(ctx, 10, oy, w - 10, oy, 1, muted);
+    if (v.h0 > 0) { ctx.fillStyle = BME.c('--surface-2'); ctx.fillRect(ox - 30, Y(v.h0), 30, v.h0 * sc); ctx.strokeStyle = muted; ctx.strokeRect(ox - 30, Y(v.h0), 30, v.h0 * sc); }
+    const path = (Q, th2, col, dash, wd) => {
+      ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = wd; if (dash) ctx.setLineDash(dash);
+      ctx.beginPath();
+      for (let i = 0; i <= 100; i++) { const t = Q.tf * i / 100; const x = Q.vx * t, y = v.h0 + Q.vy * t - 0.5 * g * t * t; if (i) ctx.lineTo(X(x), Y(y)); else ctx.moveTo(X(x), Y(y)); }
+      ctx.stroke(); ctx.restore();
+    };
+    if (v.ref) path(P45, 45, muted, [6, 5], 1.5);
+    path(P, th, BME.c('--ink'), null, 2);
+    // ticks on x axis
+    const tk = BME.ticks(0, xmax, 6);
+    ctx.fillStyle = muted; ctx.font = BME.font(11); ctx.textAlign = 'center';
+    tk.t.forEach((x) => ctx.fillText(BME.fmt(x, 0), X(x), oy + 16));
+    // particle
+    const t = Math.min(st.t, P.tf);
+    const x = P.vx * t, y = v.h0 + P.vy * t - 0.5 * g * t * t, vy = P.vy - g * t;
+    // ghost dots
+    for (let k = 0; k <= 10; k++) { const tt = P.tf * k / 10; BME.dot(ctx, X(P.vx * tt), Y(v.h0 + P.vy * tt - 0.5 * g * tt * tt), 2.5, muted); }
+    const kv = 3.2;
+    BME.arrow(ctx, X(x), Y(y), X(x) + P.vx * kv, Y(y) - vy * kv, vc, { label: 'v', width: 2.8 });
+    BME.arrow(ctx, X(x), Y(y), X(x) + P.vx * kv, Y(y), vc, { width: 1.5, head: 7, label: 'vₓ', off: 12 });
+    BME.arrow(ctx, X(x), Y(y), X(x), Y(y) - vy * kv, vc, { width: 1.5, head: 7, label: 'vᵧ', off: 12 });
+    BME.arrow(ctx, X(x) + 22, Y(y), X(x) + 22, Y(y) + g * 3, ac, { width: 2.2, label: 'g', off: 10 });
+    BME.dot(ctx, X(x), Y(y), 7, BME.c('--force'));
+    BME.readout('d2r', [
+      ['time of flight', BME.fmt(P.tf, 2) + ' s'],
+      ['range R', BME.fmt(P.R, 2) + ' m'],
+      ['max height H', BME.fmt(P.H, 2) + ' m'],
+      ['R at 45°', BME.fmt(P45.R, 2) + ' m'],
+      ['t', BME.fmt(t, 2) + ' s'],
+      ['vₓ (constant)', BME.fmt(P.vx, 2) + ' m/s'],
+      ['vᵧ = v₀ sinθ − g t', BME.fmt(vy, 2) + ' m/s']
+    ]);
+  });
+  const an = BME.anim(o, (dt) => {
+    const P = traj(v.v0, v.th * BME.deg, v.h0, v.g);
+    st.t += dt;
+    if (st.t > P.tf + 0.8) st.t = 0;
+  });
+  BME.playButton(document.getElementById('d2c-play'), an);
+  an.start();
+})();
+
+/* ---------- Demo 3: n-t components on an ellipse ---------- */
+(function () {
+  const st = { phi: 0.6 };
+  const v = BME.controls('d3c', [
+    { id: 'a', label: 'Semi-axis a', min: 1, max: 5, step: 0.1, value: 4, unit: 'm' },
+    { id: 'b', label: 'Semi-axis b', min: 1, max: 5, step: 0.1, value: 2.2, unit: 'm' },
+    { type: 'select', id: 'mode', label: 'Speed law', options: [['v', 'Constant speed v'], ['w', 'Constant parameter rate (speed varies)']], value: 'v' },
+    { id: 'sp', label: 'Speed v / rate', min: 0.5, max: 6, step: 0.1, value: 3, unit: '' },
+    { type: 'check', id: 'circ', label: 'Show osculating circle', value: true },
+    { type: 'button', id: 'play', label: '▶ Play' },
+    { html: '<dl class="readout" id="d3r"></dl>' }
+  ], () => o.redraw());
+
+  function kin(phi) {
+    const { a, b } = v;
+    const r = [a * Math.cos(phi), b * Math.sin(phi)];
+    const r1 = [-a * Math.sin(phi), b * Math.cos(phi)];
+    const r2 = [-a * Math.cos(phi), -b * Math.sin(phi)];
+    const n1 = Math.hypot(r1[0], r1[1]);
+    let pd, pdd;
+    if (v.mode === 'v') { pd = v.sp / n1; pdd = -v.sp * v.sp * (r1[0] * r2[0] + r1[1] * r2[1]) / Math.pow(n1, 4); }
+    else { pd = v.sp / Math.max(v.a, v.b) * 1.0; pdd = 0; }
+    const vel = [r1[0] * pd, r1[1] * pd];
+    const acc = [r2[0] * pd * pd + r1[0] * pdd, r2[1] * pd * pd + r1[1] * pdd];
+    const speed = Math.hypot(vel[0], vel[1]);
+    const et = [vel[0] / speed, vel[1] / speed];
+    const at = acc[0] * et[0] + acc[1] * et[1];
+    const an = [acc[0] - at * et[0], acc[1] - at * et[1]];
+    const anm = Math.hypot(an[0], an[1]);
+    const rho = speed * speed / anm;
+    const en = [an[0] / anm, an[1] / anm];
+    return { r, vel, acc, speed, et, en, at, anm, rho, pd };
+  }
+
+  const o = BME.canvas('d3', (ctx, w, h) => {
+    const K = kin(st.phi);
+    const sc = Math.min((w - 60) / (2 * 5.2), (h - 40) / (2 * 5.2));
+    const cx = w / 2, cy = h / 2;
+    const X = (x) => cx + x * sc, Y = (y) => cy - y * sc;
+    const muted = BME.c('--muted');
+    ctx.save(); ctx.strokeStyle = muted; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(cx, cy, v.a * sc, v.b * sc, 0, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+    BME.line(ctx, X(-5.2), cy, X(5.2), cy, BME.c('--grid'), 1);
+    BME.line(ctx, cx, Y(-5.2), cx, Y(5.2), BME.c('--grid'), 1);
+    const P = [X(K.r[0]), Y(K.r[1])];
+    if (v.circ && K.rho < 60) {
+      const C = [K.r[0] + K.en[0] * K.rho, K.r[1] + K.en[1] * K.rho];
+      ctx.save(); ctx.strokeStyle = BME.c('--moment'); ctx.globalAlpha = 0.6; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(X(C[0]), Y(C[1]), K.rho * sc, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+      BME.dot(ctx, X(C[0]), Y(C[1]), 3, BME.c('--moment'));
+      BME.line(ctx, P[0], P[1], X(C[0]), Y(C[1]), BME.c('--moment'), 1, [2, 3]);
+      BME.text(ctx, 'ρ', (P[0] + X(C[0])) / 2 + 8, (P[1] + Y(C[1])) / 2, { color: BME.c('--moment'), italic: true, weight: 700, bg: true });
+    }
+    const kv = sc * 0.6, ka = sc * 0.55;
+    BME.arrow(ctx, P[0], P[1], P[0] + K.vel[0] * kv, P[1] - K.vel[1] * kv, BME.c('--velocity'), { label: 'v' });
+    BME.arrow(ctx, P[0], P[1], P[0] + K.acc[0] * ka, P[1] - K.acc[1] * ka, BME.c('--accel'), { label: 'a', width: 3 });
+    if (Math.abs(K.at) > 0.02) BME.arrow(ctx, P[0], P[1], P[0] + K.et[0] * K.at * ka, P[1] - K.et[1] * K.at * ka, BME.c('--force'), { label: 'aₜ', width: 1.8, head: 8 });
+    BME.arrow(ctx, P[0], P[1], P[0] + K.en[0] * K.anm * ka, P[1] - K.en[1] * K.anm * ka, BME.c('--moment'), { label: 'aₙ', width: 1.8, head: 8 });
+    BME.dot(ctx, P[0], P[1], 7, BME.c('--ink'));
+    BME.readout('d3r', [
+      ['speed v', BME.fmt(K.speed, 2) + ' m/s'],
+      ['a<sub>t</sub> = dv/dt', BME.fmt(K.at, 3) + ' m/s²'],
+      ['a<sub>n</sub> = v²/ρ', BME.fmt(K.anm, 3) + ' m/s²'],
+      ['ρ', BME.fmt(K.rho, 3) + ' m'],
+      ['|a|', BME.fmt(Math.hypot(K.acc[0], K.acc[1]), 3) + ' m/s²']
+    ]);
+  });
+  const an = BME.anim(o, (dt) => { st.phi += kin(st.phi).pd * dt; });
+  BME.playButton(document.getElementById('d3c-play'), an);
+  an.start();
+})();
+</script>
+</body>
+</html>

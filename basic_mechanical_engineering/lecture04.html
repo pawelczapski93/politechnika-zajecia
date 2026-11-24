@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rigid Body Plane Motion</title>
+<link rel="stylesheet" href="assets/lecture.css">
+</head>
+<body data-lecture="4">
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lecture 4 · Kinematics</div>
+  <h1>Plane motion of a rigid body</h1>
+  <p class="lead">A rigid body’s points do not all move the same way. The tip of a crank, the rim of a wheel and the piston pin all follow different paths. Yet one angular velocity ω and one reference point describe them all. Today we learn to read velocities straight off a mechanism with the <em>instantaneous centre of rotation</em>.</p>
+  <div class="goals">
+    <h3>After this lecture you can…</h3>
+    <ul>
+      <li>classify motion as translation, rotation about a fixed axis or general plane motion;</li>
+      <li>compute velocity and acceleration of points on a rotating body (v = ωr, a<sub>t</sub> = εr, a<sub>n</sub> = ω²r);</li>
+      <li>use v<sub>B</sub> = v<sub>A</sub> + ω × r<sub>B/A</sub> for general plane motion;</li>
+      <li>locate the instantaneous centre of rotation (ICR) and use it to find velocities in a mechanism.</li>
+    </ul>
+    <p style="margin:0;color:var(--muted);font-size:.88rem">Syllabus outcomes: 1MEC1.1, 1MEC3.2 · Reading: Beer &amp; Johnston – Dynamics, ch. 15; Meriam &amp; Kraige vol. 2, ch. 5.</p>
+  </div>
+  <aside class="notes">90 min plan: types of motion 10 · rotation 20 · relative velocity 15 · ICR + rolling 20 · crank–slider 20 · quiz 5. Bring a coin or bicycle wheel to show rolling physically.</aside>
+</header>
+
+<section class="slide" id="types">
+  <h2>Three types of plane motion</h2>
+  <div class="two">
+    <div class="prose">
+      <ul>
+        <li><b>Translation</b>: every line in the body keeps its direction. All points have the <em>same</em> velocity and acceleration. Paths may be straight or curved (curvilinear translation).</li>
+        <li><b>Rotation about a fixed axis</b>: points move on circles about the axis.</li>
+        <li><b>General plane motion</b>: any other planar motion. It is always a combination of translation + rotation.</li>
+      </ul>
+    </div>
+    <div class="key"><strong>Angular velocity is a property of the whole body.</strong> Every line drawn on a rigid body rotates by the same angle in the same time, so ω and ε are the same for every point. Only v and a differ from point to point.</div>
+  </div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>What paths do points of the body trace?</h3><span class="hint">Compare paths of A, B and midpoint M</span></div>
+    <div class="demo-body">
+      <canvas id="d1" data-aspect="0.55" aria-label="Types of rigid body motion"></canvas>
+      <div class="ctrl" id="d1c"></div>
+    </div>
+  </div>
+  <aside class="notes">Curvilinear translation surprises students: the Ferris-wheel gondola or the parallel-link plate moves on a circle but does not rotate (ω = 0). The ladder (general motion) midpoint traces a circle, which makes a nice exam question.</aside>
+</section>
+
+<section class="slide" id="rotation">
+  <h2>Rotation about a fixed axis</h2>
+  <div class="eq"><span class="m">ω</span> = d<span class="m">φ</span>/d<span class="m">t</span>, &nbsp; <span class="m">ε</span> = d<span class="m">ω</span>/d<span class="m">t</span> &nbsp;&nbsp;|&nbsp;&nbsp; <span class="m">v</span> = <span class="m">ω r</span>, &nbsp; <span class="m">a<sub>t</sub></span> = <span class="m">ε r</span>, &nbsp; <span class="m">a<sub>n</sub></span> = <span class="m">ω² r</span>, &nbsp; <span class="m">a</span> = <span class="m">r</span>√(<span class="m">ε</span>² + <span class="m">ω</span>⁴)
+    <span class="lbl">v is perpendicular to the radius and grows linearly with r · a<sub>n</sub> points to the axis · n [rpm] → ω = πn/30 rad/s</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Rotating disc: velocity and acceleration distribution</h3><span class="hint">Velocity arrows form a triangle along the radius</span></div>
+    <div class="demo-body">
+      <canvas id="d2" data-aspect="0.6" aria-label="Rotating disc"></canvas>
+      <div class="ctrl" id="d2c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--velocity)">velocity v</span><span style="--c:var(--force)">a<sub>t</sub></span><span style="--c:var(--moment)">a<sub>n</sub></span><span style="--c:var(--accel)">total a</span></div>
+  </div>
+  <p class="prose"><b>Gears and belts.</b> Meshing gears (or a non-slipping belt) share the same contact-point speed: <span class="m">ω₁ r₁ = ω₂ r₂</span>, hence the transmission ratio <span class="m">i = ω₁/ω₂ = r₂/r₁</span>.</p>
+</section>
+
+<section class="slide" id="relative">
+  <h2>General plane motion: relative velocity</h2>
+  <div class="prose"><p>Pick any point A of the body as a reference. Relative to A the body only <em>rotates</em>, so:</p></div>
+  <div class="eq"><span class="m vec">v</span><sub>B</sub> = <span class="m vec">v</span><sub>A</sub> + <span class="m vec">ω</span> × <span class="m vec">r</span><sub>B/A</sub>, &nbsp;&nbsp; |<span class="m vec">ω</span> × <span class="m vec">r</span><sub>B/A</sub>| = <span class="m">ω</span> · AB, &nbsp; direction ⊥ AB
+    <span class="lbl">accelerations: a<sub>B</sub> = a<sub>A</sub> + ε × r<sub>B/A</sub> − ω² r<sub>B/A</sub></span></div>
+  <div class="key"><strong>Useful corollary:</strong> the velocity components of A and B <em>along the line AB</em> are equal, because a rigid body cannot stretch. This is often the quickest check of a velocity diagram.</div>
+</section>
+
+<section class="slide" id="icr">
+  <h2>Instantaneous centre of rotation (ICR)</h2>
+  <div class="prose">
+    <p>At any instant there is a point I (possibly outside the body) with zero velocity. At that instant the body moves <b>as if it were rotating about I</b>:</p>
+  </div>
+  <div class="eq"><span class="m">v<sub>P</sub></span> = <span class="m">ω</span> · |IP|, &nbsp; <span class="m vec">v</span><sub>P</sub> ⊥ IP
+    <span class="lbl">How to find I: draw perpendiculars to the velocities of two points and intersect them. Parallel perpendiculars mean I is at infinity, so the body is in instantaneous translation.</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Rolling wheel: the contact point is at rest</h3><span class="hint">Untick “pure rolling” to make it skid or spin</span></div>
+    <div class="demo-body">
+      <canvas id="d3" data-aspect="0.5" aria-label="Rolling wheel and ICR"></canvas>
+      <div class="ctrl" id="d3c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--velocity)">velocities of rim points</span><span style="--c:var(--moment)">ICR</span><span style="--c:var(--accel)">cycloid traced by a rim point</span></div>
+  </div>
+  <div class="warn">The ICR has zero <b>velocity</b>, but in general <b>not</b> zero acceleration. The contact point of a rolling wheel accelerates upward with ω²R. Never use the ICR for accelerations.</div>
+</section>
+
+<section class="slide" id="crank">
+  <h2>Application: crank–slider mechanism</h2>
+  <div class="prose"><p>This is the heart of every piston engine and compressor. The crank OA rotates about O. The connecting rod AB is in general plane motion, and the piston B translates. The rod’s ICR is where the line OA (⊥ v<sub>A</sub>) meets the vertical through B (⊥ v<sub>B</sub>).</p></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Crank–slider: velocities from the ICR</h3><span class="hint">The graph shows piston speed over one revolution</span></div>
+    <div class="demo-body">
+      <canvas id="d4" data-aspect="0.75" aria-label="Crank slider mechanism"></canvas>
+      <div class="ctrl" id="d4c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--velocity)">v<sub>A</sub>, v<sub>B</sub></span><span style="--c:var(--moment)">ICR of the connecting rod</span><span style="--c:var(--accent)">v<sub>B</sub>(θ)</span></div>
+  </div>
+  <div class="eq"><span class="m">x<sub>B</sub></span> = <span class="m">r</span> cos θ + √(<span class="m">l</span>² − <span class="m">r</span>² sin²θ), &nbsp;&nbsp; <span class="m">v<sub>B</sub></span> = −<span class="m">rω</span> sin θ [1 + <span class="m">r</span> cos θ / √(<span class="m">l</span>² − <span class="m">r</span>² sin²θ)]</div>
+  <aside class="notes">Point out the dead centres (θ = 0°, 180°): v<sub>B</sub> = 0, and the ICR of the rod coincides with B. At θ ≈ 90° the rod is close to instantaneous translation. Lab link: Test 3 (vibrations) uses the same kinematics for its excitation mechanism.</aside>
+</section>
+
+<section class="slide" id="check">
+  <h2>Quick check</h2>
+  <div class="quiz">
+    <p class="q">1. A car moves at 72 km/h on wheels of radius 0.3 m (no slip). The top of the tyre moves at…</p>
+    <div class="opts">
+      <button class="opt">20 m/s</button>
+      <button class="opt" data-ok>40 m/s</button>
+      <button class="opt">0 m/s</button>
+    </div>
+    <p class="why">The ICR is at the contact point. The top is at distance 2R, so v = ω·2R = 2v<sub>C</sub> = 40 m/s.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">2. A gondola on a Ferris wheel stays upright. Its motion is…</p>
+    <div class="opts">
+      <button class="opt">rotation about the wheel axis</button>
+      <button class="opt" data-ok>curvilinear translation</button>
+      <button class="opt">general plane motion</button>
+    </div>
+    <p class="why">Lines on the gondola keep their direction (ω = 0), even though its points move on circles.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">3. The ICR of a body is at infinity. Then…</p>
+    <div class="opts">
+      <button class="opt" data-ok>all points have the same velocity at that instant</button>
+      <button class="opt">the body is at rest</button>
+      <button class="opt">the body rotates infinitely fast</button>
+    </div>
+    <p class="why">ω = 0 at that instant (instantaneous translation). Accelerations can still differ.</p>
+  </div>
+</section>
+
+<section class="slide" id="summary">
+  <h2>Summary</h2>
+  <ul class="prose">
+    <li>Translation: all points move identically. Rotation: v = ωr, a<sub>t</sub> = εr, a<sub>n</sub> = ω²r.</li>
+    <li>General plane motion = translation of a reference point + rotation: v<sub>B</sub> = v<sub>A</sub> + ω × r<sub>B/A</sub>.</li>
+    <li>ICR: intersect the perpendiculars to two velocities; then v = ω·(distance from I).</li>
+    <li>Rolling without slipping: the contact point is the ICR, v<sub>C</sub> = ωR.</li>
+  </ul>
+  <p class="prose"><b>Next lecture:</b> why bodies move. Newton’s laws, momentum and impulse.</p>
+</section>
+
+</main>
+</div>
+
+<script src="assets/lecture.js"></script>
+<script>
+/* ---------- Demo 1: types of motion ---------- */
+(function () {
+  const st = { t: 0, trail: [] };
+  const v = BME.controls('d1c', [
+    { type: 'select', id: 'mode', label: 'Motion', options: [['tr', 'Curvilinear translation (parallel links)'], ['rot', 'Rotation about a fixed pin'], ['gen', 'General plane motion (sliding ladder)']], value: 'tr' },
+    { type: 'check', id: 'paths', label: 'Trace paths', value: true },
+    { type: 'button', id: 'play', label: '▶ Play' },
+    { html: '<p style="font-size:.85rem;color:var(--muted);margin:0" id="d1t"></p>' }
+  ], () => { st.trail = []; o.redraw(); });
+
+  function pose(t, w, h) {
+    // returns points A, B and polygon for the body
+    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.27;
+    if (v.mode === 'tr') {
+      const ph = 0.9 * Math.sin(t) + Math.PI / 2;
+      const O1 = [cx - R * 1.4, cy + R * 0.9], O2 = [cx + R * 0.4, cy + R * 0.9];
+      const A = [O1[0] + R * Math.cos(ph), O1[1] - R * Math.sin(ph)];
+      const B = [O2[0] + R * Math.cos(ph), O2[1] - R * Math.sin(ph)];
+      return { A, B, piv: [O1, O2], links: [[O1, A], [O2, B]], omega: 0 };
+    }
+    if (v.mode === 'rot') {
+      const ph = t * 0.8;
+      const O = [cx, cy];
+      const L = R * 1.6;
+      const A = [O[0] + L * 0.25 * Math.cos(ph), O[1] - L * 0.25 * Math.sin(ph)];
+      const B = [O[0] + L * Math.cos(ph), O[1] - L * Math.sin(ph)];
+      return { A, B, piv: [O], links: [[O, A]], omega: 1 };
+    }
+    const L = Math.min(w, h) * 0.62;
+    const ph = 0.25 + 1.05 * (0.5 + 0.5 * Math.sin(t * 0.8));
+    const wx = cx - L * 0.45, fy = cy + L * 0.42;
+    const A = [wx + L * Math.cos(ph), fy];
+    const B = [wx, fy - L * Math.sin(ph)];
+    return { A, B, piv: [], links: [], wall: [wx, fy], omega: 1 };
+  }
+
+  const o = BME.canvas('d1', (ctx, w, h) => {
+    const P = pose(st.t, w, h);
+    const M = [(P.A[0] + P.B[0]) / 2, (P.A[1] + P.B[1]) / 2];
+    const muted = BME.c('--muted');
+    if (P.wall) {
+      BME.hatch(ctx, P.wall[0], P.wall[1], w - 20, P.wall[1], 1, muted);
+      BME.hatch(ctx, P.wall[0], 20, P.wall[0], P.wall[1], 1, muted);
+    }
+    // paths
+    if (v.paths) {
+      [['A', BME.c('--force')], ['B', BME.c('--velocity')], ['M', BME.c('--accel')]].forEach(([k, c]) => {
+        ctx.save(); ctx.strokeStyle = c; ctx.globalAlpha = 0.7; ctx.lineWidth = 1.6; ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        for (let i = 0; i <= 160; i++) {
+          const q = pose(i / 160 * 2 * Math.PI / (v.mode === 'tr' ? 1 : 0.8), w, h);
+          const pt = k === 'A' ? q.A : k === 'B' ? q.B : [(q.A[0] + q.B[0]) / 2, (q.A[1] + q.B[1]) / 2];
+          if (i) ctx.lineTo(pt[0], pt[1]); else ctx.moveTo(pt[0], pt[1]);
+        }
+        ctx.stroke(); ctx.restore();
+      });
+    }
+    // links
+    P.links.forEach(([a, b]) => BME.line(ctx, a[0], a[1], b[0], b[1], BME.c('--body-edge'), 3));
+    P.piv.forEach((p) => BME.pin(ctx, p[0], p[1], 9));
+    // body (thick bar A-B)
+    ctx.save(); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 16; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(P.A[0], P.A[1]); ctx.lineTo(P.B[0], P.B[1]); ctx.stroke();
+    ctx.strokeStyle = BME.c('--body'); ctx.lineWidth = 12; ctx.stroke(); ctx.restore();
+    BME.dot(ctx, P.A[0], P.A[1], 6, BME.c('--force'));
+    BME.dot(ctx, P.B[0], P.B[1], 6, BME.c('--velocity'));
+    BME.dot(ctx, M[0], M[1], 6, BME.c('--accel'));
+    BME.text(ctx, 'A', P.A[0] + 14, P.A[1] - 14, { weight: 700, color: BME.c('--force') });
+    BME.text(ctx, 'B', P.B[0] + 14, P.B[1] - 14, { weight: 700, color: BME.c('--velocity') });
+    BME.text(ctx, 'M', M[0] + 14, M[1] - 14, { weight: 700, color: BME.c('--accel') });
+    const txt = {
+      tr: 'All points move on congruent circles; the bar stays horizontal → ω = 0. Same v and a for every point.',
+      rot: 'All points move on concentric circles about the pin. v = ωr grows with distance.',
+      gen: 'A slides on the floor, B on the wall, M moves on a circle (radius L/2, centre at the corner). Translation + rotation.'
+    }[v.mode];
+    document.getElementById('d1t').textContent = txt;
+  });
+  const an = BME.anim(o, (dt) => { st.t += dt; });
+  BME.playButton(document.getElementById('d1c-play'), an);
+  an.start();
+})();
+
+/* ---------- Demo 2: rotating disc ---------- */
+(function () {
+  const st = { phi: 0 };
+  const v = BME.controls('d2c', [
+    { id: 'n', label: 'Speed n', min: -120, max: 120, step: 1, value: 40, unit: 'rpm' },
+    { id: 'eps', label: 'Angular acceleration ε', min: -20, max: 20, step: 0.5, value: 6, unit: 'rad/s²' },
+    { id: 'R', label: 'Disc radius R', min: 0.1, max: 1, step: 0.05, value: 0.5, unit: 'm' },
+    { id: 'rp', label: 'Point P at r / R', min: 0, max: 1, step: 0.05, value: 1 },
+    { html: '<dl class="readout" id="d2r"></dl>' }
+  ], () => o.redraw());
+
+  const o = BME.canvas('d2', (ctx, w, h) => {
+    const om = v.n * Math.PI / 30, eps = v.eps, R = v.R;
+    const cx = w * 0.42, cy = h / 2, Rp = Math.min(w, h) * 0.36;
+    const ink = BME.c('--ink'), vc = BME.c('--velocity');
+    ctx.save(); ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, Rp, 0, 2 * Math.PI); ctx.fill(); ctx.stroke(); ctx.restore();
+    // spokes to show rotation
+    for (let k = 0; k < 6; k++) { const a = st.phi + k * Math.PI / 3; BME.line(ctx, cx, cy, cx + Rp * Math.cos(a), cy - Rp * Math.sin(a), BME.c('--body-edge'), 1, [2, 4]); }
+    BME.pin(ctx, cx, cy, 9);
+    const dir = st.phi; // radius line for points
+    const ux = Math.cos(dir), uy = -Math.sin(dir); // screen
+    const tx = -Math.sin(dir), ty = -Math.cos(dir); // tangent for ccw rotation (screen)
+    const kv = 1.1 / (120 * Math.PI / 30);
+    // velocity distribution along radius
+    ctx.save(); ctx.fillStyle = vc; ctx.globalAlpha = 0.12; ctx.beginPath();
+    ctx.moveTo(cx, cy); ctx.lineTo(cx + ux * Rp, cy + uy * Rp); ctx.lineTo(cx + ux * Rp + tx * om * Rp * kv, cy + uy * Rp + ty * om * Rp * kv); ctx.closePath(); ctx.fill(); ctx.restore();
+    for (let k = 1; k <= 4; k++) {
+      const r = Rp * k / 4, px = cx + ux * r, py = cy + uy * r;
+      if (Math.abs(om) > 1e-6) BME.arrow(ctx, px, py, px + tx * om * r * kv, py + ty * om * r * kv, vc, { width: 1.6, head: 7 });
+    }
+    // selected point P
+    const r = Rp * v.rp, px = cx + ux * r, py = cy + uy * r;
+    const rr = R * v.rp;
+    const at = eps * rr, an = om * om * rr;
+    const ka = Rp * 0.45 / Math.max(5, Math.abs(at), an, 1e-6) ;
+    if (rr > 0) {
+      BME.arrow(ctx, px, py, px + tx * at * ka, py + ty * at * ka, BME.c('--force'), { label: 'aₜ', width: 2 });
+      BME.arrow(ctx, px, py, px - ux * an * ka, py - uy * an * ka, BME.c('--moment'), { label: 'aₙ', width: 2 });
+      BME.arrow(ctx, px, py, px + (tx * at - ux * an) * ka, py + (ty * at - uy * an) * ka, BME.c('--accel'), { label: 'a', width: 3 });
+    }
+    BME.dot(ctx, px, py, 6, ink);
+    BME.text(ctx, 'P', px + 12, py + 14, { weight: 700 });
+    if (Math.abs(om) > 1e-6) BME.momentArc(ctx, cx, cy, 26, om > 0, BME.c('--moment'), 'ω', { a0: -0.6 * Math.PI, a1: 0.1 * Math.PI });
+    BME.readout('d2r', [
+      ['ω = πn/30', BME.fmt(om, 3) + ' rad/s'],
+      ['r of P', BME.fmt(rr, 3) + ' m'],
+      ['v = ωr', BME.fmt(Math.abs(om) * rr, 3) + ' m/s'],
+      ['a<sub>t</sub> = εr', BME.fmt(at, 3) + ' m/s²'],
+      ['a<sub>n</sub> = ω²r', BME.fmt(an, 3) + ' m/s²'],
+      ['a = r√(ε²+ω⁴)', BME.fmt(Math.hypot(at, an), 3) + ' m/s²']
+    ]);
+  });
+  const anm = BME.anim(o, (dt) => { st.phi += (v.n * Math.PI / 30) * dt * 0.25; });
+  anm.start();
+})();
+
+/* ---------- Demo 3: rolling wheel ---------- */
+(function () {
+  const st = { x: 2.2, ang: 0, trail: [] };
+  const v = BME.controls('d3c', [
+    { id: 'om', label: 'ω (clockwise +)', min: -3, max: 3, step: 0.1, value: 1.2, unit: 'rad/s' },
+    { type: 'check', id: 'pure', label: 'Pure rolling (v_C = ωR)', value: true },
+    { id: 'vc', label: 'Centre speed v_C (if not pure)', min: -3, max: 3, step: 0.1, value: 0.6, unit: 'm/s' },
+    { type: 'check', id: 'dec', label: 'Show v = v_C + ω × r split', value: false },
+    { type: 'button', id: 'play', label: '▶ Play' },
+    { html: '<dl class="readout" id="d3r"></dl>' }
+  ], () => { st.trail = []; o.redraw(); });
+  const Rm = 1; // radius in metres
+  const vC = () => (v.pure ? v.om * Rm : v.vc);
+
+  const o = BME.canvas('d3', (ctx, w, h) => {
+    const sc = Math.min(h * 0.28, w * 0.14);
+    const gy = h - 40, cy = gy - Rm * sc;
+    const span = w / sc;
+    let xc = ((st.x % span) + span) % span;
+    const cx = xc * sc;
+    const om = v.om, vc = vC();
+    const muted = BME.c('--muted'), vcol = BME.c('--velocity');
+    BME.hatch(ctx, 0, gy, w, gy, 1, muted);
+    // trail
+    ctx.save(); ctx.strokeStyle = BME.c('--accel'); ctx.lineWidth = 1.8; ctx.beginPath();
+    st.trail.forEach((p, i) => { const X = p[0] * sc, Y = p[1]; if (i && Math.abs(p[0] - st.trail[i - 1][0]) < 1) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+    ctx.stroke(); ctx.restore();
+    // wheel
+    ctx.save(); ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2.5; ctx.globalAlpha = 0.85;
+    ctx.beginPath(); ctx.arc(cx, cy, Rm * sc, 0, 2 * Math.PI); ctx.fill(); ctx.stroke(); ctx.restore();
+    for (let k = 0; k < 4; k++) { const a = -st.ang + k * Math.PI / 2; BME.line(ctx, cx, cy, cx + Rm * sc * Math.cos(a), cy + Rm * sc * Math.sin(a), BME.c('--body-edge'), 1.5); }
+    // rim point (tracked)
+    const ta = -st.ang + Math.PI / 2;
+    BME.dot(ctx, cx + Rm * sc * Math.cos(ta), cy + Rm * sc * Math.sin(ta), 5, BME.c('--accel'));
+    const kv = sc * 0.45;
+    // velocities of rim points: v = (vc + om*ry, -om*rx) in math coords (y up), ω clockwise positive
+    for (let k = 0; k < 8; k++) {
+      const a = k * Math.PI / 4;
+      const rx = Math.cos(a) * Rm, ry = Math.sin(a) * Rm;
+      const vx = vc + om * ry, vy = -om * rx;
+      const px = cx + rx * sc, py = cy - ry * sc;
+      if (v.dec) {
+        BME.arrow(ctx, px, py, px + vc * kv, py, muted, { width: 1.2, head: 6, dash: [3, 3] });
+        BME.arrow(ctx, px + vc * kv, py, px + vc * kv + om * ry * kv, py + om * rx * kv, BME.c('--moment'), { width: 1.2, head: 6, dash: [3, 3] });
+      }
+      if (Math.hypot(vx, vy) > 0.02) BME.arrow(ctx, px, py, px + vx * kv, py - vy * kv, vcol, { width: 2.2, head: 8 });
+      else BME.dot(ctx, px, py, 4, vcol);
+    }
+    BME.arrow(ctx, cx, cy, cx + vc * kv, cy, vcol, { width: 3, label: 'v_C'.replace('_C', 'ᴄ') });
+    // ICR
+    if (Math.abs(om) > 1e-3) {
+      const iy = -vc / om; // relative to centre, math coords
+      const IX = cx, IY = cy - iy * sc;
+      if (Math.abs(iy) < 6) {
+        BME.dot(ctx, IX, IY, 7, BME.c('--moment'));
+        BME.text(ctx, 'I (ICR)', IX + 12, IY - 12, { color: BME.c('--moment'), weight: 700, align: 'left', bg: true });
+        BME.line(ctx, IX, IY, cx, cy - Rm * sc, BME.c('--moment'), 1, [3, 4]);
+      }
+    }
+    const slipV = vc - om * Rm;
+    BME.readout('d3r', [
+      ['v<sub>C</sub>', BME.fmt(vc, 2) + ' m/s'],
+      ['ICR below centre', Math.abs(om) > 1e-3 ? BME.fmt(vc / om, 2) + ' m' : '∞'],
+      ['v top = v<sub>C</sub> + ωR', BME.fmt(vc + om * Rm, 2) + ' m/s'],
+      ['v contact = v<sub>C</sub> − ωR', BME.fmt(slipV, 2) + ' m/s', Math.abs(slipV) < 1e-6 ? 'ok' : 'no'],
+      ['state', Math.abs(slipV) < 1e-6 ? 'rolling' : slipV > 0 ? 'skidding' : 'spinning']
+    ]);
+  });
+  const an = BME.anim(o, (dt) => {
+    st.x += vC() * dt * 0.8; st.ang += v.om * dt * 0.8;
+    const sc = Math.min(o.h * 0.28, o.w * 0.14), span = o.w / sc;
+    const xc = ((st.x % span) + span) % span;
+    const ta = -st.ang + Math.PI / 2, cy = o.h - 40 - Rm * sc;
+    st.trail.push([xc + Rm * Math.cos(ta), cy + Rm * sc * Math.sin(ta)]);
+    if (st.trail.length > 600) st.trail.shift();
+  });
+  BME.playButton(document.getElementById('d3c-play'), an);
+  an.start();
+})();
+
+/* ---------- Demo 4: crank-slider ---------- */
+(function () {
+  const st = { th: 0.9 };
+  const v = BME.controls('d4c', [
+    { id: 'r', label: 'Crank length r', min: 0.05, max: 0.2, step: 0.005, value: 0.1, unit: 'm' },
+    { id: 'l', label: 'Rod length l', min: 0.2, max: 0.6, step: 0.01, value: 0.3, unit: 'm' },
+    { id: 'n', label: 'Crank speed n', min: 100, max: 3000, step: 50, value: 1500, unit: 'rpm' },
+    { id: 'th', label: 'Crank angle θ', min: 0, max: 360, step: 1, value: 50, unit: '°' },
+    { type: 'button', id: 'play', label: '▶ Play' },
+    { html: '<dl class="readout" id="d4r"></dl>' }
+  ], (vals, k) => { if (k === 'th' && !st.anim) st.th = vals.th * BME.deg; o.redraw(); });
+
+  const kin = (th) => {
+    const r = v.r, l = v.l, om = v.n * Math.PI / 30;
+    const s = Math.sqrt(l * l - r * r * Math.sin(th) ** 2);
+    const xB = r * Math.cos(th) + s;
+    const vB = -r * om * Math.sin(th) * (1 + r * Math.cos(th) / s);
+    return { xB, vB, om, A: [r * Math.cos(th), r * Math.sin(th)] };
+  };
+
+  const o = BME.canvas('d4', (ctx, w, h) => {
+    const th = st.th, K = kin(th), r = v.r, l = v.l;
+    const top = h * 0.56;
+    const sc = Math.min((w - 80) / (r + l + r * 0.4 + 0.05), top * 0.42 / r);
+    const ox = 40 + r * sc, oy = top * 0.55;
+    const X = (x) => ox + x * sc, Y = (y) => oy - y * sc;
+    const muted = BME.c('--muted'), vc = BME.c('--velocity'), mc = BME.c('--moment');
+    // guide
+    BME.hatch(ctx, X(l - r) - 30, Y(0) + 18, X(l + r) + 40, Y(0) + 18, 1, muted);
+    BME.hatch(ctx, X(l - r) - 30, Y(0) - 18, X(l + r) + 40, Y(0) - 18, -1, muted);
+    // ICR of the rod
+    const A = K.A, B = [K.xB, 0];
+    let I = null;
+    if (Math.abs(Math.cos(th)) > 1e-3) I = [K.xB, K.xB * Math.tan(th)];
+    if (I && (Y(I[1]) < 0 || Y(I[1]) > top)) BME.text(ctx, 'ICR of AB is off-screen ' + (Y(I[1]) < 0 ? '↑' : '↓') + ' (rod almost translating near θ = 90°)', w / 2, 14, { color: mc, size: 12, bg: true });
+    if (I && Math.abs(I[1]) * sc < h) {
+      BME.line(ctx, X(0), Y(0), X(I[0]), Y(I[1]), mc, 1, [5, 4]);
+      BME.line(ctx, X(B[0]), Y(B[1]), X(I[0]), Y(I[1]), mc, 1, [5, 4]);
+      BME.dot(ctx, X(I[0]), Y(I[1]), 6, mc);
+      BME.text(ctx, 'I (ICR of AB)', X(I[0]) + 10, Y(I[1]), { color: mc, weight: 700, align: 'left', bg: true, size: 12 });
+    }
+    // crank & rod
+    ctx.save(); ctx.lineCap = 'round';
+    ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 9;
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(A[0]), Y(A[1])); ctx.stroke();
+    ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(X(A[0]), Y(A[1])); ctx.lineTo(X(B[0]), Y(B[1])); ctx.stroke();
+    ctx.restore();
+    // piston
+    ctx.save(); ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.fillRect(X(B[0]) - 22, Y(0) - 16, 44, 32); ctx.strokeRect(X(B[0]) - 22, Y(0) - 16, 44, 32); ctx.restore();
+    BME.pin(ctx, X(0), Y(0), 10);
+    BME.dot(ctx, X(A[0]), Y(A[1]), 5, BME.c('--ink'));
+    BME.dot(ctx, X(B[0]), Y(B[1]), 5, BME.c('--ink'));
+    BME.text(ctx, 'O', X(0) - 16, Y(0) - 10, { weight: 700 });
+    BME.text(ctx, 'A', X(A[0]) - 12, Y(A[1]) - 14, { weight: 700 });
+    BME.text(ctx, 'B', X(B[0]), Y(0) - 28, { weight: 700 });
+    // velocities
+    const vA = r * K.om, kv = sc * r * 1.1 / Math.max(vA, 1e-9);
+    BME.arrow(ctx, X(A[0]), Y(A[1]), X(A[0]) - Math.sin(th) * vA * kv, Y(A[1]) - Math.cos(th) * vA * kv, vc, { label: 'vᴀ', width: 2.6 });
+    if (Math.abs(K.vB) > 1e-3) BME.arrow(ctx, X(B[0]), Y(0), X(B[0]) + K.vB * kv, Y(0), vc, { label: 'vʙ', width: 2.6, dy: 16 });
+    // graph of vB over a revolution
+    const R = { x: 60, y: top + 26, w: w - 80, h: h - top - 56 };
+    const pts = [];
+    let vmax = 0;
+    for (let d = 0; d <= 360; d += 2) { const q = kin(d * BME.deg); pts.push([d, q.vB]); vmax = Math.max(vmax, Math.abs(q.vB)); }
+    const pl = BME.plot(ctx, R, { xmin: 0, xmax: 360, ymin: -vmax * 1.1, ymax: vmax * 1.1, xlabel: 'θ [°]', ylabel: 'v_B [m/s]', series: [{ pts, color: BME.c('--accent') }, { pts: pts.map((p) => [p[0], -r * K.om * Math.sin(p[0] * BME.deg)]), color: muted, width: 1.2, dash: [4, 4] }] });
+    const thd = ((th / BME.deg) % 360 + 360) % 360;
+    BME.dot(ctx, pl.X(thd), pl.Y(K.vB), 6, BME.c('--force'));
+    BME.text(ctx, 'dashed: −rω sinθ (infinitely long rod)', R.x + R.w - 4, R.y + 8, { size: 11, color: muted, align: 'right', bg: true });
+    const omAB = I ? vA / Math.hypot(I[0] - A[0], I[1] - A[1]) : 0;
+    BME.readout('d4r', [
+      ['ω (crank)', BME.fmt(K.om, 1) + ' rad/s'],
+      ['v<sub>A</sub> = rω', BME.fmt(vA, 2) + ' m/s'],
+      ['ω<sub>AB</sub> = v<sub>A</sub>/IA', BME.fmt(omAB, 2) + ' rad/s'],
+      ['v<sub>B</sub> = ω<sub>AB</sub>·IB', BME.fmt(K.vB, 2) + ' m/s'],
+      ['max |v<sub>B</sub>|', BME.fmt(vmax, 2) + ' m/s'],
+      ['mean piston speed', BME.fmt(4 * r * v.n / 60, 2) + ' m/s']
+    ]);
+  });
+  const an = BME.anim(o, (dt) => { st.th = (st.th + dt * 1.2) % (2 * Math.PI); st.anim = true; v.set('th', Math.round(st.th / BME.deg)); st.anim = false; });
+  BME.playButton(document.getElementById('d4c-play'), an);
+})();
+</script>
+</body>
+</html>

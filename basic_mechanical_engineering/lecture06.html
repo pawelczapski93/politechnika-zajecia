@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rigid Body Kinetics</title>
+<link rel="stylesheet" href="assets/lecture.css">
+</head>
+<body data-lecture="6">
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lecture 6 · Dynamics</div>
+  <h1>Systems of particles and rigid-body kinetics</h1>
+  <p class="lead">A rigid body is a system of particles whose distances are fixed. Two ideas carry us from the single particle to real machine parts. The <b>centre of mass</b> moves as if all mass and force were concentrated there, and the <b>mass moment of inertia</b> measures resistance to angular acceleration.</p>
+  <div class="goals">
+    <h3>After this lecture you can…</h3>
+    <ul>
+      <li>locate the centre of mass of a system and use ΣF<sub>ext</sub> = m a<sub>G</sub>;</li>
+      <li>compute mass moments of inertia using standard formulas and the parallel-axis theorem;</li>
+      <li>write the equations of plane motion ΣF = m a<sub>G</sub>, ΣM<sub>G</sub> = I<sub>G</sub> ε;</li>
+      <li>compute the kinetic energy of a rigid body and apply the work–energy principle.</li>
+    </ul>
+    <p style="margin:0;color:var(--muted);font-size:.88rem">Syllabus outcomes: 1MEC1.1, 1MEC3.2 · Reading: Beer &amp; Johnston – Dynamics, ch. 14, 16, 17 and Appendix B; Meriam &amp; Kraige vol. 2, ch. 4, 6. Related labs: Test 4 (physical pendulum), Test 6 (gyroscopic effect).</p>
+  </div>
+  <aside class="notes">90 min plan: system of particles 20 · moment of inertia + parallel axis 25 · equations of motion + race 25 · kinetic energy 15 · quiz 5. Physical demo: roll a full and an empty can down a board.</aside>
+</header>
+
+<section class="slide" id="system">
+  <h2>Systems of particles and the centre of mass</h2>
+  <div class="prose"><p>For a system of particles with total mass <span class="m">m = Σm<sub>i</sub></span>, internal forces cancel in pairs (third law). Summing Newton’s law over all particles gives:</p></div>
+  <div class="eq"><span class="m"><b>r</b><sub>G</sub></span> = Σ<span class="m">m<sub>i</sub><b>r</b><sub>i</sub></span> / <span class="m">m</span>, &nbsp;&nbsp; Σ<span class="m"><b>F</b><sub>ext</sub></span> = <span class="m">m <b>a</b><sub>G</sub></span>, &nbsp;&nbsp; <span class="m"><b>L</b></span> = <span class="m">m<b>v</b><sub>G</sub></span>
+    <span class="lbl">the centre of mass moves like a single particle loaded by the external forces only</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Centre of mass of four particles</h3><span class="hint">Drag the particles</span></div>
+    <div class="demo-body">
+      <canvas id="d1" data-aspect="0.55" aria-label="Centre of mass of particles"></canvas>
+      <div class="ctrl" id="d1c"></div>
+    </div>
+  </div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Hammer throw: G flies on a parabola, the masses do not</h3><span class="hint">Only gravity is external</span></div>
+    <div class="demo-body">
+      <canvas id="d2" data-aspect="0.5" aria-label="Thrown dumbbell"></canvas>
+      <div class="ctrl" id="d2c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--force)">mass 1 path</span><span style="--c:var(--velocity)">mass 2 path</span><span style="--c:var(--ink)">centre of mass G (parabola)</span></div>
+  </div>
+</section>
+
+<section class="slide" id="inertia">
+  <h2>Mass moment of inertia</h2>
+  <div class="prose"><p>Mass resists linear acceleration. The <b>mass moment of inertia</b> resists angular acceleration. It depends on how far the mass is placed from the axis:</p></div>
+  <div class="eq"><span class="m">I</span> = ∫ <span class="m">r</span>² d<span class="m">m</span> = Σ<span class="m">m<sub>i</sub> r<sub>i</sub></span>² &nbsp; [kg·m²], &nbsp;&nbsp; <span class="m">I = m k</span>² (k – radius of gyration)
+    <span class="lbl">Parallel-axis (Steiner) theorem: &nbsp; I<sub>O</sub> = I<sub>G</sub> + m d² &nbsp; (d = distance between parallel axes through O and G)</span></div>
+  <div class="two">
+    <table class="data">
+      <tr><th>Body (axis through G)</th><th>I<sub>G</sub></th></tr>
+      <tr><td>slender rod, length L (⊥ rod)</td><td>mL²/12</td></tr>
+      <tr><td>thin ring / hoop, radius R</td><td>mR²</td></tr>
+      <tr><td>solid disc / cylinder, radius R</td><td>mR²/2</td></tr>
+      <tr><td>solid sphere, radius R</td><td>2mR²/5</td></tr>
+      <tr><td>thin spherical shell</td><td>2mR²/3</td></tr>
+      <tr><td>rectangular plate a × b (⊥ plate)</td><td>m(a² + b²)/12</td></tr>
+    </table>
+    <div class="key"><strong>Do not mix up the two moments of inertia.</strong> The <em>mass</em> moment of inertia I [kg·m²] (dynamics) and the <em>area</em> moment of inertia I [m⁴] (bending, Lecture 9) are different quantities with similar formulas. Both obey a parallel-axis theorem.</div>
+  </div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Physical pendulum: parallel-axis theorem in action</h3><span class="hint">Lab Test 4 measures exactly this period</span></div>
+    <div class="demo-body">
+      <canvas id="d3" data-aspect="0.6" aria-label="Physical pendulum"></canvas>
+      <div class="ctrl" id="d3c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--accent)">period T(d)</span><span style="--c:var(--force)">current pivot</span></div>
+  </div>
+  <div class="eq"><span class="m">T</span> = 2π √( <span class="m">I<sub>O</sub></span> / (<span class="m">m g d</span>) ) = 2π √( (<span class="m">k<sub>G</sub></span>² + <span class="m">d</span>²) / (<span class="m">g d</span>) ) &nbsp;&nbsp; → minimum at <span class="m">d = k<sub>G</sub></span></div>
+</section>
+
+<section class="slide" id="eom">
+  <h2>Equations of plane motion of a rigid body</h2>
+  <div class="eq">Σ<span class="m">F<sub>x</sub></span> = <span class="m">m a<sub>Gx</sub></span>, &nbsp; Σ<span class="m">F<sub>y</sub></span> = <span class="m">m a<sub>Gy</sub></span>, &nbsp; Σ<span class="m">M<sub>G</sub></span> = <span class="m">I<sub>G</sub> ε</span>
+    <span class="lbl">fixed axis O: ΣM<sub>O</sub> = I<sub>O</sub> ε · rolling without slip: a<sub>G</sub> = εR</span></div>
+  <div class="prose"><p>Example: a round body of radius R rolls without slipping down an incline. Friction F provides the torque:</p></div>
+  <div class="eq"><span class="m">mg</span> sin θ − <span class="m">F = m a</span>, &nbsp; <span class="m">F R = I<sub>G</sub> a / R</span> &nbsp;⇒&nbsp; <span class="m">a</span> = <span class="m">g</span> sin θ / (1 + <span class="m">I<sub>G</sub> / mR²</span>)
+    <span class="lbl">the result does not depend on m or R, only on the shape factor I<sub>G</sub>/mR²</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>The rolling race</h3><span class="hint">Predict the winner before pressing Play</span></div>
+    <div class="demo-body">
+      <canvas id="d4" data-aspect="0.62" aria-label="Rolling race down an incline"></canvas>
+      <div class="ctrl" id="d4c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--accent)">translational KE ½mv²</span><span style="--c:var(--moment)">rotational KE ½I<sub>G</sub>ω²</span></div>
+  </div>
+  <aside class="notes">Poll before Play: hoop, disc, sphere or sliding block? The frictionless block wins (no energy goes into rotation), followed by the sphere, the disc and then the hoop. Mass and radius do not matter.</aside>
+</section>
+
+<section class="slide" id="energy">
+  <h2>Kinetic energy and the work–energy principle</h2>
+  <div class="eq"><span class="m">T</span> = ½ <span class="m">m v<sub>G</sub></span>² + ½ <span class="m">I<sub>G</sub> ω</span>² &nbsp; (general plane motion), &nbsp;&nbsp; <span class="m">T</span> = ½ <span class="m">I<sub>O</sub> ω</span>² &nbsp; (rotation about fixed O)
+    <span class="lbl">work–energy: T₁ + ΣU₁₋₂ = T₂ · work of a couple U = M Δφ · power P = F·v = M ω</span></div>
+  <div class="example">
+    <h3>disc rolling down a 1 m drop</h3>
+    <p>A solid disc starts from rest and rolls without slipping down a height h = 1 m. Find its final speed.</p>
+    <details class="step"><summary>Step 1: energy balance</summary>mgh = ½mv² + ½(½mR²)(v/R)² = ¾ mv²</details>
+    <details class="step"><summary>Step 2: result</summary>v = √(4gh/3) = √(4·9.81·1/3) = <b>3.62 m/s</b> (a sliding block would reach √(2gh) = 4.43 m/s)</details>
+    <details class="step"><summary>Step 3: does friction do work?</summary>No. The contact point is the ICR (v = 0), so static friction does no work, even though it is needed for rolling.</details>
+  </div>
+  <div class="key"><strong>Gyroscopic effect (Lab Test 6).</strong> For a spinning rotor, the angular momentum H = I ω is large. A moment M applied perpendicular to H does not tip the rotor. It makes H <em>precess</em> with angular velocity Ω = M / (I ω). This is the same law ΣM = dH/dt as in Lecture 5, now for a rigid body.</div>
+</section>
+
+<section class="slide" id="check">
+  <h2>Quick check</h2>
+  <div class="quiz">
+    <p class="q">1. A bomb explodes in mid-air. Ignoring air drag, the centre of mass of the fragments…</p>
+    <div class="opts">
+      <button class="opt">stops</button>
+      <button class="opt" data-ok>continues on the original parabola</button>
+      <button class="opt">moves upward</button>
+    </div>
+    <p class="why">Explosion forces are internal. Only gravity is external, so a<sub>G</sub> = g as before.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">2. A slender rod (m, L) rotates about one end. Its moment of inertia is…</p>
+    <div class="opts">
+      <button class="opt">mL²/12</button>
+      <button class="opt" data-ok>mL²/3</button>
+      <button class="opt">mL²/2</button>
+    </div>
+    <p class="why">I<sub>O</sub> = I<sub>G</sub> + m(L/2)² = mL²/12 + mL²/4 = mL²/3.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">3. A hoop and a disc of equal mass and radius roll from rest down the same incline. Which arrives first?</p>
+    <div class="opts">
+      <button class="opt">the hoop</button>
+      <button class="opt" data-ok>the disc</button>
+      <button class="opt">they tie</button>
+    </div>
+    <p class="why">The disc has the smaller I/mR² (½ vs 1), so less energy goes into rotation and a is larger.</p>
+  </div>
+</section>
+
+<section class="slide" id="summary">
+  <h2>Summary</h2>
+  <ul class="prose">
+    <li>Centre of mass: r<sub>G</sub> = Σm<sub>i</sub>r<sub>i</sub>/m. External forces only: ΣF = m a<sub>G</sub>.</li>
+    <li>I = Σ m r², I = m k². Parallel axes: I<sub>O</sub> = I<sub>G</sub> + m d².</li>
+    <li>Plane motion: ΣF = m a<sub>G</sub>, ΣM<sub>G</sub> = I<sub>G</sub> ε.</li>
+    <li>T = ½ m v<sub>G</sub>² + ½ I<sub>G</sub> ω². Work–energy: T₁ + U₁₋₂ = T₂.</li>
+  </ul>
+  <p class="prose"><b>Next lecture:</b> we leave rigid bodies behind. Real materials deform. Introduction to mechanics of materials: stress, strain and the tensile test.</p>
+</section>
+
+</main>
+</div>
+
+<script src="assets/lecture.js"></script>
+<script>
+/* ---------- Demo 1: centre of mass of particles (drag) ---------- */
+(function () {
+  const pts = [[0.25, 0.35], [0.7, 0.25], [0.55, 0.75], [0.2, 0.7]];
+  const cols = ['--force', '--velocity', '--accel', '--moment'];
+  const v = BME.controls('d1c', [
+    { id: 'm1', label: 'm₁', min: 0, max: 10, step: 0.5, value: 4, unit: 'kg' },
+    { id: 'm2', label: 'm₂', min: 0, max: 10, step: 0.5, value: 2, unit: 'kg' },
+    { id: 'm3', label: 'm₃', min: 0, max: 10, step: 0.5, value: 1, unit: 'kg' },
+    { id: 'm4', label: 'm₄', min: 0, max: 10, step: 0.5, value: 3, unit: 'kg' },
+    { html: '<dl class="readout" id="d1r"></dl>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d1', (ctx, w, h) => {
+    const ms = [v.m1, v.m2, v.m3, v.m4], M = ms.reduce((a, b) => a + b, 0);
+    let gx = 0, gy = 0;
+    pts.forEach((p, i) => { gx += ms[i] * p[0]; gy += ms[i] * p[1]; });
+    gx /= M || 1; gy /= M || 1;
+    // grid in metres: 1 unit = 4 m
+    ctx.strokeStyle = BME.c('--grid'); ctx.lineWidth = 1;
+    for (let i = 0; i <= 8; i++) { const x = w * i / 8, y = h * i / 8; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+    pts.forEach((p, i) => {
+      BME.line(ctx, gx * w, gy * h, p[0] * w, p[1] * h, BME.c('--muted'), 1, [3, 4]);
+    });
+    pts.forEach((p, i) => {
+      const r = 6 + 3.2 * Math.sqrt(ms[i]);
+      BME.dot(ctx, p[0] * w, p[1] * h, r, BME.c(cols[i]));
+      BME.text(ctx, 'm' + '₁₂₃₄'[i], p[0] * w + r + 10, p[1] * h - r, { weight: 700, color: BME.c(cols[i]) });
+    });
+    if (M > 0) { BME.centroidMark(ctx, gx * w, gy * h, 10, BME.c('--ink')); BME.text(ctx, 'G', gx * w + 18, gy * h + 14, { weight: 700 }); }
+    const toM = (p) => [p[0] * 8, (1 - p[1]) * 8 * h / w];
+    const G = toM([gx, gy]);
+    BME.readout('d1r', [
+      ['m = Σmᵢ', BME.fmt(M, 1) + ' kg'],
+      ['x<sub>G</sub> = Σmᵢxᵢ/m', BME.fmt(G[0], 2) + ' m'],
+      ['y<sub>G</sub> = Σmᵢyᵢ/m', BME.fmt(G[1], 2) + ' m'],
+      ['grid', '1 square = 1 m']
+    ]);
+  });
+  BME.drag(o, {
+    hit: (x, y) => { for (let i = 0; i < 4; i++) if (Math.hypot(x - pts[i][0] * o.w, y - pts[i][1] * o.h) < 18) return i; return null; },
+    move: (i, x, y) => { pts[i][0] = BME.clamp(x / o.w, 0.02, 0.98); pts[i][1] = BME.clamp(y / o.h, 0.03, 0.97); }
+  });
+})();
+
+/* ---------- Demo 2: thrown dumbbell ---------- */
+(function () {
+  const st = { t: 0 };
+  const v = BME.controls('d2c', [
+    { id: 'ratio', label: 'Mass ratio m₁ / m₂', min: 0.2, max: 5, step: 0.1, value: 2 },
+    { id: 'om', label: 'Spin ω', min: 0, max: 12, step: 0.5, value: 6, unit: 'rad/s' },
+    { id: 'th', label: 'Throw angle', min: 20, max: 80, step: 1, value: 55, unit: '°' },
+    { type: 'button', id: 'play', label: '▶ Play' }
+  ], () => { st.t = 0; o.redraw(); });
+  const g = 9.81, v0 = 12, L = 1.2;
+  const state = (t) => {
+    const th = v.th * BME.deg;
+    const gx = v0 * Math.cos(th) * t, gy = v0 * Math.sin(th) * t - 0.5 * g * t * t;
+    const m1 = v.ratio, m2 = 1, M = m1 + m2;
+    const r1 = L * m2 / M, r2 = L * m1 / M; // distances from G
+    const a = v.om * t;
+    return { gx, gy, p1: [gx + r1 * Math.cos(a), gy + r1 * Math.sin(a)], p2: [gx - r2 * Math.cos(a), gy - r2 * Math.sin(a)], m1 };
+  };
+  const tf = () => 2 * v0 * Math.sin(v.th * BME.deg) / g;
+  const o = BME.canvas('d2', (ctx, w, h) => {
+    const T = tf();
+    const xmax = v0 * v0 * Math.sin(2 * v.th * BME.deg) / g + 2, ymax = (v0 * Math.sin(v.th * BME.deg)) ** 2 / (2 * g) + 1.5;
+    const sc = Math.min((w - 40) / xmax, (h - 40) / ymax);
+    const X = (x) => 20 + (x + 1) * sc, Y = (y) => h - 20 - y * sc;
+    BME.hatch(ctx, 0, Y(0), w, Y(0), 1, BME.c('--muted'));
+    const path = (sel, col, wd, dash) => {
+      ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = wd; if (dash) ctx.setLineDash(dash); ctx.beginPath();
+      for (let i = 0; i <= 300; i++) { const s = state(T * i / 300); const p = sel(s); if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }
+      ctx.stroke(); ctx.restore();
+    };
+    path((s) => s.p1, BME.c('--force'), 1.3, [3, 3]);
+    path((s) => s.p2, BME.c('--velocity'), 1.3, [3, 3]);
+    path((s) => [s.gx, s.gy], BME.c('--ink'), 2.2);
+    const S = state(Math.min(st.t, T));
+    BME.line(ctx, X(S.p1[0]), Y(S.p1[1]), X(S.p2[0]), Y(S.p2[1]), BME.c('--body-edge'), 3);
+    BME.dot(ctx, X(S.p1[0]), Y(S.p1[1]), 5 + 3 * Math.sqrt(S.m1), BME.c('--force'));
+    BME.dot(ctx, X(S.p2[0]), Y(S.p2[1]), 8, BME.c('--velocity'));
+    BME.centroidMark(ctx, X(S.gx), Y(S.gy), 7, BME.c('--ink'));
+  });
+  const an = BME.anim(o, (dt) => { st.t += dt * 0.6; if (st.t > tf() + 0.6) st.t = 0; });
+  BME.playButton(document.getElementById('d2c-play'), an);
+  an.start();
+})();
+
+/* ---------- Demo 3: physical pendulum ---------- */
+(function () {
+  const g = 9.81, st = { t: 0 };
+  const v = BME.controls('d3c', [
+    { type: 'select', id: 'body', label: 'Body', options: [['rod', 'Slender rod, length L'], ['disc', 'Disc, diameter L']], value: 'rod' },
+    { id: 'L', label: 'Size L', min: 0.2, max: 1.5, step: 0.05, value: 1, unit: 'm' },
+    { id: 'm', label: 'Mass m', min: 0.5, max: 10, step: 0.5, value: 2, unit: 'kg' },
+    { id: 'd', label: 'Pivot distance d from G', min: 0.01, max: 0.75, step: 0.01, value: 0.5, unit: 'm' },
+    { type: 'button', id: 'play', label: '▶ Play' },
+    { html: '<dl class="readout" id="d3r"></dl>' }
+  ], (vals, k) => { const dm = vals.body === 'rod' ? vals.L / 2 : vals.L / 2; if (vals.d > dm) vals.set('d', dm); o.redraw(); });
+  const props = () => {
+    const L = v.L, m = v.m, d = Math.min(v.d, L / 2);
+    const IG = v.body === 'rod' ? m * L * L / 12 : m * (L / 2) ** 2 / 2;
+    const kG = Math.sqrt(IG / m), IO = IG + m * d * d;
+    const T = 2 * Math.PI * Math.sqrt(IO / (m * g * d));
+    return { L, m, d, IG, kG, IO, T };
+  };
+  const o = BME.canvas('d3', (ctx, w, h) => {
+    const P = props();
+    // pendulum on the left
+    const W = w * 0.42, sc = (h - 60) / (P.L + 0.1) * 0.9;
+    const ox = W / 2, oy = 30;
+    const ang = 0.35 * Math.cos(2 * Math.PI * st.t / P.T);
+    ctx.save(); ctx.translate(ox, oy); ctx.rotate(ang);
+    ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    // G is at distance d below pivot
+    if (v.body === 'rod') { ctx.fillRect(-7, (P.d - P.L / 2) * sc, 14, P.L * sc); ctx.strokeRect(-7, (P.d - P.L / 2) * sc, 14, P.L * sc); }
+    else { ctx.beginPath(); ctx.arc(0, P.d * sc, P.L / 2 * sc, 0, 2 * Math.PI); ctx.fill(); ctx.stroke(); }
+    BME.centroidMark(ctx, 0, P.d * sc, 6, BME.c('--ink'));
+    ctx.restore();
+    BME.dot(ctx, ox, oy, 5, BME.c('--force'), BME.c('--ink'));
+    BME.hatch(ctx, ox - 30, oy - 6, ox + 30, oy - 6, -1, BME.c('--muted'));
+    BME.text(ctx, 'O', ox + 14, oy + 2, { weight: 700, color: BME.c('--force') });
+    // graph T(d)
+    const R = { x: W + 50, y: 30, w: w - W - 70, h: h - 80 };
+    const pts = [];
+    let Tmax = 0;
+    for (let i = 1; i <= 200; i++) {
+      const d = (P.L / 2) * i / 200;
+      const T = 2 * Math.PI * Math.sqrt((P.IG + P.m * d * d) / (P.m * g * d));
+      pts.push([d, T]); Tmax = Math.max(Tmax, Math.min(T, 6));
+    }
+    const pl = BME.plot(ctx, R, { xmin: 0, xmax: P.L / 2, ymin: 0, ymax: Math.min(Tmax * 1.05, 6), xlabel: 'd [m]', ylabel: 'T [s]', series: [{ pts, color: BME.c('--accent') }],
+      vlines: [{ x: P.kG, color: BME.c('--moment') }], marks: [{ x: P.d, y: P.T, color: BME.c('--force'), label: 'T = ' + BME.fmt(P.T, 3) + ' s' }] });
+    BME.text(ctx, 'd = kɢ (minimum T)', pl.X(P.kG) + 4, R.y + 10, { color: BME.c('--moment'), size: 12, align: 'left', bg: true });
+    BME.readout('d3r', [
+      ['I<sub>G</sub>', BME.fmt(P.IG, 4) + ' kg·m²'],
+      ['m d²', BME.fmt(P.m * P.d * P.d, 4) + ' kg·m²'],
+      ['I<sub>O</sub> = I<sub>G</sub> + m d²', BME.fmt(P.IO, 4) + ' kg·m²'],
+      ['k<sub>G</sub> = √(I<sub>G</sub>/m)', BME.fmt(P.kG, 3) + ' m'],
+      ['period T', BME.fmt(P.T, 3) + ' s'],
+      ['equivalent simple pendulum', BME.fmt(P.IO / (P.m * P.d), 3) + ' m']
+    ]);
+  });
+  const an = BME.anim(o, (dt) => { st.t += dt; });
+  BME.playButton(document.getElementById('d3c-play'), an);
+  an.start();
+})();
+
+/* ---------- Demo 4: rolling race ---------- */
+(function () {
+  const g = 9.81, Ltrack = 3;
+  const st = { t: 0 };
+  const racers = [
+    { n: 'Sliding block (no friction)', k: 0, shape: 'block' },
+    { n: 'Solid sphere', k: 2 / 5, shape: 'sphere' },
+    { n: 'Solid disc / cylinder', k: 1 / 2, shape: 'disc' },
+    { n: 'Thin hoop / pipe', k: 1, shape: 'hoop' }
+  ];
+  const v = BME.controls('d4c', [
+    { id: 'th', label: 'Incline angle θ', min: 5, max: 45, step: 1, value: 15, unit: '°' },
+    { id: 'm', label: 'Mass m (try changing it!)', min: 0.5, max: 20, step: 0.5, value: 2, unit: 'kg' },
+    { type: 'button', id: 'play', label: '▶ Play' },
+    { type: 'button', id: 'reset', label: '↺ Restart race', onclick: () => { st.t = 0; o.redraw(); } },
+    { html: '<div id="d4r"></div>' }
+  ], () => { st.t = 0; o.redraw(); });
+  const o = BME.canvas('d4', (ctx, w, h) => {
+    const th = v.th * BME.deg;
+    const lane = (h - 20) / 4;
+    const muted = BME.c('--muted');
+    let html = '<table class="data"><tr><th>Body</th><th>I/mR²</th><th>a [m/s²]</th><th>t [s]</th></tr>';
+    racers.forEach((r, i) => {
+      const a = g * Math.sin(th) / (1 + r.k);
+      const tEnd = Math.sqrt(2 * Ltrack / a);
+      const s = Math.min(0.5 * a * st.t * st.t, Ltrack);
+      const vel = a * Math.min(st.t, tEnd);
+      const y0 = 10 + i * lane, x0 = 20, x1 = w * 0.62;
+      const drop = Math.min(lane * 0.62, (x1 - x0) * Math.tan(th));
+      const ang = Math.atan2(drop, x1 - x0);
+      const tl = Math.hypot(x1 - x0, drop);
+      BME.line(ctx, x0, y0 + 18, x1, y0 + 18 + drop, BME.c('--body-edge'), 2);
+      const px = x0 + (s / Ltrack) * tl * Math.cos(ang), py = y0 + 18 + (s / Ltrack) * tl * Math.sin(ang);
+      const R = Math.min(11, lane * 0.18);
+      const cx = px - Math.sin(ang) * R * -1 * 0 + Math.sin(ang) * R, cy = py - Math.cos(ang) * R;
+      const rot = s / (R / (tl / Ltrack));
+      ctx.save(); ctx.translate(cx, cy);
+      ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+      if (r.shape === 'block') { ctx.rotate(ang); ctx.fillRect(-R, -R, 2 * R, 2 * R); ctx.strokeRect(-R, -R, 2 * R, 2 * R); }
+      else {
+        ctx.rotate(rot);
+        ctx.beginPath(); ctx.arc(0, 0, R, 0, 2 * Math.PI);
+        if (r.shape !== 'hoop') ctx.fill();
+        ctx.lineWidth = r.shape === 'hoop' ? 3 : 2; ctx.stroke();
+        BME.line(ctx, 0, 0, R, 0, BME.c('--body-edge'), 1.5);
+      }
+      ctx.restore();
+      BME.text(ctx, r.n, x0 + 34, y0 + 4, { align: 'left', size: 12, color: muted, weight: 600 });
+      if (st.t >= tEnd) BME.text(ctx, '✓ ' + BME.fmt(tEnd, 2) + ' s', x1 + 6, y0 + 18 + drop, { align: 'left', size: 12, weight: 700, color: BME.c('--good') });
+      // KE bars
+      const Ttr = 0.5 * v.m * vel * vel, Trot = 0.5 * r.k * v.m * vel * vel;
+      const Emax = v.m * g * Ltrack * Math.sin(th);
+      const bx = w * 0.74, bw = w * 0.23;
+      const ty = y0 + 14;
+      ctx.fillStyle = BME.c('--surface-2'); ctx.fillRect(bx, ty, bw, 14);
+      ctx.fillStyle = BME.c('--accent'); ctx.fillRect(bx, ty, bw * Ttr / Emax, 14);
+      ctx.fillStyle = BME.c('--moment'); ctx.fillRect(bx + bw * Ttr / Emax, ty, bw * Trot / Emax, 14);
+      BME.text(ctx, 'KE: ' + BME.fmt(100 * r.k / (1 + r.k), 0) + '% rotational', bx, ty + 26, { align: 'left', size: 11, color: muted });
+      html += '<tr><td>' + r.n + '</td><td>' + BME.fmt(r.k, 2) + '</td><td>' + BME.fmt(a, 3) + '</td><td>' + BME.fmt(tEnd, 3) + '</td></tr>';
+    });
+    BME.text(ctx, 'track length ' + Ltrack + ' m', w * 0.62, h - 8, { align: 'right', size: 11, color: muted });
+    document.getElementById('d4r').innerHTML = html + '</table>';
+  });
+  const an = BME.anim(o, (dt) => { st.t += dt; if (st.t > 12) st.t = 0; });
+  BME.playButton(document.getElementById('d4c-play'), an);
+})();
+</script>
+</body>
+</html>

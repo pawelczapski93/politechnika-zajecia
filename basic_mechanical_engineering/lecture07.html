@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Axial Stress and Strain</title>
+<link rel="stylesheet" href="assets/lecture.css">
+</head>
+<body data-lecture="7">
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lecture 7 · Mechanics of materials</div>
+  <h1>Axial loading: stress, strain and the tensile test</h1>
+  <p class="lead">So far bodies were rigid. Real parts stretch, shorten and eventually break. Mechanics of materials asks two design questions. <b>Is it strong enough?</b> That is a question of stress. <b>Is it stiff enough?</b> That is a question of deformation. We start with the simplest case, a bar pulled along its axis.</p>
+  <div class="goals">
+    <h3>After this lecture you can…</h3>
+    <ul>
+      <li>define normal stress and strain and use the method of sections to find internal forces;</li>
+      <li>read a tensile test diagram: E, R<sub>e</sub> (R<sub>p0.2</sub>), R<sub>m</sub>, elongation, elastic vs plastic range;</li>
+      <li>compute stress and elongation of axially loaded bars, σ = N/A, Δl = NL/(EA);</li>
+      <li>explain de Saint-Venant’s principle and solve statically indeterminate bars with equilibrium + compatibility.</li>
+    </ul>
+    <p style="margin:0;color:var(--muted);font-size:.88rem">Syllabus outcomes: 1MEC1.2, 1MEC3.2, 1MEC6.1, 1MEC6.2 · Reading: Gere &amp; Timoshenko, <i>Mechanics of Materials</i>, ch. 1–2; Hearn vol. 1, ch. 1–2; Benham &amp; Crawford ch. 1. Related labs: Test 7 (tension), Test 8 (compression).</p>
+  </div>
+  <aside class="notes">90 min plan: stress/strain 15 · tensile test 25 · axial bars 20 · Saint-Venant 10 · statically indeterminate 15 · quiz 5. Bring a broken tensile specimen (cup-and-cone fracture) and a cast-iron one if available.</aside>
+</header>
+
+<section class="slide" id="stress">
+  <h2>Internal forces, stress and strain</h2>
+  <div class="prose"><p>Cut the bar with an imaginary plane (<b>method of sections</b>). Equilibrium of either part gives the <b>internal normal force</b> N. Spread over the cross-section area A it gives the <b>normal stress</b>. The relative change of length is the <b>strain</b>:</p></div>
+  <div class="eq"><span class="m">σ</span> = <span class="m">N</span> / <span class="m">A</span> &nbsp; [Pa = N/m², usually MPa = N/mm²], &nbsp;&nbsp; <span class="m">ε</span> = Δ<span class="m">l</span> / <span class="m">l</span> &nbsp; [–]
+    <span class="lbl">tension: σ &gt; 0, ε &gt; 0 · compression: σ &lt; 0, ε &lt; 0 · 1 MPa = 1 N/mm²</span></div>
+  <div class="two">
+    <div class="key"><strong>Hooke’s law</strong> (linear-elastic range):<br><span class="m">σ = E ε</span>, &nbsp; <span class="m">ε<sub>lat</sub> = −ν ε</span><br>E – Young’s modulus, ν – Poisson’s ratio.</div>
+    <table class="data">
+      <tr><th>Material</th><th>E [GPa]</th><th>ν</th><th>R<sub>e</sub> [MPa]</th></tr>
+      <tr><td>structural steel S235</td><td>210</td><td>0.30</td><td>235</td></tr>
+      <tr><td>aluminium alloy 6061-T6</td><td>69</td><td>0.33</td><td>~275</td></tr>
+      <tr><td>titanium Ti-6Al-4V</td><td>114</td><td>0.34</td><td>~880</td></tr>
+      <tr><td>grey cast iron</td><td>~100</td><td>0.26</td><td>— (brittle)</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="slide" id="tensile">
+  <h2>The tensile test diagram</h2>
+  <div class="prose"><p>A standard specimen is pulled until it breaks (EN ISO 6892-1). Force and elongation are recorded and converted to engineering stress σ = F/A₀ and strain ε = ΔL/L₀:</p></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Stress–strain curves of real materials</h3><span class="hint">Load beyond yield, then unload</span></div>
+    <div class="demo-body">
+      <canvas id="d1" data-aspect="0.6" aria-label="Stress strain diagram"></canvas>
+      <div class="ctrl" id="d1c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--accent)">σ–ε curve</span><span style="--c:var(--moment)">elastic unloading (slope E)</span><span style="--c:var(--force)">current state</span></div>
+  </div>
+  <div class="two">
+    <ul class="prose">
+      <li><b>Proportional limit</b>: end of the straight line (Hooke).</li>
+      <li><b>Yield strength R<sub>e</sub></b> (or offset R<sub>p0.2</sub> when there is no clear plateau): onset of plastic flow.</li>
+      <li><b>Tensile strength R<sub>m</sub></b>: maximum engineering stress, where necking starts.</li>
+      <li><b>Elongation at fracture A</b>: a measure of ductility.</li>
+    </ul>
+    <div class="warn">Unloading from the plastic range follows a line parallel to the elastic one. The <b>permanent set</b> remains. Design normally keeps stresses below R<sub>e</sub>/n, where n is a safety factor (e.g. 1.5–2).</div>
+  </div>
+  <aside class="notes">Lab Test 7 produces exactly this curve. Ask students to read E from the slope (two points) and to find R<sub>p0.2</sub> using the offset line (tick the option).</aside>
+</section>
+
+<section class="slide" id="bars">
+  <h2>Axially loaded bars</h2>
+  <div class="eq">Δ<span class="m">l</span> = <span class="m">N L</span> / (<span class="m">E A</span>) &nbsp;&nbsp; (one segment), &nbsp;&nbsp; Δ<span class="m">l</span> = Σ <span class="m">N<sub>i</sub> L<sub>i</sub></span> / (<span class="m">E<sub>i</sub> A<sub>i</sub></span>) &nbsp;&nbsp; (stepped bar)
+    <span class="lbl">EA – axial stiffness · k = EA/L – spring stiffness of the bar [N/m]</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Stepped bar: normal force, stress and elongation</h3><span class="hint">Deformation exaggerated ×(scale)</span></div>
+    <div class="demo-body">
+      <canvas id="d2" data-aspect="0.55" aria-label="Stepped bar under axial loads"></canvas>
+      <div class="ctrl" id="d2c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--tension)">tension</span><span style="--c:var(--compression)">compression</span></div>
+  </div>
+  <div class="example">
+    <h3>stepped steel bar</h3>
+    <p>Segment 1 (at the wall): A₁ = 400 mm², L₁ = 1 m. Segment 2: A₂ = 200 mm², L₂ = 0.8 m. Load P₂ = 30 kN at the free end and P₁ = −50 kN (pushing toward the wall) at the step. E = 210 GPa. Find the stresses and the end displacement.</p>
+    <details class="step"><summary>Step 1: normal forces (cut and look at the free part)</summary>N₂ = P₂ = 30 kN; &nbsp; N₁ = P₂ + P₁ = 30 − 50 = −20 kN (compression).</details>
+    <details class="step"><summary>Step 2: stresses</summary>σ₂ = 30 000/200 = <b>150 MPa</b>; &nbsp; σ₁ = −20 000/400 = <b>−50 MPa</b>.</details>
+    <details class="step"><summary>Step 3: elongation</summary>Δl = (−20 000·1000)/(210 000·400) + (30 000·800)/(210 000·200) = −0.238 + 0.571 = <b>0.333 mm</b>. Check with the demo.</details>
+  </div>
+</section>
+
+<section class="slide" id="saintvenant">
+  <h2>De Saint-Venant’s principle</h2>
+  <div class="prose"><p>Near a concentrated load or a support, stresses are <b>not</b> uniform. De Saint-Venant’s principle says that at a distance of about <b>one cross-section width</b> from the load, the stress depends only on the resultant force, not on how the load is applied. That is why σ = N/A works in most of a bar, but not at its ends, holes or notches.</p></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>A point load spreads into a uniform stress</h3><span class="hint">Colour = σ<sub>y</sub> / (P/b)</span></div>
+    <div class="demo-body">
+      <canvas id="d3" data-aspect="0.6" aria-label="Saint-Venant principle stress map"></canvas>
+      <div class="ctrl" id="d3c"></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="indeterminate">
+  <h2>Statically indeterminate bars</h2>
+  <div class="prose"><p>A bar fixed at both ends has two unknown reactions but only one equilibrium equation (ΣF<sub>x</sub> = 0). The missing equation comes from geometry, the <b>compatibility condition</b>: the total elongation must be zero.</p></div>
+  <div class="eq">Equilibrium: &nbsp; <span class="m">R<sub>A</sub> + R<sub>B</sub> = P</span> &nbsp;&nbsp;|&nbsp;&nbsp; Compatibility: &nbsp; Δ<span class="m">l</span>₁ + Δ<span class="m">l</span>₂ = 0, &nbsp; Δ<span class="m">l<sub>i</sub></span> = <span class="m">N<sub>i</sub>L<sub>i</sub></span>/(<span class="m">E<sub>i</sub>A<sub>i</sub></span>) + <span class="m">α<sub>i</sub></span>Δ<span class="m">T L<sub>i</sub></span>
+    <span class="lbl">the stiffer part attracts more load · temperature alone creates stress: σ = −E α ΔT (fully restrained bar)</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Two-material bar between rigid walls</h3><span class="hint">Try heating it with P = 0</span></div>
+    <div class="demo-body">
+      <canvas id="d4" data-aspect="0.5" aria-label="Statically indeterminate bar"></canvas>
+      <div class="ctrl" id="d4c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--tension)">tension</span><span style="--c:var(--compression)">compression</span><span style="--c:var(--reaction)">wall reactions</span></div>
+  </div>
+  <aside class="notes">Real-world link: rails need expansion gaps; steel–concrete composite sections; bolted joints (Lecture 8). Heating a steel bar by 50 K gives σ = 210 000 · 12e-6 · 50 ≈ 126 MPa, more than half of R<sub>e</sub>!</aside>
+</section>
+
+<section class="slide" id="check">
+  <h2>Quick check</h2>
+  <div class="quiz">
+    <p class="q">1. A steel rod (E = 200 GPa, L = 2 m) carries σ = 100 MPa. Its elongation is…</p>
+    <div class="opts">
+      <button class="opt">0.1 mm</button>
+      <button class="opt" data-ok>1 mm</button>
+      <button class="opt">10 mm</button>
+    </div>
+    <p class="why">ε = σ/E = 100/200 000 = 0.0005; Δl = εL = 0.0005·2000 mm = 1 mm.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">2. After loading a steel specimen to σ = 300 MPa (above R<sub>e</sub>) and unloading…</p>
+    <div class="opts">
+      <button class="opt">it returns to its original length</button>
+      <button class="opt" data-ok>a permanent elongation remains</button>
+      <button class="opt">E has decreased</button>
+    </div>
+    <p class="why">Unloading is elastic (slope E). The plastic part of the strain stays.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">3. A bar is fixed between two walls and heated. Its stress…</p>
+    <div class="opts">
+      <button class="opt">is zero, since there is no external load</button>
+      <button class="opt" data-ok>is compressive, σ = −EαΔT</button>
+      <button class="opt">is tensile</button>
+    </div>
+    <p class="why">The walls prevent the free thermal expansion αΔT L, so they push back.</p>
+  </div>
+</section>
+
+<section class="slide" id="summary">
+  <h2>Summary</h2>
+  <ul class="prose">
+    <li>σ = N/A, ε = Δl/l. Hooke: σ = Eε, ε<sub>lat</sub> = −νε.</li>
+    <li>Tensile test: E, R<sub>e</sub>/R<sub>p0.2</sub>, R<sub>m</sub>, A. Unloading is elastic.</li>
+    <li>Δl = ΣN<sub>i</sub>L<sub>i</sub>/(E<sub>i</sub>A<sub>i</sub>). Draw the N diagram first.</li>
+    <li>Saint-Venant: σ = N/A is valid about one width away from local load effects.</li>
+    <li>Indeterminate problems: equilibrium + compatibility (+ thermal strain).</li>
+  </ul>
+  <p class="prose"><b>Next lecture:</b> shear stress, joints, and the general state of stress (Mohr’s circle, 3D Hooke’s law).</p>
+</section>
+
+</main>
+</div>
+
+<script src="assets/lecture.js"></script>
+<script>
+/* ---------- Demo 1: tensile test ---------- */
+(function () {
+  const MAT = {
+    s235: { n: 'Structural steel S235', E: 210000, sp: 235, epl: 0.02, Rm: 400, eu: 0.2, ef: 0.28, sf: 320, plateau: true },
+    al: { n: 'Aluminium 6061-T6', E: 69000, sp: 200, Rm: 310, eu: 0.08, ef: 0.13, sf: 270 },
+    ti: { n: 'Titanium Ti-6Al-4V', E: 114000, sp: 800, Rm: 950, eu: 0.08, ef: 0.14, sf: 880 },
+    ci: { n: 'Grey cast iron (brittle)', E: 100000, Rm: 220, ef: 0.006, brittle: true }
+  };
+  const st = { e: 0.05 };
+  const v = BME.controls('d1c', [
+    { type: 'select', id: 'mat', label: 'Material', options: Object.keys(MAT).map((k) => [k, MAT[k].n]), value: 's235' },
+    { id: 'e', label: 'Strain applied ε', min: 0, max: 100, step: 0.1, value: 20, unit: '% of ε_f', dec: 1 },
+    { type: 'check', id: 'zoom', label: 'Zoom to elastic region', value: false },
+    { type: 'check', id: 'unload', label: 'Show unloading line', value: true },
+    { type: 'check', id: 'off', label: 'Show 0.2 % offset line', value: false },
+    { html: '<dl class="readout" id="d1r"></dl>' }
+  ], () => o.redraw());
+  function sigma(M, e) {
+    if (M.brittle) return M.Rm * (1 - Math.exp(-M.E * e / M.Rm)) / (1 - Math.exp(-M.E * M.ef / M.Rm));
+    const ep = M.sp / M.E;
+    if (e <= ep) return M.E * e;
+    if (M.plateau) {
+      if (e <= M.epl) return M.sp + 4 * Math.sin(Math.PI * (e - ep) / (M.epl - ep) * 6) * Math.exp(-(e - ep) * 300);
+      if (e <= M.eu) { const t = (e - M.epl) / (M.eu - M.epl); return M.sp + (M.Rm - M.sp) * (1 - (1 - t) * (1 - t)); }
+    } else if (e <= M.eu) {
+      const k = M.E / (M.Rm - M.sp);
+      const base = M.sp + (M.Rm - M.sp) * (1 - Math.exp(-(e - ep) * k));
+      const atEu = M.sp + (M.Rm - M.sp) * (1 - Math.exp(-(M.eu - ep) * k));
+      return base * M.Rm / atEu;
+    }
+    const t = (e - M.eu) / (M.ef - M.eu);
+    return M.Rm - (M.Rm - M.sf) * t * t;
+  }
+  const o = BME.canvas('d1', (ctx, w, h) => {
+    const M = MAT[v.mat];
+    const e = M.ef * v.e / 100;
+    const s = sigma(M, e);
+    const emax = v.zoom ? (M.brittle ? M.ef : Math.min(M.ef, 4 * (M.sp || M.Rm) / M.E)) : M.ef * 1.05;
+    const smax = (M.Rm) * 1.15;
+    const pts = [];
+    for (let i = 0; i <= 600; i++) { const ee = Math.min(M.ef, emax) * i / 600; pts.push([ee * 100, sigma(M, ee)]); }
+    const R = { x: 60, y: 24, w: w - 80, h: h - 66 };
+    const series = [{ pts, color: BME.c('--accent'), width: 2.6 }];
+    if (v.off && !M.brittle) series.push({ pts: [[0.2, 0], [0.2 + (smax / M.E) * 100, smax]], color: BME.c('--muted'), width: 1.2, dash: [5, 4] });
+    const pl = BME.plot(ctx, R, { xmin: 0, xmax: emax * 100, ymin: 0, ymax: smax, xlabel: 'ε [%]', ylabel: 'σ [MPa]', series });
+    // unloading
+    const plasticSet = Math.max(0, e - s / M.E);
+    const yielded = !M.brittle && e > (M.sp / M.E) * 1.001;
+    if (v.unload && yielded) {
+      ctx.save(); ctx.beginPath(); ctx.rect(R.x, R.y, R.w, R.h); ctx.clip();
+      BME.arrow(ctx, pl.X(e * 100), pl.Y(s), pl.X(plasticSet * 100), pl.Y(0), BME.c('--moment'), { width: 2, dash: [6, 4] });
+      ctx.restore();
+      BME.text(ctx, 'permanent set ' + BME.fmt(plasticSet * 100, 2) + ' %', pl.X(plasticSet * 100) + 6, pl.Y(0) - 12, { align: 'left', size: 12, color: BME.c('--moment'), bg: true, weight: 600 });
+    }
+    if (e <= emax) BME.dot(ctx, pl.X(e * 100), pl.Y(s), 6, BME.c('--force'));
+    if (!M.brittle) {
+      BME.text(ctx, 'R_e'.replace('_e', 'ₑ') + ' ≈ ' + M.sp, R.x + 6, pl.Y(M.sp) - 10, { align: 'left', size: 11, color: BME.c('--muted'), bg: true });
+    }
+    BME.text(ctx, 'Rₘ = ' + M.Rm, R.x + R.w - 6, pl.Y(M.Rm) - 12, { align: 'right', size: 11, color: BME.c('--muted'), bg: true });
+    if (v.e >= 100) BME.text(ctx, '✕ fracture', pl.X(Math.min(e, emax) * 100) - 8, pl.Y(s) + 18, { color: BME.c('--bad'), weight: 700, align: 'right' });
+    BME.readout('d1r', [
+      ['ε', BME.fmt(e * 100, 3) + ' %'],
+      ['σ', BME.fmt(s, 1) + ' MPa'],
+      ['E (slope)', BME.fmt(M.E / 1000, 0) + ' GPa'],
+      ['range', M.brittle ? 'brittle (no yield)' : yielded ? (e > M.eu ? 'necking' : 'plastic') : 'elastic', yielded ? 'no' : 'ok'],
+      ['elongation at fracture A', BME.fmt(M.ef * 100, 1) + ' %']
+    ]);
+  });
+})();
+
+/* ---------- Demo 2: stepped bar ---------- */
+(function () {
+  const MATS = { st: ['Steel', 210000], al: ['Aluminium', 70000], ti: ['Titanium', 114000] };
+  const v = BME.controls('d2c', [
+    { type: 'select', id: 'mat', label: 'Material', options: Object.keys(MATS).map((k) => [k, MATS[k][0] + ' (E = ' + MATS[k][1] / 1000 + ' GPa)']), value: 'st' },
+    { id: 'A1', label: 'A₁ (at the wall)', min: 50, max: 1000, step: 10, value: 400, unit: 'mm²' },
+    { id: 'L1', label: 'L₁', min: 0.2, max: 2, step: 0.05, value: 1, unit: 'm' },
+    { id: 'A2', label: 'A₂', min: 50, max: 1000, step: 10, value: 200, unit: 'mm²' },
+    { id: 'L2', label: 'L₂', min: 0.2, max: 2, step: 0.05, value: 0.8, unit: 'm' },
+    { id: 'P1', label: 'P₁ at the step (+ → )', min: -100, max: 100, step: 5, value: -50, unit: 'kN' },
+    { id: 'P2', label: 'P₂ at the free end (+ → )', min: -100, max: 100, step: 5, value: 30, unit: 'kN' },
+    { id: 'sa', label: 'Allowable stress σ_allow', min: 50, max: 400, step: 10, value: 160, unit: 'MPa' },
+    { html: '<dl class="readout" id="d2r"></dl>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d2', (ctx, w, h) => {
+    const E = MATS[v.mat][1];
+    const N2 = v.P2 * 1000, N1 = (v.P2 + v.P1) * 1000;
+    const s1 = N1 / v.A1, s2 = N2 / v.A2;
+    const d1 = N1 * v.L1 * 1000 / (E * v.A1), d2 = N2 * v.L2 * 1000 / (E * v.A2);
+    const x0 = 50, x1 = w - 70, Ltot = v.L1 + v.L2, sc = (x1 - x0) / Ltot;
+    const yc = h * 0.25, hs = (A) => Math.sqrt(A) * 1.6;
+    const exag = 0.12 * (x1 - x0) / Math.max(1e-6, Math.abs(d1) + Math.abs(d2), 0.5) ;
+    const tc = BME.c('--tension'), cc = BME.c('--compression'), muted = BME.c('--muted');
+    BME.wall(ctx, x0, yc - 50, yc + 50, -1);
+    // undeformed outline
+    ctx.save(); ctx.strokeStyle = muted; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+    ctx.strokeRect(x0, yc - hs(v.A1) / 2, v.L1 * sc, hs(v.A1));
+    ctx.strokeRect(x0 + v.L1 * sc, yc - hs(v.A2) / 2, v.L2 * sc, hs(v.A2));
+    ctx.restore();
+    // deformed (exaggerated)
+    const xs = x0 + v.L1 * sc + d1 * exag, xe = xs + v.L2 * sc + d2 * exag;
+    ctx.save(); ctx.globalAlpha = 0.85;
+    ctx.fillStyle = s1 >= 0 ? tc : cc; ctx.globalAlpha = 0.35; ctx.fillRect(x0, yc - hs(v.A1) / 2, xs - x0, hs(v.A1));
+    ctx.fillStyle = s2 >= 0 ? tc : cc; ctx.fillRect(xs, yc - hs(v.A2) / 2, xe - xs, hs(v.A2));
+    ctx.globalAlpha = 1; ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 1.5;
+    ctx.strokeRect(x0, yc - hs(v.A1) / 2, xs - x0, hs(v.A1)); ctx.strokeRect(xs, yc - hs(v.A2) / 2, xe - xs, hs(v.A2));
+    ctx.restore();
+    const fc = BME.c('--force');
+    if (v.P1) { const L = 18 + Math.abs(v.P1) * 0.5, s = Math.sign(v.P1); BME.arrow(ctx, xs, yc - hs(v.A1) / 2 - 12, xs + s * L, yc - hs(v.A1) / 2 - 12, fc, { label: 'P₁', off: 14 }); }
+    if (v.P2) { const L = 18 + Math.abs(v.P2) * 0.5, s = Math.sign(v.P2); BME.arrow(ctx, xe, yc, xe + s * L, yc, fc, { label: 'P₂', off: 14 }); }
+    // diagrams N and sigma
+    const R1 = { x: x0, y: h * 0.48, w: x1 - x0, h: h * 0.18 }, R2 = { x: x0, y: h * 0.74, w: x1 - x0, h: h * 0.18 };
+    const nmax = Math.max(Math.abs(N1), Math.abs(N2), 1) / 1000 * 1.2;
+    const smax = Math.max(Math.abs(s1), Math.abs(s2), v.sa) * 1.15;
+    const step = (a, b) => [[0, a], [v.L1, a], [v.L1, b], [Ltot, b]];
+    const pN = BME.plot(ctx, R1, { xmin: 0, xmax: Ltot, ymin: -nmax, ymax: nmax, ylabel: 'N [kN]', series: [{ pts: step(N1 / 1000, N2 / 1000), color: BME.c('--accent'), fill: true }], noXTicks: true, ny: 2 });
+    const pS = BME.plot(ctx, R2, { xmin: 0, xmax: Ltot, ymin: -smax, ymax: smax, ylabel: 'σ [MPa]', xlabel: 'x [m]', series: [{ pts: step(s1, s2), color: BME.c('--moment'), fill: true }, { pts: [[0, v.sa], [Ltot, v.sa]], color: BME.c('--bad'), width: 1, dash: [5, 4] }, { pts: [[0, -v.sa], [Ltot, -v.sa]], color: BME.c('--bad'), width: 1, dash: [5, 4] }], ny: 2 });
+    BME.text(ctx, BME.fmt(N1 / 1000, 0), pN.X(v.L1 / 2), pN.Y(N1 / 1000) + (N1 >= 0 ? -10 : 10), { size: 12, weight: 700, bg: true });
+    BME.text(ctx, BME.fmt(N2 / 1000, 0), pN.X(v.L1 + v.L2 / 2), pN.Y(N2 / 1000) + (N2 >= 0 ? -10 : 10), { size: 12, weight: 700, bg: true });
+    BME.text(ctx, BME.fmt(s1, 0), pS.X(v.L1 / 2), pS.Y(s1) + (s1 >= 0 ? -10 : 10), { size: 12, weight: 700, bg: true });
+    BME.text(ctx, BME.fmt(s2, 0), pS.X(v.L1 + v.L2 / 2), pS.Y(s2) + (s2 >= 0 ? -10 : 10), { size: 12, weight: 700, bg: true });
+    const ok = Math.max(Math.abs(s1), Math.abs(s2)) <= v.sa;
+    BME.readout('d2r', [
+      ['N₁ / N₂', BME.fmt(N1 / 1000, 1) + ' / ' + BME.fmt(N2 / 1000, 1) + ' kN'],
+      ['σ₁ = N₁/A₁', BME.fmt(s1, 1) + ' MPa'],
+      ['σ₂ = N₂/A₂', BME.fmt(s2, 1) + ' MPa'],
+      ['Δl₁ + Δl₂', BME.fmt(d1, 3) + ' + ' + BME.fmt(d2, 3) + ' mm'],
+      ['end displacement', BME.fmt(d1 + d2, 3) + ' mm'],
+      ['strength check', ok ? 'OK' : 'σ > σ_allow!', ok ? 'ok' : 'no']
+    ]);
+  });
+})();
+
+/* ---------- Demo 3: Saint-Venant ---------- */
+(function () {
+  const v = BME.controls('d3c', [
+    { id: 'y', label: 'Depth of section y / b', min: 0.05, max: 2, step: 0.05, value: 0.25 },
+    { type: 'select', id: 'load', label: 'Load introduction', options: [['point', 'Point load'], ['two', 'Two point loads at ±b/4'], ['uni', 'Uniform pressure']], value: 'point' },
+    { html: '<dl class="readout" id="d3r"></dl>' }
+  ], () => o.redraw());
+  // σy for strip of width b=1 under load P=1 (per unit thickness), periodic images model symmetry walls
+  function sy(x, y) {
+    const flam = (dx) => (2 / Math.PI) * y ** 3 / ((dx * dx + y * y) ** 2);
+    const loads = v.load === 'point' ? [[0, 1]] : v.load === 'two' ? [[-0.25, 0.5], [0.25, 0.5]] : Array.from({ length: 20 }, (_, i) => [-0.5 + (i + 0.5) / 20, 1 / 20]);
+    let s = 0;
+    loads.forEach(([x0, p]) => { for (let k = -30; k <= 30; k++) s += p * flam(x - x0 - k); });
+    return s;
+  }
+  const o = BME.canvas('d3', (ctx, w, h) => {
+    const W = w * 0.42, plateH = h - 50, sc = Math.min(W, plateH / 2);
+    const ox = 30 + (W - sc) / 2, oy = 30;
+    const nx = 40, ny = 80;
+    for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+      const x = -0.5 + (i + 0.5) / nx, y = 0.02 + 2 * (j + 0.5) / ny;
+      const s = sy(x, y);
+      const t = BME.clamp(Math.log2(Math.max(s, 1e-3)) / 3, -1, 1); // 1 = 8x average
+      const col = t >= 0 ? `hsl(${8},80%,${92 - t * 45}%)` : `hsl(210,70%,${92 + t * 40}%)`;
+      ctx.fillStyle = col; ctx.fillRect(ox + (i / nx) * sc, oy + (j / ny) * 2 * sc, sc / nx + 1, 2 * sc / ny + 1);
+    }
+    ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2; ctx.strokeRect(ox, oy, sc, 2 * sc);
+    const yline = oy + v.y * sc;
+    BME.line(ctx, ox - 10, yline, ox + sc + 10, yline, BME.c('--ink'), 2, [6, 4]);
+    BME.text(ctx, 'y = ' + v.y + 'b', ox + sc + 14, yline, { align: 'left', size: 12, weight: 700, bg: true });
+    const fc = BME.c('--force');
+    if (v.load === 'point') BME.arrow(ctx, ox + sc / 2, oy - 26, ox + sc / 2, oy, fc, { width: 3, label: 'P', atStart: true, off: 8 });
+    else if (v.load === 'two') [0.25, 0.75].forEach((f) => BME.arrow(ctx, ox + sc * f, oy - 22, ox + sc * f, oy, fc, { width: 2.4 }));
+    else for (let k = 0; k <= 8; k++) BME.arrow(ctx, ox + sc * k / 8, oy - 16, ox + sc * k / 8, oy, fc, { width: 1.5, head: 6 });
+    BME.dim(ctx, ox, oy + 2 * sc + 14, ox + sc, oy + 2 * sc + 14, 'b', { dy: 10 });
+    // profile at depth y
+    const R = { x: w * 0.55, y: 30, w: w * 0.4, h: h - 80 };
+    const pts = [];
+    let mx = 0;
+    for (let i = 0; i <= 200; i++) { const x = -0.5 + i / 200; const s = sy(x, v.y); pts.push([x, s]); mx = Math.max(mx, s); }
+    const pl = BME.plot(ctx, R, { xmin: -0.5, xmax: 0.5, ymin: 0, ymax: Math.max(mx * 1.1, 1.5), xlabel: 'x / b', ylabel: 'σ_y / (P/b)', series: [{ pts, color: BME.c('--accent'), fill: true }, { pts: [[-0.5, 1], [0.5, 1]], color: BME.c('--muted'), dash: [5, 4], width: 1.5 }] });
+    BME.text(ctx, 'average N/A', pl.X(0.5) - 4, pl.Y(1) - 10, { align: 'right', size: 11, color: BME.c('--muted'), bg: true });
+    BME.readout('d3r', [
+      ['σ<sub>max</sub>/σ<sub>avg</sub>', BME.fmt(mx, 2)],
+      ['σ<sub>min</sub>/σ<sub>avg</sub>', BME.fmt(Math.min(...pts.map((p) => p[1])), 2)],
+      ['σ = N/A valid?', mx < 1.05 ? 'yes (uniform)' : 'no (local effect)', mx < 1.05 ? 'ok' : 'no']
+    ]);
+  });
+})();
+
+/* ---------- Demo 4: statically indeterminate bar ---------- */
+(function () {
+  const MATS = { st: ['Steel', 210000, 12e-6], al: ['Aluminium', 70000, 23e-6], cu: ['Copper', 120000, 17e-6] };
+  const opts = Object.keys(MATS).map((k) => [k, MATS[k][0]]);
+  const v = BME.controls('d4c', [
+    { type: 'select', id: 'm1', label: 'Segment 1 material', options: opts, value: 'st' },
+    { type: 'select', id: 'm2', label: 'Segment 2 material', options: opts, value: 'al' },
+    { id: 'A1', label: 'A₁', min: 100, max: 2000, step: 50, value: 600, unit: 'mm²' },
+    { id: 'A2', label: 'A₂', min: 100, max: 2000, step: 50, value: 900, unit: 'mm²' },
+    { id: 'a', label: 'Load position a (= L₁)', min: 0.1, max: 0.9, step: 0.05, value: 0.4, unit: '× L' },
+    { id: 'P', label: 'Load P at the junction (+ →)', min: -200, max: 200, step: 5, value: 100, unit: 'kN' },
+    { id: 'dT', label: 'Temperature change ΔT', min: -60, max: 60, step: 5, value: 0, unit: 'K' },
+    { html: '<dl class="readout" id="d4r"></dl>' }
+  ], () => o.redraw());
+  const L = 1000; // mm
+  const o = BME.canvas('d4', (ctx, w, h) => {
+    const [n1, E1, a1] = MATS[v.m1], [n2, E2, a2] = MATS[v.m2];
+    const L1 = v.a * L, L2 = L - L1, P = v.P * 1000;
+    const f1 = L1 / (E1 * v.A1), f2 = L2 / (E2 * v.A2);
+    const N1 = (P * f2 - v.dT * (a1 * L1 + a2 * L2)) / (f1 + f2);
+    const N2 = N1 - P;
+    const s1 = N1 / v.A1, s2 = N2 / v.A2;
+    const RA = -N1, RB = N2; // reactions on the bar (+ = to the right)
+    const x0 = 50, x1 = w - 50, yc = h * 0.32;
+    const X = (mm) => x0 + mm / L * (x1 - x0);
+    const tc = BME.c('--tension'), cc = BME.c('--compression'), rc = BME.c('--reaction');
+    BME.wall(ctx, x0, yc - 55, yc + 55, -1);
+    BME.wall(ctx, x1, yc - 55, yc + 55, 1);
+    const hh = (A) => 10 + Math.sqrt(A) * 1.2;
+    const seg = (xa, xb, A, s, name) => {
+      ctx.save(); ctx.fillStyle = Math.abs(s) < 1e-6 ? BME.c('--body') : s > 0 ? tc : cc; ctx.globalAlpha = 0.18 + Math.min(0.6, Math.abs(s) / 250);
+      ctx.fillRect(xa, yc - hh(A) / 2, xb - xa, hh(A)); ctx.globalAlpha = 1; ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2; ctx.strokeRect(xa, yc - hh(A) / 2, xb - xa, hh(A)); ctx.restore();
+      BME.text(ctx, name + ': σ = ' + BME.fmt(s, 1) + ' MPa', (xa + xb) / 2, yc, { size: 13, weight: 700, bg: true });
+    };
+    seg(x0, X(L1), v.A1, s1, n1);
+    seg(X(L1), x1, v.A2, s2, n2);
+    if (v.P) BME.arrow(ctx, X(L1), yc - 62, X(L1) + Math.sign(v.P) * (20 + Math.abs(v.P) * 0.25), yc - 62, BME.c('--force'), { label: 'P', off: 12 });
+    BME.line(ctx, X(L1), yc - 62, X(L1), yc - hh(Math.max(v.A1, v.A2)) / 2, BME.c('--force'), 1, [2, 3]);
+    const rArrow = (x, R, side) => {
+      if (Math.abs(R) < 1) return;
+      const len = 20 + Math.min(80, Math.abs(R) / 1000 * 0.4);
+      const dir = Math.sign(R);
+      const xa = x + side * 6;
+      BME.arrow(ctx, dir > 0 ? xa - len : xa + len, yc + 70, xa, yc + 70, rc, { width: 2.6 });
+      BME.text(ctx, BME.fmt(Math.abs(R) / 1000, 1) + ' kN', x + side * 8 + (side > 0 ? 30 : -30), yc + 90, { color: rc, size: 12, weight: 700 });
+    };
+    rArrow(x0, RA, 1);
+    rArrow(x1, RB, -1);
+    const R = { x: x0, y: h * 0.68, w: x1 - x0, h: h * 0.22 };
+    const smax = Math.max(Math.abs(s1), Math.abs(s2), 20) * 1.2;
+    BME.plot(ctx, R, { xmin: 0, xmax: L, ymin: -smax, ymax: smax, ylabel: 'σ [MPa]', xlabel: 'x [mm]', series: [{ pts: [[0, s1], [L1, s1], [L1, s2], [L, s2]], color: BME.c('--moment'), fill: true }], ny: 2 });
+    BME.readout('d4r', [
+      ['R<sub>A</sub> (left wall)', BME.fmt(RA / 1000, 2) + ' kN'],
+      ['R<sub>B</sub> (right wall)', BME.fmt(RB / 1000, 2) + ' kN'],
+      ['ΣF = R<sub>A</sub> + R<sub>B</sub> + P', BME.fmt((RA + RB + P) / 1000, 3) + ' kN', 'ok'],
+      ['Δl₁ + Δl₂ (must be 0)', BME.fmt(N1 * f1 + a1 * v.dT * L1 + N2 * f2 + a2 * v.dT * L2, 4) + ' mm', 'ok'],
+      ['share of P taken by segment 1', v.P ? BME.fmt(100 * f2 / (f1 + f2), 0) + ' %' : '—']
+    ]);
+  });
+})();
+</script>
+</body>
+</html>

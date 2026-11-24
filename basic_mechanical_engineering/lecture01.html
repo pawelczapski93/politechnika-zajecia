@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statics of Rigid Bodies</title>
+<link rel="stylesheet" href="assets/lecture.css">
+</head>
+<body data-lecture="1">
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lecture 1 · Statics</div>
+  <h1>Statics of a particle and of a rigid body</h1>
+  <p class="lead">Engineering design starts with one question: <em>what forces act on this part, and is it in balance?</em> Today we build the tools to answer it. These are vectors, components, moments and couples, and the equilibrium equations.</p>
+  <div class="goals">
+    <h3>After this lecture you can…</h3>
+    <ul>
+      <li>resolve a force into rectangular components and add forces into a resultant;</li>
+      <li>write equilibrium conditions for a particle and solve for unknown forces;</li>
+      <li>compute the moment of a force about a point (and use Varignon’s theorem);</li>
+      <li>replace a force by a force–couple system, draw a free-body diagram and find support reactions.</li>
+    </ul>
+    <p style="margin:0;color:var(--muted);font-size:.88rem">Syllabus outcomes: 1MEC1.1, 1MEC3.2, 1MEC6.1 · Reading: Beer &amp; Johnston, <i>Vector Mechanics for Engineers – Statics</i>, ch. 2–4; Meriam &amp; Kraige vol. 1, ch. 2–3.</p>
+  </div>
+  <aside class="notes">90 min plan: 1 → 5 min, 2 → 15 min, 3 → 15 min, 4 → 20 min, 5 → 25 min (incl. worked example), 6 → 10 min. Ask students to keep the page open on phones; all demos work on touch screens.</aside>
+</header>
+
+<section class="slide" id="vectors">
+  <h2>Scalars, vectors and forces</h2>
+  <div class="prose">
+    <p>A <b>scalar</b> has only a magnitude (mass, time, temperature). A <b>vector</b> has a magnitude <i>and</i> a direction and adds by the <b>parallelogram law</b>. A <b>force</b> is a vector with a point of application. For a rigid body only its <b>line of action</b> matters (the <em>principle of transmissibility</em>).</p>
+    <p>In 2D we describe a force <span class="m vec">F</span> by its rectangular components:</p>
+  </div>
+  <div class="eq"><span class="m">F<sub>x</sub> = F</span> cos θ, &nbsp;&nbsp; <span class="m">F<sub>y</sub> = F</span> sin θ, &nbsp;&nbsp; <span class="m">F</span> = √(<span class="m">F<sub>x</sub></span>² + <span class="m">F<sub>y</sub></span>²), &nbsp;&nbsp; tan θ = <span class="m">F<sub>y</sub> / F<sub>x</sub></span></div>
+  <p class="prose">The resultant of several concurrent forces is found by adding components: <span class="m">R<sub>x</sub> = ΣF<sub>x</sub></span>, <span class="m">R<sub>y</sub> = ΣF<sub>y</sub></span>. Graphical (parallelogram, polygon) and analytical methods always give the same answer. Try it below.</p>
+
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Adding forces: parallelogram, polygon, components</h3><span class="hint">Angles are measured counter-clockwise from +x</span></div>
+    <div class="demo-body">
+      <canvas id="d1" data-aspect="0.72" aria-label="Force addition diagram"></canvas>
+      <div class="ctrl" id="d1c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--force)">F₁</span><span style="--c:var(--moment)">F₂</span><span style="--c:var(--accel)">F₃</span><span style="--c:var(--accent)">Resultant R</span></div>
+  </div>
+  <aside class="notes">Ask: “With F₁ = F₂ = 50 N, which angle between them gives R = 50 N?” (120°). Then switch to polygon mode and show that order of addition doesn’t matter.</aside>
+</section>
+
+<section class="slide" id="particle">
+  <h2>Equilibrium of a particle</h2>
+  <div class="prose">
+    <p>A particle is in equilibrium when the resultant of all forces acting on it is zero (Newton’s first law):</p>
+  </div>
+  <div class="eq"><span class="m vec">R</span> = Σ<span class="m vec">F</span> = 0 &nbsp; ⇔ &nbsp; Σ<span class="m">F<sub>x</sub></span> = 0, &nbsp; Σ<span class="m">F<sub>y</sub></span> = 0<span class="lbl">two scalar equations → at most two unknowns in 2D</span></div>
+  <div class="prose">
+    <p>Graphically, the forces form a <b>closed polygon</b>. For three forces this is a <em>force triangle</em>. Procedure: (1) isolate the particle, (2) draw its free-body diagram (FBD), (3) write ΣF<sub>x</sub> = 0, ΣF<sub>y</sub> = 0, (4) solve.</p>
+  </div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Weight hanging on two cables</h3><span class="hint">Watch the force triangle close</span></div>
+    <div class="demo-body">
+      <canvas id="d2" data-aspect="0.62" aria-label="Weight suspended by two cables"></canvas>
+      <div class="ctrl" id="d2c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--force)">Weight W</span><span style="--c:var(--tension)">T<sub>A</sub>, T<sub>B</sub> cable tensions</span></div>
+  </div>
+  <div class="eq">ΣF<sub>x</sub>: −<span class="m">T<sub>A</sub></span> cos α + <span class="m">T<sub>B</sub></span> cos β = 0 &nbsp;&nbsp; ΣF<sub>y</sub>: <span class="m">T<sub>A</sub></span> sin α + <span class="m">T<sub>B</sub></span> sin β − <span class="m">W</span> = 0
+    <span class="lbl">⇒ T<sub>A</sub> = W cos β / sin(α+β), &nbsp; T<sub>B</sub> = W cos α / sin(α+β)</span></div>
+  <div class="warn"><b>Engineering insight:</b> make both angles small (a nearly horizontal cable) and the tensions grow without bound. A perfectly straight cable cannot carry a transverse load. This is why power lines sag.</div>
+  <aside class="notes">Live poll: set α = β = 30°. What is T? Answer T = W. Then drop to 10°: T ≈ 2.9 W. Link to Lab Test 2 (forces in truss members, strain gauges).</aside>
+</section>
+
+<section class="slide" id="moment">
+  <h2>Moment of a force and Varignon’s theorem</h2>
+  <div class="prose">
+    <p>A force tends to <b>rotate</b> a body about a point. This turning effect is the <b>moment</b>:</p>
+  </div>
+  <div class="eq"><span class="m vec">M</span><sub>O</sub> = <span class="m vec">r</span> × <span class="m vec">F</span>, &nbsp;&nbsp; |<span class="m">M<sub>O</sub></span>| = <span class="m">F · d</span> = <span class="m">r F</span> sin θ
+    <span class="lbl">d = perpendicular distance from O to the line of action · unit N·m · counter-clockwise (+)</span></div>
+  <div class="prose">
+    <p><b>Varignon’s theorem:</b> the moment of a force about a point equals the sum of the moments of its components: <span class="m">M<sub>O</sub> = x F<sub>y</sub> − y F<sub>x</sub></span>. In practice this is usually the fastest way to compute a moment.</p>
+  </div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Wrench on a bolt</h3><span class="hint">Find the angle that gives the largest moment</span></div>
+    <div class="demo-body">
+      <canvas id="d3" data-aspect="0.55" aria-label="Moment of a force on a wrench"></canvas>
+      <div class="ctrl" id="d3c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--force)">Force F</span><span style="--c:var(--accel)">components F∥, F⊥</span><span style="--c:var(--moment)">moment M<sub>O</sub></span></div>
+  </div>
+  <h3>Couples and force–couple systems</h3>
+  <div class="prose">
+    <p>Two equal, opposite, non-collinear forces form a <b>couple</b>. Its moment <span class="m">M = F d</span> is the <em>same about every point</em>, so a couple is a <b>free vector</b>. Consequence: any force <span class="m vec">F</span> acting at A can be moved to any point O if we add a couple <span class="m">M<sub>O</sub> = r × F</span>. Tick <i>“equivalent force–couple at O”</i> above to see it. A whole system of forces can be reduced the same way to one <b>resultant force</b> <span class="m vec">R</span> = Σ<span class="m vec">F</span> and one <b>resultant moment</b> <span class="m">M<sub>O</sub><sup>R</sup></span> = Σ<span class="m">M<sub>O</sub></span>.</p>
+  </div>
+  <aside class="notes">Physical demo idea: bring a real wrench. Ask why pushing at 90° works best, and why a longer wrench (“cheater bar”) helps.</aside>
+</section>
+
+<section class="slide" id="rigid">
+  <h2>Equilibrium of a rigid body</h2>
+  <div class="prose">
+    <p>A rigid body is in equilibrium when the force system acting on it reduces to <b>zero force and zero moment</b>:</p>
+  </div>
+  <div class="eq">Σ<span class="m">F<sub>x</sub></span> = 0, &nbsp; Σ<span class="m">F<sub>y</sub></span> = 0, &nbsp; Σ<span class="m">M<sub>A</sub></span> = 0<span class="lbl">three independent equations in 2D (A is any point – choose one where unknowns meet)</span></div>
+  <div class="two">
+    <div>
+      <h3>Supports → reactions</h3>
+      <table class="data">
+        <tr><th>Support</th><th>Prevents</th><th>Unknowns</th></tr>
+        <tr><td>Roller / smooth surface</td><td>1 translation</td><td>1 force ⊥ surface</td></tr>
+        <tr><td>Pin (hinge)</td><td>2 translations</td><td>A<sub>x</sub>, A<sub>y</sub></td></tr>
+        <tr><td>Fixed (clamped)</td><td>2 translations + rotation</td><td>A<sub>x</sub>, A<sub>y</sub>, M<sub>A</sub></td></tr>
+        <tr><td>Cable / link</td><td>pull along its axis</td><td>1 force along cable</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Free-body diagram, step by step</h3>
+      <ol>
+        <li>Cut the body free from its supports.</li>
+        <li>Draw all applied loads (forces, couples, weight).</li>
+        <li>Replace each support by its reactions (assume a sense).</li>
+        <li>Add dimensions, then write the equations.</li>
+        <li>A negative result means the assumed sense was wrong.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Simply supported beam: reactions from equilibrium</h3><span class="hint">Move the couple along the beam. Do the reactions change?</span></div>
+    <div class="demo-body">
+      <canvas id="d4" data-aspect="0.5" aria-label="Beam with point load and couple"></canvas>
+      <div class="ctrl" id="d4c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--force)">applied force P</span><span style="--c:var(--moment)">applied couple M₀</span><span style="--c:var(--reaction)">reactions</span></div>
+  </div>
+  <div class="example">
+    <h3>beam with a force and a couple</h3>
+    <p>A beam of length <i>L</i> = 6 m rests on a pin A (left) and a roller B (right). A vertical force <i>P</i> = 12 kN acts at <i>a</i> = 2 m from A and a counter-clockwise couple <i>M</i><sub>0</sub> = 12 kN·m acts on the beam. Find the reactions.</p>
+    <details class="step"><summary>Step 1: free-body diagram</summary>Unknowns: A<sub>x</sub>, A<sub>y</sub> (pin), B<sub>y</sub> (roller). That is three unknowns and three equations, so the beam is statically determinate.</details>
+    <details class="step"><summary>Step 2: moments about A (eliminates A<sub>x</sub>, A<sub>y</sub>)</summary>ΣM<sub>A</sub> = B<sub>y</sub>·6 − 12·2 + 12 = 0 ⇒ <b>B<sub>y</sub> = 2 kN</b> ↑</details>
+    <details class="step"><summary>Step 3: force equations</summary>ΣF<sub>y</sub> = A<sub>y</sub> + 2 − 12 = 0 ⇒ <b>A<sub>y</sub> = 10 kN</b> ↑ ; &nbsp; ΣF<sub>x</sub> = A<sub>x</sub> = 0.</details>
+    <details class="step"><summary>Step 4: check</summary>ΣM<sub>B</sub> = −A<sub>y</sub>·6 + 12·4 + 12 = −60 + 48 + 12 = 0 ✓. Now set these values in the demo above (φ = 0) and confirm.</details>
+  </div>
+  <aside class="notes">Key misconception: students “move” the couple and expect the reactions to change. Let them drag the couple slider. This is the free-vector property in action.</aside>
+</section>
+
+<section class="slide" id="check">
+  <h2>Quick check</h2>
+  <div class="quiz">
+    <p class="q">1. A force is slid along its own line of action. Its moment about point O…</p>
+    <div class="opts">
+      <button class="opt">increases if it moves away from O</button>
+      <button class="opt" data-ok>does not change</button>
+      <button class="opt">changes sign</button>
+    </div>
+    <p class="why">The perpendicular distance d from O to the line of action is unchanged (principle of transmissibility), so M = F·d is unchanged.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">2. A weight W hangs from two cables, each at 30° to the horizontal. The tension in each cable is…</p>
+    <div class="opts">
+      <button class="opt">W/2</button>
+      <button class="opt" data-ok>W</button>
+      <button class="opt">2W</button>
+      <button class="opt">W/√3</button>
+    </div>
+    <p class="why">2T sin 30° = W ⇒ T = W. Check it in the cable demo.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">3. How many unknown reactions does a fixed (clamped) support have in 2D?</p>
+    <div class="opts">
+      <button class="opt">1</button>
+      <button class="opt">2</button>
+      <button class="opt" data-ok>3</button>
+    </div>
+    <p class="why">Two force components and one reaction moment. It prevents both translations and rotation.</p>
+  </div>
+</section>
+
+<section class="slide" id="summary">
+  <h2>Summary</h2>
+  <ul class="prose">
+    <li>Forces are vectors: add them by components, <span class="m">R<sub>x</sub> = ΣF<sub>x</sub>, R<sub>y</sub> = ΣF<sub>y</sub></span>.</li>
+    <li>Particle in equilibrium: ΣF = 0 (2 equations in 2D). The force polygon closes.</li>
+    <li>Moment <span class="m">M<sub>O</sub> = F d</span>. Varignon: sum the moments of the components.</li>
+    <li>A couple is a free vector. A force can be moved to another point if you add a couple.</li>
+    <li>Rigid body in equilibrium: ΣF<sub>x</sub> = ΣF<sub>y</sub> = ΣM = 0. Always start from a free-body diagram.</li>
+  </ul>
+  <p class="prose"><b>Next lecture:</b> distributed loads, centroids, trusses and friction.</p>
+</section>
+
+</main>
+</div>
+
+<script src="assets/lecture.js"></script>
+<script>
+/* ---------- Demo 1: vector addition ---------- */
+(function () {
+  const v = BME.controls('d1c', [
+    { id: 'F1', label: 'F₁ magnitude', min: 0, max: 100, step: 1, value: 60, unit: 'N' },
+    { id: 'a1', label: 'F₁ angle θ₁', min: 0, max: 360, step: 1, value: 20, unit: '°' },
+    { id: 'F2', label: 'F₂ magnitude', min: 0, max: 100, step: 1, value: 45, unit: 'N' },
+    { id: 'a2', label: 'F₂ angle θ₂', min: 0, max: 360, step: 1, value: 110, unit: '°' },
+    { id: 'F3', label: 'F₃ magnitude', min: 0, max: 100, step: 1, value: 0, unit: 'N' },
+    { id: 'a3', label: 'F₃ angle θ₃', min: 0, max: 360, step: 1, value: 240, unit: '°' },
+    { type: 'select', id: 'mode', label: 'Construction', options: [['para', 'Parallelogram'], ['poly', 'Tip-to-tail polygon'], ['comp', 'Rectangular components']] },
+    { html: '<dl class="readout" id="d1r"></dl>' }
+  ], () => o.redraw());
+
+  const o = BME.canvas('d1', (ctx, w, h) => {
+    const cx = w / 2, cy = h / 2, s = Math.min(w, h) * 0.42 / 150;
+    const P = (x, y) => [cx + x * s, cy - y * s];
+    const muted = BME.c('--muted'), grid = BME.c('--grid');
+    // grid every 25 N
+    ctx.strokeStyle = grid; ctx.lineWidth = 1;
+    for (let g = -300; g <= 300; g += 25) {
+      const [gx] = P(g, 0), [, gy] = P(0, g);
+      ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke();
+    }
+    BME.arrow(ctx, 10, cy, w - 10, cy, muted, { width: 1.2, head: 8 });
+    BME.arrow(ctx, cx, h - 10, cx, 10, muted, { width: 1.2, head: 8 });
+    BME.text(ctx, 'x', w - 14, cy + 14, { color: muted, italic: true });
+    BME.text(ctx, 'y', cx + 12, 16, { color: muted, italic: true });
+    BME.text(ctx, 'grid = 25 N', 12, h - 14, { color: muted, size: 12, align: 'left' });
+
+    const F = [
+      { m: v.F1, a: v.a1 * BME.deg, c: BME.c('--force'), l: 'F₁' },
+      { m: v.F2, a: v.a2 * BME.deg, c: BME.c('--moment'), l: 'F₂' },
+      { m: v.F3, a: v.a3 * BME.deg, c: BME.c('--accel'), l: 'F₃' }
+    ].filter((f) => f.m > 0);
+    F.forEach((f) => { f.x = f.m * Math.cos(f.a); f.y = f.m * Math.sin(f.a); });
+    const Rx = F.reduce((t, f) => t + f.x, 0), Ry = F.reduce((t, f) => t + f.y, 0);
+    const R = Math.hypot(Rx, Ry), th = Math.atan2(Ry, Rx) / BME.deg;
+    const O = P(0, 0), acc = BME.c('--accent');
+
+    if (v.mode === 'para') {
+      F.forEach((f) => { const T = P(f.x, f.y); BME.arrow(ctx, O[0], O[1], T[0], T[1], f.c, { label: f.l }); });
+      if (F.length === 2) {
+        const A = P(F[0].x, F[0].y), B = P(F[1].x, F[1].y), C = P(F[0].x + F[1].x, F[0].y + F[1].y);
+        BME.line(ctx, A[0], A[1], C[0], C[1], F[1].c, 1.2, [5, 5]);
+        BME.line(ctx, B[0], B[1], C[0], C[1], F[0].c, 1.2, [5, 5]);
+      } else if (F.length === 3) {
+        BME.text(ctx, 'Parallelogram is for two forces – try the polygon', w / 2, 18, { color: muted, size: 12, bg: true });
+      }
+    } else if (v.mode === 'poly') {
+      let x = 0, y = 0;
+      F.forEach((f) => {
+        const A = P(x, y); x += f.x; y += f.y; const B = P(x, y);
+        BME.arrow(ctx, A[0], A[1], B[0], B[1], f.c, { label: f.l });
+      });
+    } else {
+      F.forEach((f) => {
+        const T = P(f.x, f.y), X = P(f.x, 0), Y = P(0, f.y);
+        BME.line(ctx, T[0], T[1], X[0], X[1], f.c, 1, [3, 4]);
+        BME.line(ctx, T[0], T[1], Y[0], Y[1], f.c, 1, [3, 4]);
+        BME.arrow(ctx, O[0], O[1], X[0], X[1], f.c, { width: 1.6, head: 8 });
+        BME.arrow(ctx, O[0], O[1], Y[0], Y[1], f.c, { width: 1.6, head: 8 });
+        BME.arrow(ctx, O[0], O[1], T[0], T[1], f.c, { label: f.l, width: 2 });
+      });
+    }
+    if (R > 0.5) {
+      const T = P(Rx, Ry);
+      BME.arrow(ctx, O[0], O[1], T[0], T[1], acc, { width: 4, label: 'R' });
+    }
+    BME.dot(ctx, O[0], O[1], 4);
+    BME.readout('d1r', [
+      ['R<sub>x</sub> = ΣF<sub>x</sub>', BME.fmt(Rx, 1) + ' N'],
+      ['R<sub>y</sub> = ΣF<sub>y</sub>', BME.fmt(Ry, 1) + ' N'],
+      ['|R|', BME.fmt(R, 1) + ' N'],
+      ['θ<sub>R</sub>', R > 0.01 ? BME.fmt((th + 360) % 360, 1) + '°' : '—']
+    ]);
+  });
+})();
+
+/* ---------- Demo 2: weight on two cables ---------- */
+(function () {
+  const v = BME.controls('d2c', [
+    { id: 'W', label: 'Weight W', min: 50, max: 1000, step: 10, value: 400, unit: 'N' },
+    { id: 'al', label: 'Angle α of cable A', min: 5, max: 85, step: 1, value: 40, unit: '°' },
+    { id: 'be', label: 'Angle β of cable B', min: 5, max: 85, step: 1, value: 25, unit: '°' },
+    { html: '<dl class="readout" id="d2r"></dl>' }
+  ], () => o.redraw());
+
+  const o = BME.canvas('d2', (ctx, w, h) => {
+    const al = v.al * BME.deg, be = v.be * BME.deg, W = v.W;
+    const s2 = Math.sin(al + be);
+    const TA = W * Math.cos(be) / s2, TB = W * Math.cos(al) / s2;
+    const Cx = w * 0.33, Cy = h * 0.6, Lc = Math.min(w * 0.27, h * 0.55);
+    const A = [Cx - Lc * Math.cos(al), Cy - Lc * Math.sin(al)];
+    const B = [Cx + Lc * Math.cos(be), Cy - Lc * Math.sin(be)];
+    const ink = BME.c('--ink'), tc = BME.c('--tension'), fc = BME.c('--force'), muted = BME.c('--muted');
+    // anchors
+    [A, B].forEach((p) => { BME.hatch(ctx, p[0] - 22, p[1], p[0] + 22, p[1], -1); BME.dot(ctx, p[0], p[1], 4, ink); });
+    BME.text(ctx, 'A', A[0] - 30, A[1] + 2, { weight: 700 });
+    BME.text(ctx, 'B', B[0] + 30, B[1] + 2, { weight: 700 });
+    // cables
+    BME.line(ctx, A[0], A[1], Cx, Cy, ink, 2);
+    BME.line(ctx, B[0], B[1], Cx, Cy, ink, 2);
+    // angle arcs
+    ctx.save(); ctx.strokeStyle = muted; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(Cx, Cy, 34, Math.PI, Math.PI + al); ctx.stroke();
+    ctx.beginPath(); ctx.arc(Cx, Cy, 40, -be, 0); ctx.stroke();
+    ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(Cx - 60, Cy); ctx.lineTo(Cx + 60, Cy); ctx.stroke();
+    ctx.restore();
+    BME.text(ctx, 'α', Cx - 46, Cy - 12, { italic: true, color: muted });
+    BME.text(ctx, 'β', Cx + 52, Cy - 10, { italic: true, color: muted });
+    // hanging mass
+    const bw = 46, bh = 34, by = Cy + 50;
+    BME.line(ctx, Cx, Cy, Cx, by, ink, 2);
+    ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.fillRect(Cx - bw / 2, by, bw, bh); ctx.strokeRect(Cx - bw / 2, by, bw, bh);
+    BME.dot(ctx, Cx, Cy, 5, ink);
+    BME.text(ctx, 'C', Cx + 12, Cy + 14, { weight: 700 });
+    // FBD forces at C (scaled)
+    const k = h * 0.16 / W, cap = h * 0.42;
+    const la = Math.min(cap, TA * k), lb = Math.min(cap, TB * k);
+    BME.arrow(ctx, Cx, Cy, Cx - la * Math.cos(al), Cy - la * Math.sin(al), tc, { label: 'Tᴬ', off: 14 });
+    BME.arrow(ctx, Cx, Cy, Cx + lb * Math.cos(be), Cy - lb * Math.sin(be), tc, { label: 'Tᴮ', off: 14 });
+    BME.arrow(ctx, Cx + bw / 2 + 14, by + bh / 2, Cx + bw / 2 + 14, by + bh / 2 + W * k, fc, { label: 'W', off: 14 });
+
+    // force triangle
+    const Hc = TB * Math.cos(be);
+    const k2 = Math.min(h * 0.55 / W, w * 0.2 / Math.max(Hc, 1e-6));
+    const Q0 = [w * 0.74, h * 0.14];
+    const Q1 = [Q0[0], Q0[1] + W * k2];
+    const Q2 = [Q1[0] + TB * k2 * Math.cos(be), Q1[1] - TB * k2 * Math.sin(be)];
+    BME.text(ctx, 'Force triangle', Q0[0] - 16, Q0[1] - 4, { align: 'right', color: muted, size: 12, weight: 600 });
+    BME.arrow(ctx, Q0[0], Q0[1], Q1[0], Q1[1], fc, { label: 'W', off: 12, dx: -12 });
+    BME.arrow(ctx, Q1[0], Q1[1], Q2[0], Q2[1], tc, { label: 'Tᴮ', off: 12 });
+    BME.arrow(ctx, Q2[0], Q2[1], Q0[0], Q0[1], tc, { label: 'Tᴬ', off: 12 });
+
+    BME.readout('d2r', [
+      ['T<sub>A</sub>', BME.fmt(TA, 1) + ' N'],
+      ['T<sub>B</sub>', BME.fmt(TB, 1) + ' N'],
+      ['T<sub>A</sub> / W', BME.fmt(TA / W, 2)],
+      ['T<sub>B</sub> / W', BME.fmt(TB / W, 2)],
+      ['Check ΣF<sub>x</sub>', BME.fmt(-TA * Math.cos(al) + TB * Math.cos(be), 3) + ' N', 'ok'],
+      ['Check ΣF<sub>y</sub>', BME.fmt(TA * Math.sin(al) + TB * Math.sin(be) - W, 3) + ' N', 'ok']
+    ]);
+  });
+})();
+
+/* ---------- Demo 3: moment of a force on a wrench ---------- */
+(function () {
+  const v = BME.controls('d3c', [
+    { id: 'F', label: 'Force F', min: 0, max: 200, step: 5, value: 120, unit: 'N' },
+    { id: 'r', label: 'Distance r from bolt', min: 0.05, max: 0.40, step: 0.01, value: 0.30, unit: 'm' },
+    { id: 'th', label: 'Angle θ between bar and F', min: 0, max: 360, step: 1, value: 70, unit: '°' },
+    { type: 'check', id: 'comp', label: 'Show components (Varignon)', value: false },
+    { type: 'check', id: 'eq', label: 'Equivalent force–couple at O', value: false },
+    { html: '<dl class="readout" id="d3r"></dl>' }
+  ], () => o.redraw());
+
+  const o = BME.canvas('d3', (ctx, w, h) => {
+    const Ox = w * 0.2, Oy = h * 0.58, sc = (w * 0.66) / 0.42;
+    const th = v.th * BME.deg, r = v.r, F = v.F;
+    const kf = h * 0.38 / 200;
+    const ink = BME.c('--ink'), fc = BME.c('--force'), mc = BME.c('--moment'), ac = BME.c('--accel'), muted = BME.c('--muted');
+    const M = r * F * Math.sin(th);
+    // wrench bar
+    ctx.save();
+    ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(Ox - 6, Oy - 9, 0.42 * sc + 12, 18, 9); else ctx.rect(Ox - 6, Oy - 9, 0.42 * sc + 12, 18);
+    ctx.fill(); ctx.stroke();
+    // bolt (hexagon)
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3; const x = Ox + 22 * Math.cos(a), y = Oy + 22 * Math.sin(a); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+    ctx.closePath(); ctx.fillStyle = BME.c('--surface-2'); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    BME.dot(ctx, Ox, Oy, 4, ink);
+    BME.text(ctx, 'O', Ox - 14, Oy + 30, { weight: 700 });
+    // point of application
+    const Px = Ox + r * sc, Py = Oy;
+    const ux = Math.cos(th), uy = -Math.sin(th);
+    // line of action
+    BME.line(ctx, Px - ux * 2000, Py - uy * 2000, Px + ux * 2000, Py + uy * 2000, muted, 1, [6, 5]);
+    // perpendicular distance
+    const t = (Ox - Px) * ux + (Oy - Py) * uy;
+    const Fx = Px + ux * t, Fy = Py + uy * t;
+    if (Math.abs(Math.sin(th)) > 0.02) {
+      BME.line(ctx, Ox, Oy, Fx, Fy, mc, 1.6, [2, 3]);
+      BME.text(ctx, 'd = ' + BME.fmt(r * Math.abs(Math.sin(th)), 3) + ' m', (Ox + Fx) / 2 - 10, (Oy + Fy) / 2 - 12, { color: mc, size: 13, italic: true, bg: true });
+    }
+    BME.dim(ctx, Ox, Oy + 46, Px, Py + 46, 'r = ' + BME.fmt(r, 2) + ' m', { dy: 14 });
+    // force and components
+    if (F > 0) {
+      const L = F * kf;
+      BME.arrow(ctx, Px, Py, Px + ux * L, Py + uy * L, fc, { label: 'F', width: 3.2 });
+      if (v.comp) {
+        BME.arrow(ctx, Px, Py, Px + Math.cos(th) * L, Py, ac, { label: 'F∥', width: 2, dy: 14 });
+        BME.arrow(ctx, Px, Py, Px, Py - Math.sin(th) * L, ac, { label: 'F⊥', width: 2 });
+      }
+      if (v.eq) {
+        ctx.save(); ctx.globalAlpha = 0.55;
+        BME.arrow(ctx, Ox, Oy, Ox + ux * L, Oy + uy * L, fc, { label: 'F at O', width: 2.5, dash: [6, 4] });
+        ctx.restore();
+      }
+    }
+    BME.dot(ctx, Px, Py, 4, fc);
+    if (Math.abs(M) > 0.05) BME.momentArc(ctx, Ox, Oy, 40, M > 0, mc, 'M₀');
+    BME.readout('d3r', [
+      ['M<sub>O</sub> = r F sin θ', BME.fmt(M, 2) + ' N·m'],
+      ['sense', Math.abs(M) < 0.05 ? 'none' : (M > 0 ? 'counter-clockwise ↺' : 'clockwise ↻')],
+      ['F⊥ = F sin θ', BME.fmt(F * Math.sin(th), 1) + ' N'],
+      ['F∥ = F cos θ', BME.fmt(F * Math.cos(th), 1) + ' N'],
+      ['r·F⊥ + 0·F∥', BME.fmt(r * F * Math.sin(th), 2) + ' N·m']
+    ]);
+  });
+})();
+
+/* ---------- Demo 4: simply supported beam ---------- */
+(function () {
+  const L = 6;
+  const v = BME.controls('d4c', [
+    { id: 'P', label: 'Force P', min: 0, max: 30, step: 1, value: 12, unit: 'kN' },
+    { id: 'a', label: 'Position a of P', min: 0, max: L, step: 0.25, value: 2, unit: 'm' },
+    { id: 'phi', label: 'Inclination φ of P (from vertical)', min: -60, max: 60, step: 5, value: 0, unit: '°' },
+    { id: 'M0', label: 'Couple M₀ (+ = ↺)', min: -40, max: 40, step: 2, value: 12, unit: 'kN·m' },
+    { id: 'c', label: 'Position of couple', min: 0, max: L, step: 0.25, value: 4.5, unit: 'm' },
+    { type: 'check', id: 'fbd', label: 'Free-body diagram (show reactions)', value: true },
+    { html: '<dl class="readout" id="d4r"></dl>' }
+  ], () => o.redraw());
+
+  const o = BME.canvas('d4', (ctx, w, h) => {
+    const x0 = w * 0.1, x1 = w * 0.9, y = h * 0.48, sc = (x1 - x0) / L, bh = 16;
+    const X = (m) => x0 + m * sc;
+    const phi = v.phi * BME.deg;
+    const Pv = v.P * Math.cos(phi), Ph = v.P * Math.sin(phi);
+    const By = (Pv * v.a - v.M0) / L, Ay = Pv - By, Ax = -Ph;
+    const fc = BME.c('--force'), mc = BME.c('--moment'), rc = BME.c('--reaction'), muted = BME.c('--muted');
+    // beam
+    ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.fillRect(x0, y - bh / 2, x1 - x0, bh); ctx.strokeRect(x0, y - bh / 2, x1 - x0, bh);
+    // supports or reactions
+    if (!v.fbd) {
+      BME.pin(ctx, x0, y + bh / 2, 13);
+      BME.roller(ctx, x1, y + bh / 2, 13);
+    } else {
+      const kr = 3.2, minL = 18;
+      const drawR = (x, val, label) => {
+        if (Math.abs(val) < 1e-6) { BME.text(ctx, label + ' = 0', x, y + 44, { color: rc, size: 13, weight: 700, bg: true }); return; }
+        const len = minL + Math.abs(val) * kr;
+        if (val > 0) BME.arrow(ctx, x, y + bh / 2 + len, x, y + bh / 2, rc, { width: 3 });
+        else BME.arrow(ctx, x, y + bh / 2, x, y + bh / 2 + len, rc, { width: 3 });
+        BME.text(ctx, label + ' = ' + BME.fmt(Math.abs(val), 2) + ' kN ' + (val > 0 ? '↑' : '↓'), x, y + bh / 2 + len + 14, { color: rc, size: 13, weight: 700, bg: true });
+      };
+      drawR(x0, Ay, 'Aᵧ');
+      drawR(x1, By, 'Bᵧ');
+      if (Math.abs(Ax) > 1e-6) {
+        const len = minL + Math.abs(Ax) * kr;
+        if (Ax > 0) BME.arrow(ctx, x0 - len, y, x0, y, rc, { width: 3 });
+        else BME.arrow(ctx, x0, y, x0 - len, y, rc, { width: 3 });
+        BME.text(ctx, 'Aₓ = ' + BME.fmt(Math.abs(Ax), 2) + ' kN ' + (Ax > 0 ? '→' : '←'), x0 - 10, y - 30, { color: rc, size: 13, weight: 700, bg: true, align: 'left' });
+      }
+    }
+    BME.text(ctx, 'A', x0, y - 26, { weight: 700 });
+    BME.text(ctx, 'B', x1, y - 26, { weight: 700 });
+    // force P
+    if (v.P > 0) {
+      const len = 30 + v.P * 3;
+      const tx = X(v.a), ty = y - bh / 2;
+      BME.arrow(ctx, tx - Math.sin(phi) * len, ty - Math.cos(phi) * len, tx, ty, fc, { width: 3.2, label: 'P', atStart: true });
+    }
+    // couple
+    if (Math.abs(v.M0) > 0) BME.momentArc(ctx, X(v.c), y, 24, v.M0 > 0, mc, 'M₀', { ly: -4 });
+    // dimensions
+    const dy = h - 22;
+    BME.dim(ctx, x0, dy, x1, dy, 'L = ' + L + ' m', { dy: -10 });
+    if (v.a > 0.05) BME.dim(ctx, x0, dy - 30, X(v.a), dy - 30, 'a = ' + BME.fmt(v.a, 2) + ' m', { dy: -10 });
+    const warn = By < -1e-6 ? '<span class="no">Bᵧ &lt; 0: a roller cannot pull, so the beam would lift off at B!</span>' : '';
+    BME.readout('d4r', [
+      ['ΣM<sub>A</sub> = 0 ⇒ B<sub>y</sub>', BME.fmt(By, 2) + ' kN'],
+      ['ΣF<sub>y</sub> = 0 ⇒ A<sub>y</sub>', BME.fmt(Ay, 2) + ' kN'],
+      ['ΣF<sub>x</sub> = 0 ⇒ A<sub>x</sub>', BME.fmt(Ax, 2) + ' kN'],
+      ['P vertical / horizontal', BME.fmt(Pv, 2) + ' / ' + BME.fmt(Ph, 2) + ' kN']
+    ]);
+    if (warn) document.getElementById('d4r').insertAdjacentHTML('beforeend', '<dt></dt><dd style="text-align:left">' + warn + '</dd>');
+  });
+})();
+</script>
+</body>
+</html>

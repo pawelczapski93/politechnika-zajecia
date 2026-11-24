@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shear and Stress Analysis</title>
+<link rel="stylesheet" href="assets/lecture.css">
+</head>
+<body data-lecture="8">
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lecture 8 · Mechanics of materials</div>
+  <h1>Shear, joints and stress analysis</h1>
+  <p class="lead">Bolts, rivets, pins, welds and keys are loaded mainly in <b>shear</b>. Also, a stress that is “pure tension” in one direction looks like tension <em>and</em> shear on an inclined plane. Today we learn to rotate the stress state with Mohr’s circle and to link stresses to strains in 3D.</p>
+  <div class="goals">
+    <h3>After this lecture you can…</h3>
+    <ul>
+      <li>define shear stress and shear strain and use Hooke’s law for shear, τ = Gγ;</li>
+      <li>size bolted and pinned joints for shear, bearing and net-section tension;</li>
+      <li>transform plane stress, find principal stresses and maximum shear with Mohr’s circle;</li>
+      <li>apply the generalised (3D) Hooke’s law and compute volumetric strain.</li>
+    </ul>
+    <p style="margin:0;color:var(--muted);font-size:.88rem">Syllabus outcomes: 1MEC1.2, 1MEC3.2, 1MEC6.1 · Reading: Gere &amp; Timoshenko ch. 1.6–1.7, 7; Hearn vol. 1, ch. 5, 13–14; Benham &amp; Crawford ch. 2, 5.</p>
+  </div>
+  <aside class="notes">90 min plan: pure shear 15 · joints 25 (incl. example) · Mohr’s circle 30 · 3D Hooke 15 · quiz 5. Mohr’s circle needs time. Let students guess principal directions before revealing them.</aside>
+</header>
+
+<section class="slide" id="shear">
+  <h2>Shear stress, pure shear and Hooke’s law for shear</h2>
+  <div class="prose"><p>A force acting <em>parallel</em> to a surface produces <b>shear stress</b> τ. Moment equilibrium of a small element requires <b>complementary shear stresses</b>: equal τ on perpendicular faces, pointing toward or away from the same corner. The element distorts by the <b>shear strain</b> γ, a change of the right angle measured in radians.</p></div>
+  <div class="eq"><span class="m">τ</span><sub>avg</sub> = <span class="m">V</span> / <span class="m">A</span>, &nbsp;&nbsp; <span class="m">τ = G γ</span>, &nbsp;&nbsp; <span class="m">G</span> = <span class="m">E</span> / [2(1 + <span class="m">ν</span>)]
+    <span class="lbl">steel: G ≈ 81 GPa · aluminium: G ≈ 26 GPa · E, ν, G are not independent for isotropic materials</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Pure shear element: rotate it and see tension and compression appear</h3><span class="hint">At 45° only normal stresses remain</span></div>
+    <div class="demo-body">
+      <canvas id="d1" data-aspect="0.55" aria-label="Pure shear element"></canvas>
+      <div class="ctrl" id="d1c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--moment)">shear stress τ</span><span style="--c:var(--tension)">tension</span><span style="--c:var(--compression)">compression</span></div>
+  </div>
+  <aside class="notes">This explains why a brittle chalk stick in torsion breaks along a 45° helix (tension), while a ductile steel bar breaks on a cross-section (shear). Show it with chalk! It also links to Lecture 10 and Lab Test 11.</aside>
+</section>
+
+<section class="slide" id="joints">
+  <h2>Shear stresses in joints</h2>
+  <div class="two">
+    <div class="prose">
+      <p>A bolted (or riveted, pinned) joint can fail in three ways:</p>
+      <ol>
+        <li><b>Shear</b> of the bolt: <span class="m">τ = F / (n · m · πd²/4)</span>, where m = number of shear planes (1 single, 2 double shear).</li>
+        <li><b>Bearing</b> (crushing) of hole/bolt: <span class="m">σ<sub>b</sub> = F / (n · d · t)</span>.</li>
+        <li><b>Tension</b> of the plate in the net section: <span class="m">σ = F / [(b − n<sub>row</sub>d) t]</span>.</li>
+      </ol>
+    </div>
+    <div class="key"><strong>Design condition:</strong> every stress ≤ its allowable value (k<sub>t</sub>, k<sub>b</sub>, k<sub>r</sub>). The joint capacity is the <em>smallest</em> of the three. Double shear doubles bolt shear capacity and removes the bending eccentricity of a lap joint.</div>
+  </div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Bolted joint design check</h3><span class="hint">The bars show utilisation (stress / allowable)</span></div>
+    <div class="demo-body wide-ctrl">
+      <canvas id="d2" data-aspect="0.6" aria-label="Bolted joint"></canvas>
+      <div class="ctrl" id="d2c"></div>
+    </div>
+  </div>
+  <div class="example">
+    <h3>lap joint</h3>
+    <p>Two plates b = 100 mm, t = 10 mm are lapped and joined by 3 bolts d = 16 mm in one row across the width. F = 60 kN. Find τ, σ<sub>b</sub> and the net-section σ.</p>
+    <details class="step"><summary>Bolt shear (single shear, m = 1)</summary>A = π·16²/4 = 201 mm²; τ = 60 000/(3·201) = <b>99.5 MPa</b></details>
+    <details class="step"><summary>Bearing</summary>σ<sub>b</sub> = 60 000/(3·16·10) = <b>125 MPa</b></details>
+    <details class="step"><summary>Net section</summary>σ = 60 000/[(100 − 3·16)·10] = <b>115 MPa</b>. Holes weaken the plate. Check it in the demo.</details>
+  </div>
+</section>
+
+<section class="slide" id="mohr">
+  <h2>Plane stress transformation and Mohr’s circle</h2>
+  <div class="prose"><p>The same stress state looks different on differently oriented planes. Rotating the element by θ (counter-clockwise):</p></div>
+  <div class="eq"><span class="m">σ<sub>x′</sub></span> = (<span class="m">σ<sub>x</sub>+σ<sub>y</sub></span>)/2 + (<span class="m">σ<sub>x</sub>−σ<sub>y</sub></span>)/2 · cos 2θ + <span class="m">τ<sub>xy</sub></span> sin 2θ, &nbsp;&nbsp; <span class="m">τ<sub>x′y′</sub></span> = −(<span class="m">σ<sub>x</sub>−σ<sub>y</sub></span>)/2 · sin 2θ + <span class="m">τ<sub>xy</sub></span> cos 2θ
+    <span class="lbl">principal stresses σ₁,₂ = C ± R, C = (σ<sub>x</sub>+σ<sub>y</sub>)/2, R = √[((σ<sub>x</sub>−σ<sub>y</sub>)/2)² + τ<sub>xy</sub>²], tan 2θ<sub>p</sub> = 2τ<sub>xy</sub>/(σ<sub>x</sub>−σ<sub>y</sub>), τ<sub>max</sub> = R</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Mohr’s circle for plane stress</h3><span class="hint">Rotating the element by θ moves the point by 2θ on the circle</span></div>
+    <div class="demo-body">
+      <canvas id="d3" data-aspect="0.55" aria-label="Mohr's circle"></canvas>
+      <div class="ctrl" id="d3c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--accent)">face x′ (point X′)</span><span style="--c:var(--moment)">face y′ (point Y′)</span><span style="--c:var(--good)">principal stresses</span></div>
+  </div>
+  <div class="key"><strong>Convention used here:</strong> τ is plotted <em>positive downward</em>. Then a counter-clockwise rotation θ of the element is a counter-clockwise rotation 2θ on the circle. Principal planes carry no shear stress. Maximum shear planes lie at 45° to them.</div>
+</section>
+
+<section class="slide" id="hooke3d">
+  <h2>Generalised Hooke’s law</h2>
+  <div class="prose"><p>Pull a bar and it gets thinner (Poisson). In 3D, every normal stress causes strain in all three directions. Shear stresses only cause shear strains (isotropic material):</p></div>
+  <div class="eq"><span class="m">ε<sub>x</sub></span> = [<span class="m">σ<sub>x</sub></span> − <span class="m">ν</span>(<span class="m">σ<sub>y</sub> + σ<sub>z</sub></span>)] / <span class="m">E</span> &nbsp; (and cyclically), &nbsp;&nbsp; <span class="m">γ<sub>xy</sub> = τ<sub>xy</sub> / G</span>
+    <span class="lbl">volumetric strain e = ΔV/V = ε<sub>x</sub> + ε<sub>y</sub> + ε<sub>z</sub> = (1 − 2ν)(σ<sub>x</sub> + σ<sub>y</sub> + σ<sub>z</sub>)/E · ν = 0.5 ⇒ incompressible</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Cube under triaxial stress</h3><span class="hint">Deformation exaggerated</span></div>
+    <div class="demo-body">
+      <canvas id="d4" data-aspect="0.55" aria-label="3D Hooke law cube"></canvas>
+      <div class="ctrl" id="d4c"></div>
+    </div>
+  </div>
+  <aside class="notes">Tick “lateral strains prevented”. This is the confined compression case (a rubber seal in a groove, soil). Raise ν toward 0.5 and the stress needed explodes. That is why rubber mounts must be allowed to bulge.</aside>
+</section>
+
+<section class="slide" id="check">
+  <h2>Quick check</h2>
+  <div class="quiz">
+    <p class="q">1. A pin in double shear carries F. The shear stress in the pin is…</p>
+    <div class="opts">
+      <button class="opt">F/A</button>
+      <button class="opt" data-ok>F/(2A)</button>
+      <button class="opt">2F/A</button>
+    </div>
+    <p class="why">Two shear planes share the load, each carrying F/2.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">2. Uniaxial tension σ. The maximum shear stress is…</p>
+    <div class="opts">
+      <button class="opt">σ, at 90°</button>
+      <button class="opt" data-ok>σ/2, on planes at 45°</button>
+      <button class="opt">0</button>
+    </div>
+    <p class="why">The Mohr’s circle passes through (σ, 0) and (0, 0). Its radius is σ/2. This is why ductile metals yield along 45° slip bands.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">3. Steel has E = 210 GPa, ν = 0.3. G equals…</p>
+    <div class="opts">
+      <button class="opt" data-ok>≈ 81 GPa</button>
+      <button class="opt">≈ 105 GPa</button>
+      <button class="opt">≈ 63 GPa</button>
+    </div>
+    <p class="why">G = E/[2(1+ν)] = 210/2.6 ≈ 80.8 GPa. Lab Test 11 measures G in torsion.</p>
+  </div>
+</section>
+
+<section class="slide" id="summary">
+  <h2>Summary</h2>
+  <ul class="prose">
+    <li>τ = V/A, τ = Gγ, G = E/[2(1+ν)]. Shear stresses come in complementary pairs.</li>
+    <li>Joints: check bolt shear (count the shear planes), bearing and net-section tension.</li>
+    <li>Stress transformation: Mohr’s circle, centre C, radius R. σ₁,₂ = C ± R, τ<sub>max</sub> = R.</li>
+    <li>3D Hooke: ε<sub>x</sub> = [σ<sub>x</sub> − ν(σ<sub>y</sub>+σ<sub>z</sub>)]/E. Volumetric strain ∝ (1−2ν).</li>
+  </ul>
+  <p class="prose"><b>Next lecture:</b> bending: internal force diagrams, area moments of inertia and bending stresses.</p>
+</section>
+
+</main>
+</div>
+
+<script src="assets/lecture.js"></script>
+<script>
+/* helper: draw a stressed square element rotated by th (math ccw), with sx on x' faces, sy on y' faces, txy shear */
+function drawElement(ctx, cx, cy, size, th, sx, sy, txy, scale, opts) {
+  opts = opts || {};
+  const tc = BME.c('--tension'), cc = BME.c('--compression'), mc = BME.c('--moment');
+  const c = Math.cos(th), s = Math.sin(th);
+  const P = (u, v) => [cx + u * c - v * s, cy - (u * s + v * c)]; // local -> screen
+  const h = size / 2;
+  ctx.save();
+  ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+  const corners = opts.gamma ? [[-h - opts.gamma * h, -h], [h - opts.gamma * h, -h], [h + opts.gamma * h, h], [-h + opts.gamma * h, h]] : [[-h, -h], [h, -h], [h, h], [-h, h]];
+  ctx.beginPath(); corners.forEach((q, i) => { const p = P(q[0], q[1]); if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  const norm = (u, v, sig) => { // face centre at (u,v), outward normal (u,v)/h
+    if (Math.abs(sig) < 1e-6) return;
+    const L = 8 + Math.abs(sig) * scale, nx = u / h, ny = v / h;
+    const a = P(u + nx * 6, v + ny * 6), b = P(u + nx * (6 + L), v + ny * (6 + L));
+    if (sig > 0) BME.arrow(ctx, a[0], a[1], b[0], b[1], tc, { width: 2.4 });
+    else BME.arrow(ctx, b[0], b[1], a[0], a[1], cc, { width: 2.4 });
+  };
+  norm(h, 0, sx); norm(-h, 0, sx); norm(0, h, sy); norm(0, -h, sy);
+  if (Math.abs(txy) > 1e-6) {
+    const L = 8 + Math.abs(txy) * scale, sg = Math.sign(txy);
+    const sh = (u, v, du, dv) => { const a = P(u - du * L / 2, v - dv * L / 2), b = P(u + du * L / 2, v + dv * L / 2); BME.arrow(ctx, a[0], a[1], b[0], b[1], mc, { width: 2.2, head: 8 }); };
+    sh(h + 5, 0, 0, sg); sh(-h - 5, 0, 0, -sg); sh(0, h + 5, sg, 0); sh(0, -h - 5, -sg, 0);
+  }
+  if (opts.axes) {
+    const a = P(0, 0), bx = P(h * 0.6, 0), by = P(0, h * 0.6);
+    BME.arrow(ctx, a[0], a[1], bx[0], bx[1], BME.c('--muted'), { width: 1.2, head: 6, label: opts.axes[0], size: 12, off: 9 });
+    BME.arrow(ctx, a[0], a[1], by[0], by[1], BME.c('--muted'), { width: 1.2, head: 6, label: opts.axes[1], size: 12, off: 9 });
+  }
+}
+
+/* ---------- Demo 1: pure shear ---------- */
+(function () {
+  const v = BME.controls('d1c', [
+    { id: 'tau', label: 'Shear stress τ', min: -100, max: 100, step: 5, value: 60, unit: 'MPa' },
+    { id: 'th', label: 'Element rotation θ', min: 0, max: 90, step: 1, value: 0, unit: '°' },
+    { id: 'G', label: 'Shear modulus G', min: 20, max: 90, step: 1, value: 81, unit: 'GPa' },
+    { type: 'check', id: 'def', label: 'Show distortion (γ ×200)', value: true },
+    { html: '<dl class="readout" id="d1r"></dl>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d1', (ctx, w, h) => {
+    const th = v.th * BME.deg, t = v.tau;
+    const sx = t * Math.sin(2 * th), sy = -t * Math.sin(2 * th), txy = t * Math.cos(2 * th);
+    const gamma = t / (v.G * 1000);
+    const size = Math.min(w * 0.3, h * 0.5);
+    drawElement(ctx, w * 0.28, h / 2, size, 0, 0, 0, t, 0.9, { gamma: v.def ? gamma * 200 / 2 : 0, axes: ['x', 'y'] });
+    BME.text(ctx, 'original element (θ = 0)', w * 0.28, h - 16, { size: 12, color: BME.c('--muted') });
+    drawElement(ctx, w * 0.72, h / 2, size, th, sx, sy, txy, 0.9, { axes: ["x′", "y′"] });
+    BME.text(ctx, 'rotated by θ = ' + v.th + '°', w * 0.72, h - 16, { size: 12, color: BME.c('--muted') });
+    BME.readout('d1r', [
+      ['σ<sub>x′</sub> = τ sin 2θ', BME.fmt(sx, 1) + ' MPa'],
+      ['σ<sub>y′</sub> = −τ sin 2θ', BME.fmt(sy, 1) + ' MPa'],
+      ['τ<sub>x′y′</sub> = τ cos 2θ', BME.fmt(txy, 1) + ' MPa'],
+      ['γ = τ/G', BME.fmt(gamma * 1000, 3) + ' mrad'],
+      ['γ in degrees', BME.fmt(gamma / BME.deg, 4) + '°']
+    ]);
+  });
+})();
+
+/* ---------- Demo 2: bolted joint ---------- */
+(function () {
+  const v = BME.controls('d2c', [
+    { type: 'select', id: 'type', label: 'Joint type', options: [['lap', 'Lap joint (single shear)'], ['butt', 'Butt joint with two cover plates (double shear)']], value: 'lap' },
+    { id: 'F', label: 'Force F', min: 5, max: 300, step: 5, value: 60, unit: 'kN' },
+    { id: 'n', label: 'Bolts in one row', min: 1, max: 5, step: 1, value: 3 },
+    { id: 'rows', label: 'Number of rows', min: 1, max: 3, step: 1, value: 1 },
+    { id: 'd', label: 'Bolt diameter d', min: 6, max: 30, step: 1, value: 16, unit: 'mm' },
+    { id: 't', label: 'Plate thickness t', min: 4, max: 30, step: 1, value: 10, unit: 'mm' },
+    { id: 'b', label: 'Plate width b', min: 40, max: 250, step: 5, value: 100, unit: 'mm' },
+    { id: 'kt', label: 'Allowable shear k_t', min: 60, max: 250, step: 5, value: 120, unit: 'MPa' },
+    { id: 'kb', label: 'Allowable bearing k_b', min: 100, max: 500, step: 10, value: 240, unit: 'MPa' },
+    { id: 'kr', label: 'Allowable tension k_r', min: 80, max: 300, step: 5, value: 150, unit: 'MPa' },
+    { html: '<dl class="readout" id="d2r"></dl>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d2', (ctx, w, h) => {
+    const m = v.type === 'lap' ? 1 : 2, N = v.n * v.rows, F = v.F * 1000;
+    const Ab = Math.PI * v.d * v.d / 4;
+    const tau = F / (N * m * Ab), sb = F / (N * v.d * v.t), st = F / ((v.b - v.n * v.d) * v.t);
+    const util = [['bolt shear τ', tau / v.kt], ['bearing σ_b', sb / v.kb], ['net section σ', st / v.kr]];
+    // side view
+    const sx0 = 30, sx1 = w * 0.62, sy = h * 0.22, tpx = Math.max(6, v.t * 1.2);
+    const pl = (x0, x1, y) => { ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 1.5; ctx.fillRect(x0, y, x1 - x0, tpx); ctx.strokeRect(x0, y, x1 - x0, tpx); };
+    const mid = (sx0 + sx1) / 2, ov = 40 + v.rows * 30;
+    BME.text(ctx, 'side view', sx0, 14, { align: 'left', size: 12, color: BME.c('--muted'), weight: 600 });
+    const boltX = [];
+    for (let r = 0; r < v.rows; r++) boltX.push(mid - ov / 2 + (r + 0.5) * ov / v.rows);
+    if (m === 1) {
+      pl(sx0, mid + ov / 2, sy); pl(mid - ov / 2, sx1, sy + tpx);
+      boltX.forEach((x) => { ctx.fillStyle = BME.c('--accent'); ctx.fillRect(x - v.d * 0.4, sy - 6, v.d * 0.8, 2 * tpx + 12); });
+      BME.line(ctx, mid - ov / 2 - 10, sy + tpx, mid + ov / 2 + 10, sy + tpx, BME.c('--bad'), 2, [4, 3]);
+      BME.arrow(ctx, sx0 + 30, sy + tpx / 2, sx0 - 10, sy + tpx / 2, BME.c('--force'), { label: 'F', off: 10 });
+      BME.arrow(ctx, sx1 - 30, sy + 1.5 * tpx, sx1 + 10, sy + 1.5 * tpx, BME.c('--force'), { label: 'F', off: 10 });
+    } else {
+      pl(sx0, mid - 4, sy + tpx); pl(mid + 4, sx1, sy + tpx);
+      pl(mid - ov, mid + ov, sy); pl(mid - ov, mid + ov, sy + 2 * tpx);
+      const bx = [];
+      for (let r = 0; r < v.rows; r++) { bx.push(mid - ov + (r + 0.5) * (ov - 6) / v.rows); bx.push(mid + 6 + (r + 0.5) * (ov - 6) / v.rows); }
+      bx.forEach((x) => { ctx.fillStyle = BME.c('--accent'); ctx.fillRect(x - v.d * 0.4, sy - 6, v.d * 0.8, 3 * tpx + 12); });
+      [sy + tpx, sy + 2 * tpx].forEach((y) => BME.line(ctx, mid - ov - 10, y, mid + ov + 10, y, BME.c('--bad'), 2, [4, 3]));
+      BME.arrow(ctx, sx0 + 30, sy + 1.5 * tpx, sx0 - 10, sy + 1.5 * tpx, BME.c('--force'), { label: 'F', off: 10 });
+      BME.arrow(ctx, sx1 - 30, sy + 1.5 * tpx, sx1 + 10, sy + 1.5 * tpx, BME.c('--force'), { label: 'F', off: 10 });
+    }
+    BME.text(ctx, '- - shear planes: ' + m + ' per bolt', sx0, sy + 3 * tpx + 26, { align: 'left', size: 12, color: BME.c('--bad') });
+    // top view of plate with holes (one row across width)
+    const ty0 = h * 0.5, sc = Math.min((h * 0.42) / v.b, 1.6);
+    const bw = v.b * sc;
+    BME.text(ctx, 'top view: net section', sx0, ty0 - 12, { align: 'left', size: 12, color: BME.c('--muted'), weight: 600 });
+    ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.fillRect(sx0, ty0, sx1 - sx0, bw); ctx.strokeRect(sx0, ty0, sx1 - sx0, bw);
+    for (let r = 0; r < v.rows; r++) for (let i = 0; i < v.n; i++) {
+      const x = boltX[r], y = ty0 + bw * (i + 0.5) / v.n;
+      ctx.beginPath(); ctx.arc(x, y, v.d * sc / 2, 0, 2 * Math.PI); ctx.fillStyle = BME.c('--surface'); ctx.fill(); ctx.stroke();
+    }
+    BME.line(ctx, boltX[0], ty0 - 4, boltX[0], ty0 + bw + 4, BME.c('--bad'), 1.5, [4, 3]);
+    // utilisation bars
+    const bx0 = w * 0.67, bw2 = w * 0.3;
+    util.forEach((u, i) => {
+      const y = 30 + i * 60;
+      BME.text(ctx, u[0], bx0, y, { align: 'left', size: 13, weight: 600 });
+      ctx.fillStyle = BME.c('--surface-2'); ctx.fillRect(bx0, y + 12, bw2, 18);
+      ctx.fillStyle = u[1] <= 1 ? BME.c('--good') : BME.c('--bad'); ctx.fillRect(bx0, y + 12, bw2 * Math.min(u[1], 1.5) / 1.5, 18);
+      BME.line(ctx, bx0 + bw2 / 1.5, y + 8, bx0 + bw2 / 1.5, y + 34, BME.c('--ink'), 1.5);
+      BME.text(ctx, BME.fmt(u[1] * 100, 0) + ' %', bx0 + bw2, y, { align: 'right', size: 13, weight: 700, color: u[1] <= 1 ? BME.c('--good') : BME.c('--bad') });
+    });
+    BME.text(ctx, '| = 100 % of allowable', bx0, 30 + 3 * 60, { align: 'left', size: 11, color: BME.c('--muted') });
+    const Fcap = Math.min(N * m * Ab * v.kt, N * v.d * v.t * v.kb, (v.b - v.n * v.d) * v.t * v.kr) / 1000;
+    BME.readout('d2r', [
+      ['τ = F/(N m πd²/4)', BME.fmt(tau, 1) + ' MPa'],
+      ['σ<sub>b</sub> = F/(N d t)', BME.fmt(sb, 1) + ' MPa'],
+      ['σ<sub>net</sub> = F/((b − n d)t)', v.b > v.n * v.d ? BME.fmt(st, 1) + ' MPa' : 'holes too big!'],
+      ['joint capacity', BME.fmt(Fcap, 1) + ' kN', Fcap >= v.F ? 'ok' : 'no']
+    ]);
+  });
+})();
+
+/* ---------- Demo 3: Mohr's circle ---------- */
+(function () {
+  const v = BME.controls('d3c', [
+    { id: 'sx', label: 'σ<sub>x</sub>', min: -150, max: 150, step: 5, value: 80, unit: 'MPa' },
+    { id: 'sy', label: 'σ<sub>y</sub>', min: -150, max: 150, step: 5, value: -20, unit: 'MPa' },
+    { id: 'txy', label: 'τ<sub>xy</sub>', min: -100, max: 100, step: 5, value: 40, unit: 'MPa' },
+    { id: 'th', label: 'Element rotation θ', min: -90, max: 90, step: 1, value: 0, unit: '°' },
+    { type: 'button', id: 'pr', label: 'Rotate to principal directions', onclick: () => { const p = 0.5 * Math.atan2(2 * v.txy, v.sx - v.sy) / BME.deg; v.set('th', Math.round(p)); } },
+    { html: '<dl class="readout" id="d3r"></dl>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d3', (ctx, w, h) => {
+    const { sx, sy, txy } = v, th = v.th * BME.deg;
+    const C = (sx + sy) / 2, a = (sx - sy) / 2, R = Math.hypot(a, txy);
+    const s1 = sx * 0, sxp = C + a * Math.cos(2 * th) + txy * Math.sin(2 * th);
+    const syp = C - a * Math.cos(2 * th) - txy * Math.sin(2 * th);
+    const tp = -a * Math.sin(2 * th) + txy * Math.cos(2 * th);
+    // element on the left
+    drawElement(ctx, w * 0.22, h / 2, Math.min(w * 0.18, h * 0.38), th, sxp, syp, tp, 0.55, { axes: ["x′", "y′"] });
+    // Mohr circle on the right
+    const W = w * 0.52, ox = w * 0.46, cy = h / 2;
+    const span = Math.max(Math.abs(C) + R, 20) * 1.15;
+    const sc = Math.min(W / (2 * span), (h - 40) / (2 * Math.max(R, 10) * 1.2));
+    const cx0 = ox + W / 2 - C * sc;
+    const X = (s) => cx0 + s * sc, Y = (t) => cy + t * sc;
+    const muted = BME.c('--muted');
+    BME.arrow(ctx, ox, cy, ox + W + 10, cy, muted, { width: 1.2, head: 7 });
+    BME.text(ctx, 'σ', ox + W + 12, cy - 12, { italic: true, color: muted });
+    if (X(0) > ox && X(0) < ox + W) { BME.arrow(ctx, X(0), 16, X(0), h - 10, muted, { width: 1.2, head: 7 }); BME.text(ctx, 'τ (+ down)', X(0) + 6, h - 14, { align: 'left', size: 11, color: muted }); }
+    ctx.save(); ctx.strokeStyle = BME.c('--ink'); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(X(C), cy, R * sc, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+    BME.dot(ctx, X(C), cy, 3.5, BME.c('--ink'));
+    BME.text(ctx, 'C', X(C), cy + 14, { size: 12, weight: 700 });
+    // original X and Y
+    BME.line(ctx, X(sx), Y(txy), X(sy), Y(-txy), muted, 1, [3, 3]);
+    BME.dot(ctx, X(sx), Y(txy), 4, muted); BME.text(ctx, 'X', X(sx) + 10, Y(txy) + 10, { size: 11, color: muted });
+    // rotated
+    BME.line(ctx, X(sxp), Y(tp), X(syp), Y(-tp), BME.c('--accent'), 2);
+    BME.dot(ctx, X(sxp), Y(tp), 6, BME.c('--accent'));
+    BME.dot(ctx, X(syp), Y(-tp), 6, BME.c('--moment'));
+    BME.text(ctx, "X′", X(sxp) + 12, Y(tp) - 10, { weight: 700, color: BME.c('--accent'), bg: true });
+    BME.text(ctx, "Y′", X(syp) - 12, Y(-tp) - 10, { weight: 700, color: BME.c('--moment'), bg: true });
+    BME.dot(ctx, X(C + R), cy, 5, BME.c('--good')); BME.dot(ctx, X(C - R), cy, 5, BME.c('--good'));
+    BME.text(ctx, 'σ₁', X(C + R) + 12, cy + 14, { color: BME.c('--good'), weight: 700 });
+    BME.text(ctx, 'σ₂', X(C - R) - 12, cy + 14, { color: BME.c('--good'), weight: 700 });
+    const thp = 0.5 * Math.atan2(2 * txy, sx - sy) / BME.deg;
+    BME.readout('d3r', [
+      ['σ<sub>x′</sub>', BME.fmt(sxp, 1) + ' MPa'],
+      ['σ<sub>y′</sub>', BME.fmt(syp, 1) + ' MPa'],
+      ['τ<sub>x′y′</sub>', BME.fmt(tp, 1) + ' MPa'],
+      ['σ₁ = C + R', BME.fmt(C + R, 1) + ' MPa'],
+      ['σ₂ = C − R', BME.fmt(C - R, 1) + ' MPa'],
+      ['θ<sub>p</sub>', BME.fmt(thp, 1) + '°'],
+      ['τ<sub>max</sub> = R (in-plane)', BME.fmt(R, 1) + ' MPa']
+    ]);
+  });
+})();
+
+/* ---------- Demo 4: 3D Hooke ---------- */
+(function () {
+  const v = BME.controls('d4c', [
+    { id: 'sx', label: 'σ<sub>x</sub>', min: -300, max: 300, step: 10, value: 200, unit: 'MPa' },
+    { id: 'sy', label: 'σ<sub>y</sub>', min: -300, max: 300, step: 10, value: 0, unit: 'MPa' },
+    { id: 'sz', label: 'σ<sub>z</sub>', min: -300, max: 300, step: 10, value: 0, unit: 'MPa' },
+    { id: 'E', label: 'E', min: 1, max: 250, step: 1, value: 210, unit: 'GPa' },
+    { id: 'nu', label: 'ν', min: 0, max: 0.49, step: 0.01, value: 0.3 },
+    { type: 'check', id: 'conf', label: 'Lateral strains prevented (ε<sub>y</sub> = ε<sub>z</sub> = 0)', value: false },
+    { html: '<dl class="readout" id="d4r"></dl>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d4', (ctx, w, h) => {
+    const E = v.E * 1000, nu = v.nu;
+    let sx = v.sx, sy = v.sy, sz = v.sz;
+    if (v.conf) { sy = sz = nu / (1 - nu) * sx; }
+    const ex = (sx - nu * (sy + sz)) / E, ey = (sy - nu * (sx + sz)) / E, ez = (sz - nu * (sx + sy)) / E;
+    const ev = ex + ey + ez;
+    const ex_ = 0.25 / Math.max(Math.abs(ex), Math.abs(ey), Math.abs(ez), 1e-3) ; // exaggeration
+    const k = Math.min(ex_, 300);
+    const S = Math.min(w * 0.28, h * 0.45);
+    const cx = w * 0.42, cy = h * 0.56;
+    const proj = (x, y, z) => [cx + (x - 0.5) * S + (z - 0.5) * S * 0.5, cy - (y - 0.5) * S - (z - 0.5) * S * 0.35];
+    const box = (dx, dy, dz, fill, dash) => {
+      const V = (i, j, l) => proj(i * dx, j * dy, l * dz);
+      const faces = [[[0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]], [[1, 0, 0], [1, 0, 1], [1, 1, 1], [1, 1, 0]], [[0, 1, 0], [1, 1, 0], [1, 1, 1], [0, 1, 1]]];
+      ctx.save(); ctx.lineWidth = dash ? 1.2 : 2; ctx.strokeStyle = dash ? BME.c('--muted') : BME.c('--body-edge'); if (dash) ctx.setLineDash([4, 4]);
+      const fills = [0.55, 0.75, 0.95];
+      faces.forEach((f, fi) => {
+        ctx.beginPath(); f.forEach((q, i) => { const p = V(q[0], q[1], q[2]); if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.closePath();
+        if (fill) { ctx.globalAlpha = fills[fi]; ctx.fillStyle = BME.c('--body'); ctx.fill(); ctx.globalAlpha = 1; }
+        ctx.stroke();
+      });
+      ctx.restore();
+    };
+    box(1 + ex * k, 1 + ey * k, 1 + ez * k, true, false);
+    box(1, 1, 1, false, true);
+    // stress arrows
+    const tc = BME.c('--tension'), cc = BME.c('--compression');
+    const arr = (s, p0, dir, lab) => {
+      if (Math.abs(s) < 1e-6) return;
+      const L = 14 + Math.abs(s) * 0.2;
+      const a = [p0[0] + dir[0] * 8, p0[1] + dir[1] * 8], b = [a[0] + dir[0] * L, a[1] + dir[1] * L];
+      if (s > 0) BME.arrow(ctx, a[0], a[1], b[0], b[1], tc, { label: lab, off: 14 }); else BME.arrow(ctx, b[0], b[1], a[0], a[1], cc, { label: lab, off: 0, dx: dir[0] * -30, dy: dir[1] * -30 });
+    };
+    arr(sx, proj(1 + ex * k, 0.5, 0.5), [1, 0], 'σx'.replace('x', 'ₓ'));
+    arr(sy, proj(0.5, 1 + ey * k, 0.5), [0, -1], 'σᵧ');
+    arr(sz, proj(0.5, 0.5, 1 + ez * k), [0.82, 0.57], 'σz'.replace('z', '𝑧'));
+    BME.text(ctx, 'deformation × ' + BME.fmt(k, 0), 14, h - 14, { align: 'left', size: 12, color: BME.c('--muted') });
+    BME.readout('d4r', [
+      ['ε<sub>x</sub>', BME.fmt(ex * 1e6, 0) + ' µε'],
+      ['ε<sub>y</sub>', BME.fmt(ey * 1e6, 0) + ' µε'],
+      ['ε<sub>z</sub>', BME.fmt(ez * 1e6, 0) + ' µε'],
+      ['e = ΔV/V', BME.fmt(ev * 1e6, 0) + ' µε'],
+      ['σ<sub>y</sub> = σ<sub>z</sub> (if confined)', v.conf ? BME.fmt(sy, 1) + ' MPa' : '—'],
+      ['G = E/2(1+ν)', BME.fmt(v.E / (2 * (1 + nu)), 1) + ' GPa']
+    ]);
+  });
+})();
+</script>
+</body>
+</html>

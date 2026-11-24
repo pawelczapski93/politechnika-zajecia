@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Torsion of Shafts</title>
+<link rel="stylesheet" href="assets/lecture.css">
+</head>
+<body data-lecture="10">
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lecture 10 · Mechanics of materials</div>
+  <h1>Torsion and power transmission</h1>
+  <p class="lead">Every motor, gearbox, drill and drive shaft transmits <b>power by torque</b>. A shaft must neither break (strength) nor twist too much (stiffness). The theory of torsion of circular bars answers both questions, and it closes the course by combining kinematics (ω), dynamics (P = Tω) and mechanics of materials (τ, γ, G).</p>
+  <div class="goals">
+    <h3>After this lecture you can…</h3>
+    <ul>
+      <li>derive and use τ = T r / J and φ = T L / (G J) for solid and hollow circular shafts;</li>
+      <li>explain why hollow shafts are more efficient than solid ones;</li>
+      <li>relate power, speed and torque, P = T ω, and size a shaft for strength and stiffness;</li>
+      <li>determine the shear modulus G from a torsion test (Lab Test 11).</li>
+    </ul>
+    <p style="margin:0;color:var(--muted);font-size:.88rem">Syllabus outcomes: 1MEC1.2, 1MEC3.2, 1MEC6.1, 1MEC6.2 · Reading: Gere &amp; Timoshenko ch. 3; Hearn vol. 1, ch. 8; Benham &amp; Crawford ch. 4.</p>
+  </div>
+  <aside class="notes">90 min plan: torsion theory 30 · hollow vs solid 10 · power transmission 25 · course wrap-up and exam briefing 20 · quiz 5. End with the exam format from the syllabus (see last section).</aside>
+</header>
+
+<section class="slide" id="torsion">
+  <h2>Torsion of circular bars</h2>
+  <div class="prose"><p>Assumptions: circular cross-sections stay plane and circular, radii stay straight, and the material is linear-elastic. A line on the surface becomes a <b>helix</b>. The shear strain grows linearly with the radius, and so does the shear stress:</p></div>
+  <div class="eq"><span class="m">γ(r)</span> = <span class="m">r</span> d<span class="m">φ</span>/d<span class="m">x</span>, &nbsp;&nbsp; <span class="m">τ(r)</span> = <span class="m">T r</span> / <span class="m">J</span>, &nbsp;&nbsp; <span class="m">τ</span><sub>max</sub> = <span class="m">T</span> / <span class="m">W<sub>0</sub></span>, &nbsp;&nbsp; <span class="m">φ</span> = <span class="m">T L</span> / (<span class="m">G J</span>)
+    <span class="lbl">polar moment of inertia: J = πD⁴/32 (solid), J = π(D⁴ − d⁴)/32 (hollow) · W<sub>0</sub> = J/(D/2) · GJ = torsional stiffness</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Twisting a shaft</h3><span class="hint">The T–φ graph is what you measure in Lab Test 11</span></div>
+    <div class="demo-body">
+      <canvas id="d1" data-aspect="0.62" aria-label="Twisted shaft"></canvas>
+      <div class="ctrl" id="d1c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--accent)">surface generators (helices)</span><span style="--c:var(--moment)">shear stress τ(r)</span><span style="--c:var(--force)">torque T</span></div>
+  </div>
+  <div class="key"><strong>Lab connection: measuring G.</strong> Apply increasing T, measure φ over gauge length L, plot T against φ. The slope is GJ/L, so <span class="m">G = (ΔT/Δφ) · L / J</span>. Lecture 8 predicted G = E/[2(1+ν)]. Compare your measured value with it!</div>
+</section>
+
+<section class="slide" id="hollow">
+  <h2>Why hollow shafts?</h2>
+  <div class="prose"><p>Material near the axis carries little stress (τ ∝ r), the same idea as the neutral axis in bending. Removing the core costs little strength but saves a lot of mass. For equal maximum shear stress and the same torque:</p></div>
+  <div class="eq"><span class="m">D<sub>hollow</sub></span> = <span class="m">D<sub>solid</sub></span> / (1 − <span class="m">k</span>⁴)<sup>1/3</sup>, &nbsp;&nbsp; mass ratio = (1 − <span class="m">k</span>²) / (1 − <span class="m">k</span>⁴)<sup>2/3</sup>, &nbsp;&nbsp; <span class="m">k = d/D</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Mass saving of a hollow shaft of equal strength</h3><span class="hint">Too thin a wall would buckle locally; practical k ≲ 0.8</span></div>
+    <div class="demo-body">
+      <canvas id="d2" data-aspect="0.5" aria-label="Hollow vs solid shaft"></canvas>
+      <div class="ctrl" id="d2c"></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="power">
+  <h2>Transmission of power by a circular shaft</h2>
+  <div class="eq"><span class="m">P</span> = <span class="m">T ω</span> = <span class="m">T</span> · 2π<span class="m">n</span>/60 &nbsp;&nbsp; ⇒ &nbsp;&nbsp; <span class="m">T</span> [N·m] = 9549 · <span class="m">P</span> [kW] / <span class="m">n</span> [rpm]
+    <span class="lbl">strength: d ≥ ∛(16T / πτ<sub>allow</sub>) · stiffness: d ≥ ⁴√(32T / πGθ<sub>allow</sub>), θ = φ/L in rad/m</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Shaft sizing: strength vs stiffness</h3><span class="hint">Same power, different speeds</span></div>
+    <div class="demo-body">
+      <canvas id="d3" data-aspect="0.55" aria-label="Shaft diameter vs speed"></canvas>
+      <div class="ctrl" id="d3c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--force)">d from strength</span><span style="--c:var(--accent)">d from stiffness</span><span style="--c:var(--ink)">governing (larger)</span></div>
+  </div>
+  <div class="example">
+    <h3>motor shaft</h3>
+    <p>A motor delivers P = 15 kW at n = 1450 rpm. Steel shaft: τ<sub>allow</sub> = 40 MPa, G = 80 GPa, θ<sub>allow</sub> = 0.25 °/m. Find the diameter.</p>
+    <details class="step"><summary>Step 1: torque</summary>T = 9549 · 15 / 1450 = <b>98.8 N·m</b></details>
+    <details class="step"><summary>Step 2: strength</summary>d ≥ ∛(16 · 98 800 / (π · 40)) = ∛(12 580) ≈ <b>23.3 mm</b></details>
+    <details class="step"><summary>Step 3: stiffness</summary>θ = 0.25° /m = 4.363·10⁻⁶ rad/mm; d ≥ ⁴√(32 · 98 800 / (π · 80 000 · 4.363·10⁻⁶)) = ⁴√(2.884·10⁶) ≈ <b>41.2 mm</b></details>
+    <details class="step"><summary>Step 4: decision</summary>Stiffness governs. Choose d = 42 mm (then check keyways and stress concentrations). Verify in the demo.</details>
+  </div>
+  <aside class="notes">Message: reduce speed through a gearbox and the torque rises, so low-speed shafts must be thicker. Ask: “Why is a truck’s rear axle much thicker than the engine’s crankshaft journal?”</aside>
+</section>
+
+<section class="slide" id="check">
+  <h2>Quick check</h2>
+  <div class="quiz">
+    <p class="q">1. A solid shaft’s diameter is doubled. For the same torque, the maximum shear stress…</p>
+    <div class="opts">
+      <button class="opt">halves</button>
+      <button class="opt">drops 4×</button>
+      <button class="opt" data-ok>drops 8×</button>
+    </div>
+    <p class="why">τ<sub>max</sub> = 16T/(πD³), so 2³ = 8. The twist angle drops 2⁴ = 16×.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">2. The same power is transmitted at double the speed. The torque…</p>
+    <div class="opts">
+      <button class="opt" data-ok>halves</button>
+      <button class="opt">doubles</button>
+      <button class="opt">stays the same</button>
+    </div>
+    <p class="why">P = Tω ⇒ T = P/ω.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">3. Where is the shear stress zero in a solid shaft under torsion?</p>
+    <div class="opts">
+      <button class="opt">at the surface</button>
+      <button class="opt" data-ok>on the axis</button>
+      <button class="opt">nowhere</button>
+    </div>
+    <p class="why">τ = Tr/J, so τ = 0 at r = 0. This is why hollow shafts are efficient.</p>
+  </div>
+</section>
+
+<section class="slide" id="wrap">
+  <h2>Course wrap-up and exam briefing</h2>
+  <div class="two">
+    <div>
+      <h3>What the 10 lectures built</h3>
+      <ol class="prose">
+        <li>Statics: forces, moments, equilibrium (L1–L2)</li>
+        <li>Kinematics: particle and rigid body (L3–L4)</li>
+        <li>Kinetics: Newton, momentum, energy, inertia (L5–L6)</li>
+        <li>Strength: axial, shear, bending, torsion (L7–L10)</li>
+      </ol>
+      <table class="data">
+        <tr><th>Load</th><th>Stress</th><th>Deformation</th></tr>
+        <tr><td>axial N</td><td>σ = N/A</td><td>Δl = NL/EA</td></tr>
+        <tr><td>shear V</td><td>τ = V/A</td><td>γ = τ/G</td></tr>
+        <tr><td>bending M</td><td>σ = My/I</td><td>1/ρ = M/EI</td></tr>
+        <tr><td>torsion T</td><td>τ = Tr/J</td><td>φ = TL/GJ</td></tr>
+      </table>
+    </div>
+    <div class="key">
+      <strong>Exam (from the syllabus).</strong> The exam has two parts.<br>
+      • <b>Written:</b> 3 tasks + 3 theoretical issues. To pass you need a positive grade on the tasks, and at least 2 of the 3 theory topics developed correctly.<br>
+      • <b>Oral:</b> explain and justify your written solutions clearly and on your own.<br>
+      Both parts must be passed. Passing the tutorials with a grade of 4 exempts you from the task part at the first attempt.<br><br>
+      <b>Weights:</b> written exam 35 %, oral exam 10 %, tutorials 40 %, laboratory 15 %.
+    </div>
+  </div>
+  <aside class="notes">Suggested revision task: pick one demo per lecture and ask students to set up an exam-style task with it, then solve it by hand and check with the demo.</aside>
+</section>
+
+</main>
+</div>
+
+<script src="assets/lecture.js"></script>
+<script>
+/* ---------- Demo 1: twisted shaft ---------- */
+(function () {
+  const v = BME.controls('d1c', [
+    { id: 'T', label: 'Torque T', min: 0, max: 5000, step: 50, value: 1500, unit: 'N·m' },
+    { id: 'D', label: 'Outer diameter D', min: 20, max: 150, step: 1, value: 50, unit: 'mm' },
+    { id: 'k', label: 'Bore ratio k = d/D (0 = solid)', min: 0, max: 0.9, step: 0.05, value: 0 },
+    { id: 'L', label: 'Length L', min: 0.2, max: 3, step: 0.1, value: 1.2, unit: 'm' },
+    { id: 'G', label: 'Shear modulus G', min: 25, max: 85, step: 1, value: 80, unit: 'GPa' },
+    { id: 'ex', label: 'Twist exaggeration', min: 1, max: 30, step: 1, value: 10, unit: '×' },
+    { html: '<dl class="readout" id="d1r"></dl>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d1', (ctx, w, h) => {
+    const D = v.D, d = v.k * D, J = Math.PI * (D ** 4 - d ** 4) / 32;
+    const T = v.T * 1000; // N·mm
+    const tmax = T * (D / 2) / J, tin = T * (d / 2) / J;
+    const phi = T * v.L * 1000 / (v.G * 1000 * J); // rad
+    const phiV = phi * v.ex;
+    // shaft side view
+    const x0 = 40, x1 = w * 0.6, yc = h * 0.3, R = Math.min(h * 0.17, 12 + D * 0.5);
+    BME.wall(ctx, x0, yc - R - 25, yc + R + 25, -1);
+    ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.fillRect(x0, yc - R, x1 - x0, 2 * R); ctx.strokeRect(x0, yc - R, x1 - x0, 2 * R);
+    ctx.save(); ctx.beginPath(); ctx.rect(x0, yc - R, x1 - x0, 2 * R); ctx.clip();
+    const ac = BME.c('--accent');
+    for (let k = 0; k < 12; k++) {
+      const psi = k * Math.PI / 6;
+      ctx.strokeStyle = ac; ctx.lineWidth = 1.6; ctx.beginPath();
+      let started = false;
+      for (let i = 0; i <= 80; i++) {
+        const x = i / 80, a = psi + phiV * x;
+        const front = Math.cos(a) > 0;
+        const px = x0 + x * (x1 - x0), py = yc - R * Math.sin(a);
+        if (front) { if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py); }
+        else started = false;
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+    // end ellipse and torque arrow
+    ctx.save(); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x1, yc, R * 0.35, R, 0, 0, 2 * Math.PI); ctx.fillStyle = BME.c('--surface-2'); ctx.fill(); ctx.stroke(); ctx.restore();
+    if (v.T > 0) {
+      ctx.save(); ctx.strokeStyle = BME.c('--force'); ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(x1 + 18, yc, R * 0.45, R + 12, 0, -Math.PI * 0.6, Math.PI * 0.6); ctx.stroke(); ctx.restore();
+      const ea = Math.PI * 0.6, ex = x1 + 18 + R * 0.45 * Math.cos(ea), ey = yc + (R + 12) * Math.sin(ea);
+      BME.arrow(ctx, ex + 6, ey - 10, ex - 2, ey + 2, BME.c('--force'), { width: 3 });
+      BME.text(ctx, 'T', x1 + 36 + R * 0.45, yc - R - 6, { italic: true, weight: 700, color: BME.c('--force') });
+    }
+    BME.text(ctx, 'φ = ' + BME.fmt(phi / BME.deg, 3) + '° (drawn ×' + v.ex + ')', (x0 + x1) / 2, yc + R + 20, { size: 12, color: BME.c('--muted'), bg: true });
+    // cross-section with tau distribution
+    const cx = w * 0.82, cy = h * 0.3, Rs = Math.min(w * 0.13, h * 0.2);
+    ctx.save(); ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, Rs, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    if (v.k > 0) { ctx.beginPath(); ctx.arc(cx, cy, Rs * v.k, 0, 2 * Math.PI); ctx.fillStyle = BME.c('--surface'); ctx.fill(); ctx.stroke(); }
+    ctx.restore();
+    const mc = BME.c('--moment'), kt = Rs * 0.8 / Math.max(tmax, 1);
+    for (let i = 1; i <= 5; i++) {
+      const r = Rs * (v.k + (1 - v.k) * i / 5);
+      const tau = tmax * r / Rs;
+      BME.arrow(ctx, cx, cy - r, cx + tau * kt, cy - r, mc, { width: 1.8, head: 7 });
+    }
+    BME.line(ctx, cx, cy, cx, cy - Rs, BME.c('--muted'), 1);
+    BME.line(ctx, cx + tin * kt, cy - Rs * v.k, cx + tmax * kt, cy - Rs, mc, 1.2, [3, 3]);
+    BME.text(ctx, 'τmax = ' + BME.fmt(tmax, 1) + ' MPa', cx, cy + Rs + 18, { color: mc, weight: 700, size: 13 });
+    // T-phi plot
+    const Rp = { x: 70, y: h * 0.6, w: w - 100, h: h * 0.3 };
+    const Tmax = 5000, phimax = Tmax * 1000 * v.L * 1000 / (v.G * 1000 * J) / BME.deg;
+    BME.plot(ctx, Rp, { xmin: 0, xmax: phimax, ymin: 0, ymax: Tmax, xlabel: 'φ [°]', ylabel: 'T [N·m]', series: [{ pts: [[0, 0], [phimax, Tmax]], color: BME.c('--accent') }], marks: [{ x: phi / BME.deg, y: v.T, color: BME.c('--force'), label: 'slope = GJ/L' }] });
+    BME.readout('d1r', [
+      ['J = π(D⁴ − d⁴)/32', BME.fmt(J / 1e4, 2) + ' cm⁴'],
+      ['τ<sub>max</sub> = T(D/2)/J', BME.fmt(tmax, 1) + ' MPa'],
+      ['τ at the bore', v.k > 0 ? BME.fmt(tin, 1) + ' MPa' : '—'],
+      ['φ = TL/(GJ)', BME.fmt(phi / BME.deg, 3) + '°'],
+      ['θ = φ/L', BME.fmt(phi / BME.deg / v.L, 3) + ' °/m'],
+      ['γ<sub>max</sub> = τ<sub>max</sub>/G', BME.fmt(tmax / (v.G * 1000) * 1000, 3) + ' mrad']
+    ]);
+  });
+})();
+
+/* ---------- Demo 2: hollow vs solid ---------- */
+(function () {
+  const v = BME.controls('d2c', [
+    { id: 'k', label: 'Bore ratio k = d/D', min: 0, max: 0.95, step: 0.01, value: 0.7 },
+    { id: 'Ds', label: 'Reference solid diameter', min: 20, max: 150, step: 1, value: 60, unit: 'mm' },
+    { html: '<dl class="readout" id="d2r"></dl>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d2', (ctx, w, h) => {
+    const k = v.k, f = Math.pow(1 - k ** 4, 1 / 3);
+    const Dh = v.Ds / f, dh = k * Dh, mr = (1 - k * k) / Math.pow(1 - k ** 4, 2 / 3);
+    const R = { x: 60, y: 24, w: w * 0.5, h: h - 64 };
+    const pts = [], pts2 = [];
+    for (let i = 0; i <= 95; i++) { const kk = i / 100; pts.push([kk, (1 - kk * kk) / Math.pow(1 - kk ** 4, 2 / 3)]); pts2.push([kk, 1 / Math.pow(1 - kk ** 4, 1 / 3)]); }
+    BME.plot(ctx, R, { xmin: 0, xmax: 0.95, ymin: 0, ymax: 2, xlabel: 'k = d/D', ylabel: 'ratio to solid shaft', series: [{ pts, color: BME.c('--good'), fill: true }, { pts: pts2, color: BME.c('--accent'), dash: [5, 4] }],
+      marks: [{ x: k, y: mr, color: BME.c('--good'), label: 'mass ×' + BME.fmt(mr, 2) }, { x: k, y: Dh / v.Ds, color: BME.c('--accent'), label: 'D ×' + BME.fmt(Dh / v.Ds, 2), dy: 14 }] });
+    // section drawings
+    const sc = Math.min((w * 0.4) / (v.Ds + Dh + 40), (h * 0.7) / Dh);
+    const c1 = [w * 0.62 + v.Ds * sc / 2 + 10, h / 2], c2 = [w * 0.62 + v.Ds * sc + 30 + Dh * sc / 2, h / 2];
+    ctx.save(); ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(c1[0], c1[1], v.Ds * sc / 2, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(c2[0], c2[1], Dh * sc / 2, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(c2[0], c2[1], dh * sc / 2, 0, 2 * Math.PI); ctx.fillStyle = BME.c('--surface'); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    BME.text(ctx, 'solid', c1[0], c1[1] + Dh * sc / 2 + 18, { size: 12, color: BME.c('--muted') });
+    BME.text(ctx, 'hollow', c2[0], c2[1] + Dh * sc / 2 + 18, { size: 12, color: BME.c('--muted') });
+    BME.text(ctx, 'same τmax, same T', (c1[0] + c2[0]) / 2, 16, { size: 12, color: BME.c('--muted'), weight: 600 });
+    BME.readout('d2r', [
+      ['solid D', BME.fmt(v.Ds, 1) + ' mm'],
+      ['hollow D / d', BME.fmt(Dh, 1) + ' / ' + BME.fmt(dh, 1) + ' mm'],
+      ['mass ratio', BME.fmt(mr, 3)],
+      ['mass saved', BME.fmt(100 * (1 - mr), 1) + ' %', 'ok'],
+      ['stiffness ratio J<sub>h</sub>/J<sub>s</sub>', BME.fmt(Math.pow(Dh / v.Ds, 4) * (1 - k ** 4), 2)]
+    ]);
+  });
+})();
+
+/* ---------- Demo 3: power transmission ---------- */
+(function () {
+  const v = BME.controls('d3c', [
+    { id: 'P', label: 'Power P', min: 0.5, max: 200, step: 0.5, value: 15, unit: 'kW' },
+    { id: 'n', label: 'Speed n', min: 100, max: 3000, step: 10, value: 1450, unit: 'rpm' },
+    { id: 'ta', label: 'Allowable τ', min: 20, max: 120, step: 5, value: 40, unit: 'MPa' },
+    { id: 'th', label: 'Allowable twist θ', min: 0.1, max: 2, step: 0.05, value: 0.25, unit: '°/m' },
+    { id: 'G', label: 'Shear modulus G', min: 25, max: 85, step: 1, value: 80, unit: 'GPa' },
+    { html: '<dl class="readout" id="d3r"></dl>' }
+  ], () => o.redraw());
+  const dia = (n) => {
+    const T = v.P * 1000 / (2 * Math.PI * n / 60) * 1000; // N·mm
+    const ds = Math.cbrt(16 * T / (Math.PI * v.ta));
+    const th = v.th * Math.PI / 180 / 1000; // rad/mm
+    const dk = Math.pow(32 * T / (Math.PI * v.G * 1000 * th), 0.25);
+    return { T: T / 1000, ds, dk };
+  };
+  const o = BME.canvas('d3', (ctx, w, h) => {
+    const ps = [], pk = [], pg = [];
+    let mx = 0;
+    for (let n = 100; n <= 3000; n += 20) { const q = dia(n); ps.push([n, q.ds]); pk.push([n, q.dk]); pg.push([n, Math.max(q.ds, q.dk)]); mx = Math.max(mx, q.ds, q.dk); }
+    const Q = dia(v.n), d = Math.max(Q.ds, Q.dk);
+    const R = { x: 60, y: 26, w: w - 90, h: h - 66 };
+    BME.plot(ctx, R, { xmin: 100, xmax: 3000, ymin: 0, ymax: mx * 1.1, xlabel: 'n [rpm]', ylabel: 'required d [mm]', series: [{ pts: pg, color: BME.c('--ink'), width: 4 }, { pts: ps, color: BME.c('--force') }, { pts: pk, color: BME.c('--accent') }],
+      marks: [{ x: v.n, y: d, color: BME.c('--ink'), label: 'd = ' + BME.fmt(d, 1) + ' mm (' + (Q.dk > Q.ds ? 'stiffness' : 'strength') + ')', align: v.n > 2000 ? 'right' : 'left', dx: v.n > 2000 ? -8 : 8 }] });
+    BME.readout('d3r', [
+      ['ω = 2πn/60', BME.fmt(2 * Math.PI * v.n / 60, 1) + ' rad/s'],
+      ['T = P/ω', BME.fmt(Q.T, 1) + ' N·m'],
+      ['d (strength)', BME.fmt(Q.ds, 1) + ' mm'],
+      ['d (stiffness)', BME.fmt(Q.dk, 1) + ' mm'],
+      ['governs', Q.dk > Q.ds ? 'stiffness' : 'strength']
+    ]);
+  });
+})();
+</script>
+</body>
+</html>

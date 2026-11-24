@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basic Mechanical Engineering</title>
+<link rel="stylesheet" href="assets/lecture.css">
+<style>
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 16px 0; }
+  .card { display: block; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .card:hover { border-color: var(--accent); }
+  .card .n { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .card h3 { margin: 4px 0 6px; font-size: 1.02rem; }
+  .card p { margin: 0; font-size: .86rem; color: var(--muted); }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+  .fact { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .fact b { display: block; font-size: 1.3rem; }
+  .fact span { font-size: .8rem; color: var(--muted); }
+  .timeline { display: grid; grid-template-columns: 70px 1fr; gap: 0; border-left: 3px solid var(--accent); margin: 12px 0 12px 8px; }
+  .timeline div { padding: 6px 10px; border-bottom: 1px dashed var(--line); font-size: .92rem; }
+  .timeline div:nth-child(odd) { font-family: var(--mono); font-weight: 700; color: var(--accent); }
+  table.data td, table.data th { text-align: left; }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lodz University of Technology · Faculty of Mechanical Engineering</div>
+  <h1>Basic Mechanical Engineering: lectures</h1>
+  <p class="lead">A proposal for running the 20-hour lecture of <b>Basic Mechanical Engineering</b> (course code W01-MEC-1SO-00667-00, semester 2, Mechanical Engineering, in English), with ten interactive lecture pages that can be projected in class and opened by students on their own devices.</p>
+  <div class="facts">
+    <div class="fact"><b>20 h</b><span>lecture = 10 × 90 min</span></div>
+    <div class="fact"><b>40 h</b><span>tutorials</span></div>
+    <div class="fact"><b>25 h</b><span>laboratory (11 tests)</span></div>
+    <div class="fact"><b>6 ECTS</b><span>exam: written + oral</span></div>
+  </div>
+</header>
+
+<section class="slide" id="lectures">
+  <h2>The ten lectures</h2>
+  <p class="prose">Each page has the theory, 3–5 interactive demonstrations, worked examples with step-by-step reveal, a quick-check quiz and a summary. The topics follow the syllabus “Contents – detailed selection” in order.</p>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section class="slide" id="format">
+  <h2>Proposed format of one lecture (90 min)</h2>
+  <div class="two">
+    <div>
+      <div class="timeline">
+        <div>0–5</div><div><b>Hook</b>: a real machine or failure that motivates the topic, plus the learning goals on screen</div>
+        <div>5–35</div><div><b>Concept block 1</b>: board derivation of the key equation, then the interactive demo projected. Students predict before the lecturer moves a slider.</div>
+        <div>35–40</div><div><b>Quick check</b>: one quiz question, phone vote or show of hands</div>
+        <div>40–70</div><div><b>Concept block 2</b> + <b>worked example</b> in exam style, revealed step by step</div>
+        <div>70–85</div><div><b>Concept block 3</b> / application demo, linked to the coming lab test</div>
+        <div>85–90</div><div><b>Summary</b> and the remaining quick-check questions. Announce the next topic.</div>
+      </div>
+    </div>
+    <div>
+      <h3>Teaching methods (matches the syllabus: <i>blended learning, lecture</i>)</h3>
+      <ul class="prose">
+        <li><b>Predict → observe → explain</b>: students commit to an answer before the demo is changed. This is peer instruction for the quick checks.</li>
+        <li><b>Board + screen</b>: derivations on the board, demos on the projector. The <kbd>A+</kbd> button enlarges text for the back rows.</li>
+        <li><b>Lecturer notes</b> (key <kbd>T</kbd>) contain timing, poll questions and common misconceptions. They are hidden by default, so the page can be projected safely.</li>
+        <li><b>After class</b>: students open the same pages at home (offline-capable). They reproduce the worked examples and vary the parameters.</li>
+        <li><b>Exam style</b>: every lecture has at least one worked example in the format of the written exam (task part).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="schedule">
+  <h2>Proposed semester schedule and alignment</h2>
+  <p class="prose">I recommend running the 20 lecture hours <b>front-loaded, one 90-minute lecture per week in weeks 1–10</b>, so theory always precedes the tutorials (40 h) and the laboratory tests (25 h) that use it. Weeks 11–15 are left for tutorials, lab tests and the second tutorial test.</p>
+  <table class="data">
+    <tr><th>Week</th><th>Lecture</th><th>Tutorials should follow with</th><th>Lab tests that use it</th></tr>
+    <tr><td>1</td><td>L1 Statics of a particle and rigid body</td><td>resultants, equilibrium, reactions</td><td>—</td></tr>
+    <tr><td>2</td><td>L2 Distributed forces, centroids, trusses, friction</td><td>centroids, trusses, friction</td><td>T1 friction, T2 truss forces</td></tr>
+    <tr><td>3</td><td>L3 Kinematics of a particle</td><td>integration of motion, projectiles</td><td>—</td></tr>
+    <tr><td>4</td><td>L4 Plane motion of a rigid body, ICR</td><td>velocities in mechanisms</td><td>T3 vibrations (1 DOF)</td></tr>
+    <tr><td>5</td><td>L5 Newton’s laws, momentum, angular momentum</td><td>connected bodies, impact</td><td>T5 conservation of momentum</td></tr>
+    <tr><td>6</td><td>L6 Systems of particles, inertia, kinetic energy</td><td>moments of inertia, rolling, energy</td><td>T4 physical pendulum, T6 gyroscope</td></tr>
+    <tr><td>7</td><td>L7 Axial loading, tensile test, indeterminate bars</td><td>stepped bars, thermal stress</td><td>T7 tension, T8 compression, T9 Charpy</td></tr>
+    <tr><td>8</td><td>L8 Shear, joints, Mohr’s circle, 3D Hooke</td><td>bolted joints, stress transformation</td><td>—</td></tr>
+    <tr><td>9</td><td>L9 Bending: V/M diagrams, I, σ = My/I</td><td>diagrams, section properties, sizing</td><td>T10 pure bending, Poisson’s ratio</td></tr>
+    <tr><td>10</td><td>L10 Torsion and power transmission + exam briefing</td><td>shaft design</td><td>T11 torsion, shear modulus G</td></tr>
+  </table>
+  <p class="prose" style="margin-top:12px">Tutorial test 1 fits naturally after week 6 (statics + dynamics) and test 2 after week 10 (strength of materials). This matches the syllabus requirement of two tests of three tasks each.</p>
+</section>
+
+<section class="slide" id="assessment">
+  <h2>Assessment (as in the syllabus)</h2>
+  <div class="two">
+    <table class="data">
+      <tr><th>Component</th><th>Method</th><th>Weight</th></tr>
+      <tr><td>Lecture</td><td>written exam</td><td>35 %</td></tr>
+      <tr><td>Lecture</td><td>oral exam</td><td>10 %</td></tr>
+      <tr><td>Tutorials</td><td>written assignment (2 tests)</td><td>40 %</td></tr>
+      <tr><td>Laboratory</td><td>written assignment (reports, entry tests)</td><td>15 %</td></tr>
+    </table>
+    <div class="key"><strong>Exam:</strong> the written part has 3 tasks and 3 theoretical issues. Admission to the oral part requires positive task grades and at least 2 of 3 theory topics correct. In the oral part students explain and justify their written solutions. A tutorial grade of 4 exempts the student from the task part at the first attempt. The lecture quick checks and worked examples are designed as practice for both parts.</div>
+  </div>
+  <p class="prose" style="margin-top:12px">Learning outcomes covered: <b>1MEC1.1</b> (L1–L6), <b>1MEC1.2</b> (L7–L10), <b>1MEC3.1</b> (L3, L5), <b>1MEC3.2</b> (L4–L10), <b>1MEC6.1</b> (L1, L2, L7–L10), <b>1MEC6.2</b> (L7–L10, via lab links).</p>
+</section>
+
+<section class="slide" id="howto">
+  <h2>How to use the pages</h2>
+  <ul class="prose">
+    <li>Open <code>index.html</code> (this page) in any modern browser. No internet connection or installation is needed. All pages are plain HTML + JavaScript.</li>
+    <li>Keys: <kbd>→</kbd>/<kbd>←</kbd> next/previous section · <kbd>T</kbd> lecturer notes · <kbd>P</kbd> larger text for the projector · <kbd>D</kbd> dark mode.</li>
+    <li>For students: share the folder (e.g. via the GitHub repository, MS Teams or the university e-learning platform). The demos work on phones and tablets too.</li>
+    <li>Recommended literature: Beer &amp; Johnston, <i>Vector Mechanics for Engineers</i> (Statics, Dynamics); Meriam &amp; Kraige, <i>Engineering Mechanics</i>; Gere &amp; Timoshenko, <i>Mechanics of Materials</i>; Hearn, <i>Mechanics of Materials</i>; Benham &amp; Crawford, <i>Mechanics of Engineering Materials</i>. In Polish: Leyko, <i>Mechanika ogólna</i>; Niezgodziński, <i>Wytrzymałość materiałów</i>.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+<script src="assets/lecture.js"></script>
+<script>
+(function () {
+  const blurbs = {
+    1: 'Vectors and components, equilibrium of a particle, moment and Varignon’s theorem, couples, rigid-body equilibrium and reactions.',
+    2: 'Distributed loads, centroids of composite areas, Pappus–Guldinus, plane trusses (joint solver), Coulomb friction.',
+    3: 'x–v–a graphs, determination of motion from a(t), a(x), a(v), projectiles, tangential and normal components.',
+    4: 'Translation and rotation, v = ωr, relative velocity, instantaneous centre of rotation, rolling wheel, crank–slider.',
+    5: 'Newton’s laws, connected bodies, banked curve, impulse–momentum, impact with restitution, angular momentum.',
+    6: 'Centre of mass, mass moment of inertia, parallel-axis theorem, physical pendulum, rolling race, kinetic energy.',
+    7: 'Stress and strain, tensile test diagram, axially loaded bars, Saint-Venant principle, statically indeterminate bars.',
+    8: 'Pure shear and G, bolted joints (shear, bearing, net section), Mohr’s circle, generalised Hooke’s law.',
+    9: 'Shear-force and bending-moment diagrams, area moments of inertia, bending stress and beam sizing.',
+    10: 'Torsion of circular shafts, hollow vs solid, power transmission and shaft sizing, course wrap-up and exam briefing.'
+  };
+  document.getElementById('cards').innerHTML = BME.LECTURES.map((l) =>
+    '<a class="card" href="' + l.file + '"><div class="n">Lecture ' + l.n + '</div><h3>' + l.title + '</h3><p>' + blurbs[l.n] + '</p></a>').join('');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bending of Beams</title>
+<link rel="stylesheet" href="assets/lecture.css">
+</head>
+<body data-lecture="9">
+<div class="layout">
+<nav class="toc" aria-label="Sections"></nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">Lecture 9 · Mechanics of materials</div>
+  <h1>Bending of beams</h1>
+  <p class="lead">Shafts, axles, floor joists, crane girders and aircraft wings are all beams. Bending is the most common loading in machine design. It is also why an I-beam beats a solid bar of the same weight. Today we draw shear-force and bending-moment diagrams, compute area moments of inertia and find bending stresses.</p>
+  <div class="goals">
+    <h3>After this lecture you can…</h3>
+    <ul>
+      <li>determine internal shear force V(x) and bending moment M(x) and draw their diagrams;</li>
+      <li>use the relations dM/dx = V, dV/dx = −q to check diagrams;</li>
+      <li>compute area moments of inertia of composite sections with the parallel-axis theorem;</li>
+      <li>compute bending stresses σ = M y / I and size a beam with the section modulus W.</li>
+    </ul>
+    <p style="margin:0;color:var(--muted);font-size:.88rem">Syllabus outcomes: 1MEC1.2, 1MEC3.2, 1MEC6.1, 1MEC6.2 · Reading: Gere &amp; Timoshenko ch. 4–5, App. D; Hearn vol. 1, ch. 3–4; Beer &amp; Johnston – Statics ch. 7, 9. Related lab: Test 10 (pure bending, strain gauges).</p>
+  </div>
+  <aside class="notes">90 min plan: V and M diagrams 35 (most exam tasks!) · moments of inertia 20 · bending stresses 25 · quiz 10. Students already know centroids (L2) and reactions (L1). Reuse both.</aside>
+</header>
+
+<section class="slide" id="diagrams">
+  <h2>Shear force and bending moment diagrams</h2>
+  <div class="prose"><p>Cut the beam at x. Equilibrium of the left part gives the internal <b>shear force V(x)</b> (sum of transverse forces to the left) and <b>bending moment M(x)</b> (sum of their moments about the cut). Sign convention: <b>M &gt; 0 for sagging</b> (bottom fibres in tension), V &gt; 0 when the left part is pushed up.</p></div>
+  <div class="eq">d<span class="m">V</span>/d<span class="m">x</span> = −<span class="m">q(x)</span>, &nbsp;&nbsp; d<span class="m">M</span>/d<span class="m">x</span> = <span class="m">V(x)</span>
+    <span class="lbl">point load → jump in V · couple → jump in M · M is extreme where V = 0 · uniform load → V linear, M parabolic</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>V and M diagrams for any combination of loads</h3><span class="hint">Beam length L = 6 m</span></div>
+    <div class="demo-body">
+      <canvas id="d1" data-aspect="0.78" aria-label="Shear and moment diagrams"></canvas>
+      <div class="ctrl" id="d1c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--accent)">shear force V</span><span style="--c:var(--moment)">bending moment M (sagging +)</span><span style="--c:var(--reaction)">reactions</span></div>
+  </div>
+  <div class="two">
+    <div class="key"><strong>Classic results:</strong><br>simply supported, central P: M<sub>max</sub> = PL/4<br>simply supported, UDL q: M<sub>max</sub> = qL²/8<br>cantilever, end load P: M<sub>max</sub> = PL (at the wall)<br>cantilever, UDL q: M<sub>max</sub> = qL²/2</div>
+    <div class="key"><strong>Checklist for exam diagrams:</strong><br>1. Reactions (and check them)<br>2. V: jumps at point loads, slope −q<br>3. M: M = 0 at free ends and pins, slope = V<br>4. M<sub>max</sub> where V crosses zero<br>5. Close the diagrams (end values match the loads)</div>
+  </div>
+  <aside class="notes">Set the defaults to the classic cases one by one and let students predict M<sub>max</sub> before reading it. Then show the overhang: negative moment over the support (hogging), which is important for where to put reinforcement or the flange of a T-section.</aside>
+</section>
+
+<section class="slide" id="inertia">
+  <h2>Area moments of inertia</h2>
+  <div class="prose"><p>Bending resistance depends on how far the material lies from the <b>neutral axis</b>, which passes through the centroid of the section. This is measured by the <b>second moment of area</b>:</p></div>
+  <div class="eq"><span class="m">I<sub>z</sub></span> = ∫ <span class="m">y</span>² d<span class="m">A</span> &nbsp; [mm⁴], &nbsp;&nbsp; rectangle: <span class="m">bh</span>³/12, &nbsp; circle: π<span class="m">d</span>⁴/64, &nbsp;&nbsp; parallel axis: <span class="m">I</span> = <span class="m">I<sub>c</sub></span> + <span class="m">A d</span>²
+    <span class="lbl">section modulus W = I / y<sub>max</sub> [mm³] · for composite sections: I = Σ (I<sub>ci</sub> + A<sub>i</sub> d<sub>i</sub>²), d<sub>i</sub> measured from the overall centroid</span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Same area, different shapes: which is stiffest?</h3><span class="hint">All sections have the same cross-section area A</span></div>
+    <div class="demo-body">
+      <canvas id="d2" data-aspect="0.5" aria-label="Comparison of moments of inertia"></canvas>
+      <div class="ctrl" id="d2c"></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="stress">
+  <h2>Bending stresses</h2>
+  <div class="prose"><p>In pure bending, plane sections remain plane (Bernoulli). Strain, and therefore stress, varies <b>linearly</b> with the distance y from the neutral axis:</p></div>
+  <div class="eq"><span class="m">σ</span>(<span class="m">y</span>) = <span class="m">M y</span> / <span class="m">I</span>, &nbsp;&nbsp; <span class="m">σ</span><sub>max</sub> = <span class="m">M</span> / <span class="m">W</span>, &nbsp;&nbsp; curvature 1/<span class="m">ρ</span> = <span class="m">M</span> / (<span class="m">E I</span>)
+    <span class="lbl">design: σ<sub>max</sub> = M<sub>max</sub>/W ≤ σ<sub>allow</sub> ⇒ W<sub>required</sub> = M<sub>max</sub>/σ<sub>allow</sub></span></div>
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Interactive</span><h3>Section properties and bending stress distribution</h3><span class="hint">Positive M = sagging: compression on top</span></div>
+    <div class="demo-body wide-ctrl">
+      <canvas id="d3" data-aspect="0.62" aria-label="Bending stress distribution"></canvas>
+      <div class="ctrl" id="d3c"></div>
+    </div>
+    <div class="legend"><span style="--c:var(--tension)">tension</span><span style="--c:var(--compression)">compression</span><span style="--c:var(--ink)">neutral axis (through centroid)</span></div>
+  </div>
+  <div class="example">
+    <h3>sizing a rectangular beam</h3>
+    <p>A simply supported timber beam, L = 4 m, carries q = 3 kN/m. σ<sub>allow</sub> = 10 MPa, height h = 2b. Find b.</p>
+    <details class="step"><summary>Step 1: maximum moment</summary>M<sub>max</sub> = qL²/8 = 3·16/8 = 6 kN·m = 6·10⁶ N·mm</details>
+    <details class="step"><summary>Step 2: required section modulus</summary>W = M/σ<sub>allow</sub> = 6·10⁶/10 = 6·10⁵ mm³</details>
+    <details class="step"><summary>Step 3: dimensions</summary>W = bh²/6 = b(2b)²/6 = 2b³/3 ⇒ b = ∛(9·10⁵) ≈ <b>96.5 mm</b>, h ≈ 193 mm → choose 100 × 200 mm.</details>
+  </div>
+  <aside class="notes">For the T-section, set M negative (hogging) and show that the tension side flips. The flange should sit on the tension side for brittle materials. Lab Test 10 verifies σ = My/I with strain gauges and also measures Poisson’s ratio.</aside>
+</section>
+
+<section class="slide" id="check">
+  <h2>Quick check</h2>
+  <div class="quiz">
+    <p class="q">1. Where is the bending moment maximum in a simply supported beam?</p>
+    <div class="opts">
+      <button class="opt">always at mid-span</button>
+      <button class="opt" data-ok>where the shear force changes sign</button>
+      <button class="opt">at the supports</button>
+    </div>
+    <p class="why">dM/dx = V, so M has an extremum where V = 0. That is mid-span only for symmetric loads.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">2. A rectangular beam b × h is turned from flat (h &lt; b) to upright. Its bending stiffness changes by…</p>
+    <div class="opts">
+      <button class="opt">b/h</button>
+      <button class="opt" data-ok>(b/h)²</button>
+      <button class="opt">nothing, same area</button>
+    </div>
+    <p class="why">I = b h³/12. Swapping gives a ratio of (b h³)/(h b³) = (h/b)², so upright is stiffer by (b/h)² with the original h &lt; b.</p>
+  </div>
+  <div class="quiz">
+    <p class="q">3. In pure bending, the stress at the neutral axis is…</p>
+    <div class="opts">
+      <button class="opt" data-ok>zero</button>
+      <button class="opt">maximum</button>
+      <button class="opt">equal to M/A</button>
+    </div>
+    <p class="why">σ = My/I with y = 0. That is why material near the neutral axis is “wasted”, and why I-beams and tubes are efficient.</p>
+  </div>
+</section>
+
+<section class="slide" id="summary">
+  <h2>Summary</h2>
+  <ul class="prose">
+    <li>V(x), M(x) from equilibrium of a cut part. dM/dx = V, dV/dx = −q.</li>
+    <li>I = ∫y² dA. Parallel axis I = I<sub>c</sub> + A d². W = I/y<sub>max</sub>.</li>
+    <li>σ = My/I, linear over the depth, zero at the neutral axis (centroid).</li>
+    <li>Design: W ≥ M<sub>max</sub>/σ<sub>allow</sub>. Put material far from the neutral axis.</li>
+  </ul>
+  <p class="prose"><b>Next lecture:</b> torsion of circular shafts and transmission of power.</p>
+</section>
+
+</main>
+</div>
+
+<script src="assets/lecture.js"></script>
+<script>
+/* ---------- Demo 1: V and M diagrams ---------- */
+(function () {
+  const L = 6;
+  const v = BME.controls('d1c', [
+    { type: 'select', id: 'sup', label: 'Supports', options: [['ss', 'Simply supported (pin A, roller B at L)'], ['ov', 'Overhang (roller B at 4.5 m)'], ['cant', 'Cantilever (fixed at A)']], value: 'ss' },
+    { id: 'P', label: 'Point load P (down +)', min: -30, max: 30, step: 1, value: 10, unit: 'kN' },
+    { id: 'a', label: 'P at x =', min: 0, max: L, step: 0.25, value: 2, unit: 'm' },
+    { id: 'q', label: 'Uniform load q (down +)', min: -10, max: 10, step: 0.5, value: 4, unit: 'kN/m' },
+    { id: 'x1', label: 'q from x₁', min: 0, max: L, step: 0.25, value: 3, unit: 'm' },
+    { id: 'x2', label: 'q to x₂', min: 0, max: L, step: 0.25, value: 6, unit: 'm' },
+    { id: 'C', label: 'Couple M₀ (↺ +)', min: -30, max: 30, step: 1, value: 0, unit: 'kN·m' },
+    { id: 'c', label: 'Couple at x =', min: 0, max: L, step: 0.25, value: 4, unit: 'm' },
+    { html: '<dl class="readout" id="d1r"></dl>' }
+  ], (vals, k) => {
+    if (k === 'x1' && vals.x1 > vals.x2) vals.set('x2', vals.x1);
+    if (k === 'x2' && vals.x2 < vals.x1) vals.set('x1', vals.x2);
+    o.redraw();
+  });
+
+  function analyse() {
+    const xb = v.sup === 'ov' ? 4.5 : L;
+    const lq = Math.max(0, v.x2 - v.x1), Q = v.q * lq, xq = v.x1 + lq / 2;
+    const W = v.P + Q;
+    const forces = [], couples = [];
+    let RA = 0, RB = 0, MA = 0;
+    if (v.sup === 'cant') {
+      RA = W; MA = v.P * v.a + Q * xq - v.C;
+      forces.push([0, RA]); couples.push([0, MA]);
+    } else {
+      RB = (v.P * v.a + Q * xq - v.C) / xb; RA = W - RB;
+      forces.push([0, RA], [xb, RB]);
+    }
+    forces.push([v.a, -v.P]);
+    couples.push([v.c, v.C]);
+    const VM = (x) => {
+      let V = 0, M = 0;
+      forces.forEach(([xi, F]) => { if (xi < x || (xi === 0 && x === 0)) { V += F; M += F * (x - xi); } });
+      couples.forEach(([xi, C]) => { if (xi < x || (xi === 0 && x === 0)) M -= C; });
+      const l = BME.clamp(x - v.x1, 0, lq);
+      V -= v.q * l; M -= v.q * l * (x - v.x1 - l / 2);
+      return [V, M];
+    };
+    return { xb, RA, RB, MA, VM, Q };
+  }
+
+  const o = BME.canvas('d1', (ctx, w, h) => {
+    const A = analyse();
+    const x0 = 60, x1p = w - 30, sc = (x1p - x0) / L, X = (m) => x0 + m * sc;
+    const yb = 70, bh = 12;
+    const fc = BME.c('--force'), rc = BME.c('--reaction'), mc = BME.c('--moment');
+    // beam schematic
+    ctx.fillStyle = BME.c('--body'); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 2;
+    ctx.fillRect(x0, yb - bh / 2, x1p - x0, bh); ctx.strokeRect(x0, yb - bh / 2, x1p - x0, bh);
+    if (v.sup === 'cant') BME.wall(ctx, x0, yb - 30, yb + 30, -1);
+    else { BME.pin(ctx, X(0), yb + bh / 2, 9); BME.roller(ctx, X(A.xb), yb + bh / 2, 9); }
+    if (v.q && v.x2 > v.x1) {
+      const top = yb - bh / 2, hq = 10 + Math.abs(v.q) * 2.4;
+      ctx.save(); ctx.fillStyle = fc; ctx.globalAlpha = 0.12; ctx.fillRect(X(v.x1), top - hq, (v.x2 - v.x1) * sc, hq); ctx.restore();
+      for (let xx = v.x1; xx <= v.x2 + 1e-6; xx += Math.max(0.25, (v.x2 - v.x1) / 10)) {
+        if (v.q > 0) BME.arrow(ctx, X(xx), top - hq, X(xx), top, fc, { width: 1.2, head: 6 });
+        else BME.arrow(ctx, X(xx), top, X(xx), top - hq, fc, { width: 1.2, head: 6 });
+      }
+      BME.text(ctx, 'q', X((v.x1 + v.x2) / 2), top - hq - 8, { italic: true, color: fc, weight: 700 });
+    }
+    if (v.P) {
+      const top = yb - bh / 2, len = 14 + Math.abs(v.P) * 1.3;
+      if (v.P > 0) BME.arrow(ctx, X(v.a), top - len, X(v.a), top, fc, { width: 2.8, label: 'P', atStart: true, off: 8 });
+      else BME.arrow(ctx, X(v.a), top, X(v.a), top - len, fc, { width: 2.8, label: 'P', off: 8 });
+    }
+    if (v.C) BME.momentArc(ctx, X(v.c), yb, 16, v.C > 0, mc, '', {});
+    // reactions text
+    const rt = v.sup === 'cant' ? 'R_A = ' + BME.fmt(A.RA, 2) + ' kN,  M_A = ' + BME.fmt(A.MA, 2) + ' kN·m (↺)' : 'R_A = ' + BME.fmt(A.RA, 2) + ' kN,  R_B = ' + BME.fmt(A.RB, 2) + ' kN';
+    BME.text(ctx, rt.replace(/_A/g, 'ᴀ').replace(/_B/g, 'ʙ'), x0, 16, { align: 'left', color: rc, weight: 700, size: 13 });
+    // sample
+    const xs = [];
+    const crit = [0, v.a, v.c, v.x1, v.x2, A.xb, L];
+    for (let i = 0; i <= 600; i++) xs.push(L * i / 600);
+    crit.forEach((c) => { xs.push(c - 1e-6, c + 1e-6); });
+    const xsSorted = xs.filter((x) => x >= 0 && x <= L).sort((a, b) => a - b);
+    const Vp = [], Mp = [];
+    xsSorted.forEach((x) => { const [V, M] = A.VM(x); Vp.push([x, V]); Mp.push([x, M]); });
+    // close at ends
+    Vp.unshift([0, 0]); Vp.push([L, 0]);
+    let Mmax = 0, xm = 0;
+    Mp.forEach(([x, M]) => { if (Math.abs(M) > Math.abs(Mmax)) { Mmax = M; xm = x; } });
+    const vr = Math.max(1, ...Vp.map((p) => Math.abs(p[1]))) * 1.2, mr = Math.max(1, ...Mp.map((p) => Math.abs(p[1]))) * 1.25;
+    const gh = (h - 150) / 2;
+    const R1 = { x: x0, y: 120, w: x1p - x0, h: gh - 20 }, R2 = { x: x0, y: 120 + gh + 14, w: x1p - x0, h: gh - 20 };
+    BME.plot(ctx, R1, { xmin: 0, xmax: L, ymin: -vr, ymax: vr, ylabel: 'V [kN]', series: [{ pts: Vp, color: BME.c('--accent'), fill: true }], noXTicks: true, ny: 4 });
+    const pm = BME.plot(ctx, R2, { xmin: 0, xmax: L, ymin: -mr, ymax: mr, ylabel: 'M [kN·m]', xlabel: 'x [m]', series: [{ pts: Mp, color: mc, fill: true }], ny: 4,
+      marks: Math.abs(Mmax) > 1e-6 ? [{ x: xm, y: Mmax, color: mc, label: '|M|max = ' + BME.fmt(Math.abs(Mmax), 2) + ' at x = ' + BME.fmt(xm, 2), dy: Mmax > 0 ? -14 : 14, align: xm > L * 0.6 ? 'right' : 'left', dx: xm > L * 0.6 ? -8 : 8 }] : [] });
+    // zero-shear points
+    const zeros = [];
+    for (let i = 1; i < Vp.length - 2; i++) { const a = Vp[i][1], b = Vp[i + 1][1]; if (a * b < 0 && !zeros.some((z) => Math.abs(z - Vp[i][0]) < 0.01)) zeros.push(Vp[i][0]); }
+    zeros.forEach((z) => BME.line(ctx, pm.X(z), R1.y, pm.X(z), R2.y + R2.h, BME.c('--muted'), 1, [3, 4]));
+    BME.readout('d1r', [
+      ['R<sub>A</sub>', BME.fmt(A.RA, 2) + ' kN'],
+      [v.sup === 'cant' ? 'M<sub>A</sub>' : 'R<sub>B</sub>', v.sup === 'cant' ? BME.fmt(A.MA, 2) + ' kN·m' : BME.fmt(A.RB, 2) + ' kN'],
+      ['|M|<sub>max</sub>', BME.fmt(Math.abs(Mmax), 2) + ' kN·m'],
+      ['at x', BME.fmt(xm, 2) + ' m'],
+      ['type', Mmax >= 0 ? 'sagging (+)' : 'hogging (−)'],
+      ['V = 0 at x', zeros.length ? zeros.map((z) => BME.fmt(z, 2)).join(', ') + ' m' : '—']
+    ]);
+  });
+})();
+
+/* ---------- Section geometry (shared) ---------- */
+function sectionParts(shape, b, H, t1, t2) {
+  const P = [];
+  const rect = (n, x0, y0, w, h, sgn) => P.push({ n, type: 'r', x0, y0, w, h, A: sgn * w * h, yc: y0 + h / 2, Ic: sgn * w * h ** 3 / 12 });
+  const circ = (n, r, yc, sgn) => P.push({ n, type: 'c', r, yc, A: sgn * Math.PI * r * r, Ic: sgn * Math.PI * r ** 4 / 4 });
+  if (shape === 'rect') rect('rectangle', -b / 2, 0, b, H, 1);
+  else if (shape === 'I') { rect('top flange', -b / 2, H - t1, b, t1, 1); rect('web', -t2 / 2, t1, t2, H - 2 * t1, 1); rect('bottom flange', -b / 2, 0, b, t1, 1); }
+  else if (shape === 'T') { rect('flange', -b / 2, H - t1, b, t1, 1); rect('web', -t2 / 2, 0, t2, H - t1, 1); }
+  else if (shape === 'box') { rect('outer', -b / 2, 0, b, H, 1); rect('hole (−)', -b / 2 + t2, t1, b - 2 * t2, H - 2 * t1, -1); }
+  else if (shape === 'circ') circ('circle', H / 2, H / 2, 1);
+  else if (shape === 'tube') { circ('outer', H / 2, H / 2, 1); circ('hole (−)', H / 2 - t1, H / 2, -1); }
+  const A = P.reduce((s, p) => s + p.A, 0);
+  const yb = P.reduce((s, p) => s + p.A * p.yc, 0) / A;
+  let I = 0;
+  P.forEach((p) => { p.d = p.yc - yb; p.Ad2 = p.A * p.d * p.d; I += p.Ic + p.Ad2; });
+  return { P, A, yb, I, ytop: H - yb, ybot: yb };
+}
+
+/* ---------- Demo 2: same area comparison ---------- */
+(function () {
+  const v = BME.controls('d2c', [
+    { id: 'A', label: 'Cross-section area A', min: 500, max: 5000, step: 100, value: 2000, unit: 'mm²' },
+    { html: '<dl class="readout" id="d2r"></dl>' }
+  ], () => o.redraw());
+  const shapes = (A) => {
+    const out = [];
+    const a = Math.sqrt(A);
+    out.push({ n: 'square', s: 'rect', b: a, H: a });
+    out.push({ n: 'flat 2:1', s: 'rect', b: Math.sqrt(2 * A), H: Math.sqrt(A / 2) });
+    out.push({ n: 'upright 1:2', s: 'rect', b: Math.sqrt(A / 2), H: Math.sqrt(2 * A) });
+    out.push({ n: 'circle', s: 'circ', H: Math.sqrt(4 * A / Math.PI) });
+    // tube with t = D/10: A = π(D² − (0.8D)²)/4 = π·0.36D²/4
+    const D = Math.sqrt(4 * A / (Math.PI * 0.36)); out.push({ n: 'tube t = D/10', s: 'tube', H: D, t1: D / 10 });
+    // I-beam proportions: H = 2b, t1 = b/10, t2 = b/15 → A = 2·b·b/10 + (2b − b/5)·b/15 = 0.2b² + 0.12b² = 0.32 b²
+    const b = Math.sqrt(A / 0.32); out.push({ n: 'I-beam H = 2b', s: 'I', b, H: 2 * b, t1: b / 10, t2: b / 15 });
+    return out.map((q) => { const S = sectionParts(q.s, q.b || 0, q.H, q.t1 || 0, q.t2 || 0); q.I = S.I; q.W = S.I / Math.max(S.ytop, S.ybot); q.S = S; return q; });
+  };
+  const o = BME.canvas('d2', (ctx, w, h) => {
+    const Q = shapes(v.A), I0 = Q[0].I;
+    const n = Q.length, cw = (w - 20) / n;
+    const maxI = Math.max(...Q.map((q) => q.I));
+    Q.forEach((q, i) => {
+      const cx = 10 + cw * (i + 0.5), top = 30;
+      // draw section scaled with a common scale
+      const scs = Math.min(cw * 0.7, h * 0.32) / Math.max(...Q.map((r) => Math.max(r.b || r.H, r.H)));
+      ctx.save(); ctx.translate(cx, top + h * 0.17);
+      ctx.fillStyle = BME.c('--accent'); ctx.globalAlpha = 0.35; ctx.strokeStyle = BME.c('--accent'); ctx.lineWidth = 1.5;
+      q.S.P.forEach((p) => {
+        ctx.globalCompositeOperation = p.A < 0 ? 'destination-out' : 'source-over';
+        ctx.globalAlpha = p.A < 0 ? 1 : 0.35;
+        if (p.type === 'r') ctx.fillRect(p.x0 * scs, -(p.y0 + p.h - q.H / 2) * scs, p.w * scs, p.h * scs);
+        else { ctx.beginPath(); ctx.arc(0, 0, p.r * scs, 0, 2 * Math.PI); ctx.fill(); }
+      });
+      ctx.restore();
+      // bar
+      const by = h - 40, bhmax = h * 0.38, bh = q.I / maxI * bhmax;
+      ctx.fillStyle = BME.c('--moment'); ctx.fillRect(cx - cw * 0.25, by - bh, cw * 0.5, bh);
+      BME.text(ctx, '×' + BME.fmt(q.I / I0, 2), cx, by - bh - 10, { size: 12, weight: 700, color: BME.c('--moment') });
+      BME.text(ctx, q.n, cx, by + 14, { size: 11, color: BME.c('--muted') });
+    });
+    BME.text(ctx, 'I relative to the square', 12, h * 0.55, { align: 'left', size: 12, color: BME.c('--muted'), weight: 600 });
+    BME.readout('d2r', Q.map((q) => [q.n, BME.fmt(q.I / 1e4, 1) + ' cm⁴']));
+  });
+})();
+
+/* ---------- Demo 3: section + bending stress ---------- */
+(function () {
+  const v = BME.controls('d3c', [
+    { type: 'select', id: 'shape', label: 'Section', options: [['rect', 'Rectangle b × H'], ['I', 'I-section'], ['T', 'T-section'], ['box', 'Hollow box'], ['circ', 'Circle (D = H)'], ['tube', 'Tube (D = H, wall t_f)']], value: 'T' },
+    { id: 'b', label: 'Width b', min: 20, max: 200, step: 5, value: 120, unit: 'mm' },
+    { id: 'H', label: 'Height H', min: 20, max: 250, step: 5, value: 120, unit: 'mm' },
+    { id: 't1', label: 'Flange / wall thickness t_f', min: 3, max: 50, step: 1, value: 20, unit: 'mm' },
+    { id: 't2', label: 'Web thickness t_w', min: 3, max: 50, step: 1, value: 20, unit: 'mm' },
+    { id: 'M', label: 'Bending moment M', min: -20, max: 20, step: 0.5, value: 8, unit: 'kN·m' },
+    { html: '<div id="d3t"></div>' }
+  ], () => o.redraw());
+  const o = BME.canvas('d3', (ctx, w, h) => {
+    const t1 = Math.min(v.t1, v.H / 2 - 1), t2 = Math.min(v.t2, v.b / 2 - 1);
+    const S = sectionParts(v.shape, v.b, v.H, t1, t2);
+    const M = v.M * 1e6;
+    const sTop = -M * S.ytop / S.I, sBot = M * S.ybot / S.I; // sagging +M → compression on top
+    const sc = Math.min((w * 0.42) / Math.max(v.b, v.H), (h - 60) / v.H);
+    const cx = w * 0.25, y0 = h - 30; // bottom of section
+    const Y = (y) => y0 - y * sc;
+    const tc = BME.c('--tension'), cc = BME.c('--compression');
+    ctx.save();
+    S.P.forEach((p) => {
+      ctx.globalCompositeOperation = p.A < 0 ? 'destination-out' : 'source-over';
+      ctx.fillStyle = BME.c('--body');
+      if (p.type === 'r') ctx.fillRect(cx + p.x0 * sc, Y(p.y0 + p.h), p.w * sc, p.h * sc);
+      else { ctx.beginPath(); ctx.arc(cx, Y(p.yc), p.r * sc, 0, 2 * Math.PI); ctx.fill(); }
+    });
+    ctx.restore();
+    ctx.save(); ctx.strokeStyle = BME.c('--body-edge'); ctx.lineWidth = 1.5;
+    S.P.forEach((p) => { if (p.type === 'r') ctx.strokeRect(cx + p.x0 * sc, Y(p.y0 + p.h), p.w * sc, p.h * sc); else { ctx.beginPath(); ctx.arc(cx, Y(p.yc), p.r * sc, 0, 2 * Math.PI); ctx.stroke(); } });
+    ctx.restore();
+    BME.line(ctx, Math.max(4, cx - v.b * sc / 2 - 30), Y(S.yb), w - 20, Y(S.yb), BME.c('--ink'), 1.2, [6, 4]);
+    BME.centroidMark(ctx, cx, Y(S.yb), 7);
+    BME.text(ctx, 'neutral axis', Math.max(4, cx - v.b * sc / 2 - 30), Y(S.yb) - 10, { align: 'left', size: 11, color: BME.c('--muted') });
+    // stress diagram
+    const sx0 = w * 0.62, smax = Math.max(Math.abs(sTop), Math.abs(sBot), 1);
+    const ks = (w * 0.3) / (2 * smax);
+    BME.line(ctx, sx0, Y(0) + 8, sx0, Y(v.H) - 8, BME.c('--muted'), 1.2);
+    ctx.save();
+    [[S.yb, v.H, sTop], [0, S.yb, sBot]].forEach(([ya, yb2, sEnd]) => {
+      ctx.fillStyle = sEnd >= 0 ? tc : cc; ctx.globalAlpha = 0.3;
+      ctx.beginPath(); ctx.moveTo(sx0, Y(S.yb));
+      const yEnd = ya === S.yb ? v.H : 0;
+      ctx.lineTo(sx0 + sEnd * ks, Y(yEnd)); ctx.lineTo(sx0, Y(yEnd)); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1; ctx.strokeStyle = sEnd >= 0 ? tc : cc; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(sx0, Y(S.yb)); ctx.lineTo(sx0 + sEnd * ks, Y(yEnd)); ctx.stroke();
+    });
+    ctx.restore();
+    BME.text(ctx, 'σ = ' + BME.fmt(sTop, 1) + ' MPa', sx0 + sTop * ks + (sTop >= 0 ? 6 : -6), Y(v.H) - 12, { align: sTop >= 0 ? 'left' : 'right', weight: 700, color: sTop >= 0 ? tc : cc, size: 13, bg: true });
+    BME.text(ctx, 'σ = ' + BME.fmt(sBot, 1) + ' MPa', sx0 + sBot * ks + (sBot >= 0 ? 6 : -6), Y(0) + 12, { align: sBot >= 0 ? 'left' : 'right', weight: 700, color: sBot >= 0 ? tc : cc, size: 13, bg: true });
+    BME.text(ctx, 'σ(y) = M y / I', sx0, 14, { size: 12, color: BME.c('--muted'), weight: 600 });
+    let t = '<table class="data"><tr><th>part</th><th>A</th><th>I꜀</th><th>d</th><th>A d²</th></tr>';
+    S.P.forEach((p) => { t += '<tr><td>' + p.n + '</td><td>' + BME.fmt(p.A, 0) + '</td><td>' + BME.fmt(p.Ic / 1e4, 1) + '</td><td>' + BME.fmt(p.d, 1) + '</td><td>' + BME.fmt(p.Ad2 / 1e4, 1) + '</td></tr>'; });
+    t += '<tr><th>Σ</th><th>' + BME.fmt(S.A, 0) + '</th><th colspan="3">I = ' + BME.fmt(S.I / 1e4, 1) + ' cm⁴</th></tr></table>';
+    t += '<p style="font-size:.75rem;color:var(--muted);margin:4px 0">A in mm², I in cm⁴, d in mm</p>';
+    t += '<dl class="readout"><dt>ȳ (from bottom)</dt><dd>' + BME.fmt(S.yb, 1) + ' mm</dd><dt>W<sub>top</sub> = I/y<sub>top</sub></dt><dd>' + BME.fmt(S.I / S.ytop / 1000, 1) + ' cm³</dd><dt>W<sub>bot</sub> = I/y<sub>bot</sub></dt><dd>' + BME.fmt(S.I / S.ybot / 1000, 1) + ' cm³</dd><dt>|σ|<sub>max</sub></dt><dd>' + BME.fmt(smax, 1) + ' MPa</dd></dl>';
+    document.getElementById('d3t').innerHTML = t;
+  });
+})();
+</script>
+</body>
+</html>
