@@ -1,0 +1,843 @@
+<title>Wirtualne laboratorium WM</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: laboratory bench — exercise tabs on top, each panel = control column (machine + readouts) beside the rig view, charts and the measurement protocol. */
+:root{
+  --bg:#EDF0EF; --panel:#FFFFFF; --panel2:#F5F7F6; --fg:#16212A; --muted:#566570; --line:#D2DAD8; --grid:#E2E7E5;
+  --acc:#C24E17; --c2:#1E67A3; --c3:#2C8452; --c4:#7A4CA6;
+  --metal:#B3BDC2; --metal2:#7D8990; --dispbg:#17232A; --dispfg:#F3B23A; --dispmu:#7F959E;
+  --f-disp:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10161A; --panel:#172026; --panel2:#1C262D; --fg:#E1E7E9; --muted:#93A2AA; --line:#2B3840; --grid:#233038;
+  --acc:#EE7B40; --c2:#5DA5E6; --c3:#5DC08A; --c4:#B693E5;
+  --metal:#6B787F; --metal2:#4B575D; --dispbg:#0A0F12; --dispfg:#F5BA45; --dispmu:#6E848D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10161A; --panel:#172026; --panel2:#1C262D; --fg:#E1E7E9; --muted:#93A2AA; --line:#2B3840; --grid:#233038;
+  --acc:#EE7B40; --c2:#5DA5E6; --c3:#5DC08A; --c4:#B693E5;
+  --metal:#6B787F; --metal2:#4B575D; --dispbg:#0A0F12; --dispfg:#F5BA45; --dispmu:#6E848D; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+.wrap{max-width:1320px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding-block:22px 14px;border-bottom:1px solid var(--line)}
+header.top h1{font:600 clamp(26px,3.4vw,36px)/1.05 var(--f-disp);letter-spacing:.01em;margin:0;text-wrap:balance}
+header.top .sub{color:var(--muted);margin:4px 0 0;max-width:70ch}
+.switch{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
+.switch input{accent-color:var(--acc);width:18px;height:18px}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding-block:12px;scrollbar-width:thin}
+nav.tabs button{flex:0 0 auto;display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:6px;padding:7px 12px;font:500 15px var(--f-body);cursor:pointer}
+nav.tabs button b{font:600 18px var(--f-disp);color:var(--muted)}
+nav.tabs button[aria-selected="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+nav.tabs button[aria-selected="true"] b{color:var(--dispfg)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.ex-head{display:grid;gap:4px;padding-block:8px 16px}
+.eyebrow{font:500 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+.ex-head h2{font:600 clamp(24px,3vw,32px)/1.1 var(--f-disp);margin:0;text-wrap:balance}
+.ex-head .cel{margin:2px 0 0;max-width:80ch;color:var(--fg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font:500 11.5px var(--f-mono);padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.chip.fe{border-color:var(--c2);color:var(--c2)}
+.chip.an{border-color:var(--c3);color:var(--c3)}
+.ex-body{display:grid;grid-template-columns:minmax(280px,350px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.ex-body{grid-template-columns:minmax(0,1fr)}}
+.ctrl{display:grid;gap:12px;min-width:0}
+.grp{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:10px;min-width:0}
+.grp h3{margin:0;font:600 13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ctl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.ctl label{font-size:14px}
+.ctl output{font:500 13px var(--f-mono);color:var(--acc);font-variant-numeric:tabular-nums}
+.ctl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--acc)}
+.ctl select{grid-column:1/-1;width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--fg);font:15px var(--f-body)}
+fieldset.seg{border:0;padding:0;margin:0;display:grid;gap:4px;min-width:0}
+fieldset.seg legend{font-size:14px;padding:0;margin-bottom:4px}
+fieldset.seg .opts{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+fieldset.seg label{flex:1 1 auto;position:relative;cursor:pointer}
+fieldset.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+fieldset.seg span{display:block;text-align:center;padding:6px 8px;font-size:13.5px;background:var(--panel2);border-left:1px solid var(--line)}
+fieldset.seg label:first-child span{border-left:0}
+fieldset.seg input:checked+span{background:var(--fg);color:var(--bg)}
+fieldset.seg input:focus-visible+span{outline:2px solid var(--acc);outline-offset:-2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:600 14px var(--f-body);padding:7px 12px;border-radius:6px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--fg)}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.disp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--dispbg);border-radius:6px;padding:4px;border:1px solid var(--line)}
+.dcell{padding:6px 8px;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:0 4px}
+.dcell .dl{grid-column:1/-1;font:500 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dispmu)}
+.dcell .dv{font:500 22px var(--f-mono);color:var(--dispfg);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dcell .du{font:12px var(--f-mono);color:var(--dispmu)}
+dl.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:14px}
+dl.kv dt{color:var(--muted)}
+dl.kv dd{margin:0;text-align:right;font:500 13.5px var(--f-mono);font-variant-numeric:tabular-nums}
+dl.kv dd.hl{color:var(--acc);font-weight:600}
+dl.kv .sep{grid-column:1/-1;border-top:1px dashed var(--line);margin-block:2px}
+.note{font-size:13px;color:var(--muted);margin:0}
+.warn{font-size:13.5px;color:var(--acc);margin:0;font-weight:600}
+.view{display:grid;gap:14px;min-width:0}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px 12px;min-width:0}
+.cap{font:600 13px var(--f-mono);letter-spacing:.04em;color:var(--muted);margin-bottom:6px}
+.cap.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.pbtns{display:flex;gap:6px}
+canvas{display:block;width:100%;max-width:100%}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:5px 8px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+th{font:600 11.5px var(--f-mono);color:var(--muted);vertical-align:bottom;border-bottom:1px solid var(--line)}
+th .u{display:block;font-weight:400;opacity:.8}
+td:first-child,th:first-child{text-align:left}
+td{font-family:var(--f-mono)}
+tr.empty td{text-align:left;color:var(--muted);font-family:var(--f-body);white-space:normal}
+details.model{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13.5px}
+details.model summary{cursor:pointer;font-weight:600}
+details.model p,details.model ul{margin:6px 0 0;max-width:90ch}
+footer{margin-top:28px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:13.5px;max-width:95ch}
+footer h2{font:600 18px var(--f-disp);color:var(--fg);margin:0 0 6px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Wirtualne laboratorium wytrzymałości materiałów</h1>
+    <p class="sub">Cyfrowe odpowiedniki ćwiczeń laboratoryjnych 2–16 Katedry Wytrzymałości Materiałów i Konstrukcji. Ustaw próbkę, obciążaj, odczytuj przyrządy i zapisuj wyniki w tabelach jak w instrukcji.</p>
+  </div>
+  <label class="switch" for="noise"><input type="checkbox" id="noise" checked> Rozrzut i szum pomiarowy</label>
+</header>
+<nav class="tabs" role="tablist" id="tabs"></nav>
+<main id="main"></main>
+<footer>
+  <h2>Skąd pochodzą wyniki</h2>
+  <p>Ćwiczenia 2, 14 i 16 korzystają z obliczeń MES wykonanych w CalculiX 2.21 (siatki CAX8/CAX8R/CPS8, skrypty w katalogu <code>fem/</code>); strona skaluje lub interpoluje te wyniki. Pozostałe ćwiczenia liczą zależności z instrukcji na bieżąco (Euler/Southwell, wzory na skręcanie i sprężyny, energia wahadła), a właściwości materiałów i rozrzut próbek dobrano jako typowe wartości katalogowe. Każda „nowa próbka” losuje rzeczywiste wymiary i właściwości w granicach tolerancji, więc wyniki różnią się między próbami jak w prawdziwym laboratorium. Wyłączenie szumu daje wartości modelowe.</p>
+</footer>
+</div>
+
+<script>const DATA = __DATA__;</script>
+<script>
+"use strict";
+/* ================= utilities ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const TOK={};
+function readTok(){const cs=getComputedStyle(document.documentElement);
+  ['bg','panel','panel2','fg','muted','line','grid','acc','c2','c3','c4','metal','metal2','dispbg','dispfg','dispmu'].forEach(k=>TOK[k]=cs.getPropertyValue('--'+k).trim());}
+const fmt=(v,d=2)=>Number.isFinite(v)?(Math.abs(v)<0.5*10**-d?0:v).toLocaleString('pl-PL',{minimumFractionDigits:d,maximumFractionDigits:d,useGrouping:false}):'—';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const PI=Math.PI, rad=d=>d*PI/180, deg=r=>r*180/PI;
+let seed=(Date.now()%2147483647)|0;
+function rnd(){seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;}
+function gauss(){let u=0;while(!u)u=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*PI*rnd());}
+const noisy=()=>$('#noise').checked;
+const N=sd=>noisy()?sd*gauss():0;
+const roundTo=(v,q)=>Math.round(v/q)*q;
+function lerp1(xs,ys,x){const n=xs.length;if(x<=xs[0])return ys[0];if(x>=xs[n-1])return ys[n-1];let i=1;while(xs[i]<x)i++;const t=(x-xs[i-1])/(xs[i]-xs[i-1]);return ys[i-1]+t*(ys[i]-ys[i-1]);}
+function linfit(P){const n=P.length;let sx=0,sy=0,sxx=0,sxy=0;for(const[x,y]of P){sx+=x;sy+=y;sxx+=x*x;sxy+=x*y;}const b=(n*sxy-sx*sy)/(n*sxx-sx*sx);return{b,a:(sy-b*sx)/n};}
+
+/* ---------- canvas + charts ---------- */
+function fit(cv){const dpr=window.devicePixelRatio||1;const w=cv.clientWidth||cv.parentElement.clientWidth||300;
+  const h=Math.round(Math.min(w*(+cv.dataset.ratio||.6),+cv.dataset.max||9999));cv.style.height=h+'px';
+  const W=Math.round(w*dpr),H=Math.round(h*dpr);if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);return{ctx,w,h};}
+function nice(a,b,n=5){if(!(b>a)){b=a+1;}const st0=(b-a)/n,m=10**Math.floor(Math.log10(st0)),f=st0/m;const st=(f<1.5?1:f<3?2:f<7?5:10)*m;return{a:Math.floor(a/st+1e-9)*st,b:Math.ceil(b/st-1e-9)*st,st};}
+function tickLab(v,st){const d=Math.max(0,-Math.floor(Math.log10(st)+1e-9));return fmt(Math.abs(v)<st/1e6?0:v,d);}
+function col(c){return TOK[c]||c;}
+function plot(cv,o){
+  const{ctx,w,h}=fit(cv);const L=56,Rr=14,T=o.legend?28:12,B=40;
+  const xs=[],ys=[];for(const s of o.series)for(const p of s.pts)if(Number.isFinite(p[0])&&Number.isFinite(p[1])){xs.push(p[0]);ys.push(p[1]);}
+  (o.xinc||[]).forEach(v=>xs.push(v));(o.yinc||[]).forEach(v=>ys.push(v));
+  let x0=o.xmin??(xs.length?Math.min(...xs):0),x1=o.xmax??(xs.length?Math.max(...xs):1);
+  let y0=o.ymin??(ys.length?Math.min(...ys):0),y1=o.ymax??(ys.length?Math.max(...ys):1);
+  if(x1-x0<1e-12){x1=x0+1;}if(y1-y0<1e-12){y1=y0+(Math.abs(y0)||1);}
+  const nx=nice(x0,x1,Math.max(3,Math.floor((w-L)/80))),ny=nice(y0,y1,Math.max(3,Math.floor((h-T-B)/45)));
+  if(o.xmin===undefined||o.xnice!==false){x0=o.xmin??nx.a;x1=o.xmax??nx.b;}if(o.ymin===undefined||o.ynice!==false){y0=o.ymin??ny.a;y1=o.ymax??ny.b;}
+  const pw=w-L-Rr,ph=h-T-B,X=x=>L+(x-x0)/(x1-x0)*pw,Y=y=>T+ph-(y-y0)/(y1-y0)*ph;
+  ctx.font='11px '+getComputedStyle(document.body).getPropertyValue('--f-mono');ctx.lineWidth=1;
+  ctx.strokeStyle=TOK.grid;ctx.fillStyle=TOK.muted;ctx.textAlign='center';ctx.textBaseline='top';
+  for(let v=Math.ceil(x0/nx.st-1e-9)*nx.st;v<=x1+nx.st*1e-6;v+=nx.st){const px=X(v);ctx.beginPath();ctx.moveTo(px,T);ctx.lineTo(px,T+ph);ctx.stroke();ctx.fillText(tickLab(v,nx.st),px,T+ph+5);}
+  ctx.textAlign='right';ctx.textBaseline='middle';
+  for(let v=Math.ceil(y0/ny.st-1e-9)*ny.st;v<=y1+ny.st*1e-6;v+=ny.st){const py=Y(v);ctx.beginPath();ctx.moveTo(L,py);ctx.lineTo(L+pw,py);ctx.stroke();ctx.fillText(tickLab(v,ny.st),L-6,py);}
+  ctx.strokeStyle=TOK.muted;ctx.beginPath();ctx.moveTo(L,T);ctx.lineTo(L,T+ph);ctx.lineTo(L+pw,T+ph);ctx.stroke();
+  if(y0<0&&y1>0){ctx.strokeStyle=TOK.muted;ctx.globalAlpha=.6;ctx.beginPath();ctx.moveTo(L,Y(0));ctx.lineTo(L+pw,Y(0));ctx.stroke();ctx.globalAlpha=1;}
+  ctx.fillStyle=TOK.fg;ctx.font='12px '+getComputedStyle(document.body).fontFamily;ctx.textAlign='right';ctx.textBaseline='alphabetic';
+  ctx.fillText(o.xlabel||'',L+pw,h-4);ctx.save();ctx.translate(13,T);ctx.rotate(-PI/2);ctx.textAlign='right';ctx.fillText(o.ylabel||'',0,0);ctx.restore();
+  ctx.save();ctx.beginPath();ctx.rect(L,T-2,pw,ph+4);ctx.clip();
+  for(const m of o.vlines||[]){ctx.strokeStyle=col(m.color||'muted');ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(X(m.x),T);ctx.lineTo(X(m.x),T+ph);ctx.stroke();ctx.setLineDash([]);
+    if(m.label){ctx.fillStyle=col(m.color||'muted');ctx.font='11px '+getComputedStyle(document.body).getPropertyValue('--f-mono');ctx.textAlign='left';ctx.fillText(m.label,X(m.x)+4,T+12);}}
+  for(const m of o.hlines||[]){ctx.strokeStyle=col(m.color||'muted');ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(L,Y(m.y));ctx.lineTo(L+pw,Y(m.y));ctx.stroke();ctx.setLineDash([]);
+    if(m.label){ctx.fillStyle=col(m.color||'muted');ctx.font='11px '+getComputedStyle(document.body).getPropertyValue('--f-mono');ctx.textAlign='right';ctx.fillText(m.label,L+pw-4,Y(m.y)-4);}}
+  for(const s of o.series){const c=col(s.color||'fg');
+    if(s.fill&&s.pts.length>2){ctx.fillStyle=c;ctx.globalAlpha=.12;ctx.beginPath();s.pts.forEach((p,i)=>i?ctx.lineTo(X(p[0]),Y(p[1])):ctx.moveTo(X(p[0]),Y(p[1])));ctx.closePath();ctx.fill();ctx.globalAlpha=1;}
+    if(!s.dotsOnly&&s.pts.length>1){ctx.strokeStyle=c;ctx.lineWidth=s.width||2;ctx.setLineDash(s.dash||[]);ctx.beginPath();let pen=false;
+      for(const p of s.pts){if(!Number.isFinite(p[1])){pen=false;continue;}pen?ctx.lineTo(X(p[0]),Y(p[1])):ctx.moveTo(X(p[0]),Y(p[1]));pen=true;}ctx.stroke();ctx.setLineDash([]);}
+    if(s.dots||s.dotsOnly){for(const p of s.pts){ctx.beginPath();ctx.arc(X(p[0]),Y(p[1]),s.r||3.6,0,2*PI);ctx.fillStyle=s.hollow?TOK.panel:c;ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle=s.hollow?c:TOK.panel;ctx.stroke();}}
+    if(s.marker){const p=s.marker;ctx.beginPath();ctx.arc(X(p[0]),Y(p[1]),5.5,0,2*PI);ctx.fillStyle=c;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=TOK.panel;ctx.stroke();}}
+  for(const t of o.labels||[]){ctx.fillStyle=col(t.color||'fg');ctx.font=(t.bold?'600 ':'')+'12px '+getComputedStyle(document.body).getPropertyValue('--f-mono');ctx.textAlign=t.align||'left';ctx.textBaseline='bottom';ctx.fillText(t.text,X(t.x)+(t.dx||0),Y(t.y)+(t.dy||-4));}
+  ctx.restore();
+  if(o.legend){let lx=L;ctx.font='12px '+getComputedStyle(document.body).fontFamily;ctx.textBaseline='middle';ctx.textAlign='left';
+    for(const s of o.series){if(!s.label)continue;const c=col(s.color||'fg');ctx.strokeStyle=c;ctx.fillStyle=c;ctx.lineWidth=2;
+      if(s.dotsOnly){ctx.beginPath();ctx.arc(lx+8,12,3.6,0,2*PI);ctx.fill();}else{ctx.setLineDash(s.dash||[]);ctx.beginPath();ctx.moveTo(lx,12);ctx.lineTo(lx+18,12);ctx.stroke();ctx.setLineDash([]);}
+      ctx.fillStyle=TOK.fg;ctx.fillText(s.label,lx+23,12);lx+=ctx.measureText(s.label).width+42;if(lx>w-60)break;}}
+  return{X,Y,L,T,pw,ph,ctx,w,h,x0,x1,y0,y1};}
+/* colour maps for FE fields */
+const VIR=[[48,18,59],[65,69,171],[57,118,224],[29,165,220],[38,203,170],[106,227,104],[180,236,52],[241,209,42],[251,152,41],[230,82,22],[180,26,4]];
+const DIV=[[33,102,172],[103,169,207],[209,229,240],[240,240,240],[253,219,199],[239,138,98],[178,24,43]];
+function ramp(P,t){const f=t*(P.length-1),i=Math.min(P.length-2,Math.max(0,Math.floor(f))),u=f-i,a=P[i],b=P[i+1];return`rgb(${a.map((c,k)=>Math.round(c+u*(b[k]-c))).join(',')})`;}
+function cmap(t,bands=14){t=clamp(t,0,1);if(bands)t=Math.min(bands-1,Math.floor(t*bands))/(bands-1);return ramp(VIR,t);}
+function dmap(t,bands=14){t=clamp((t+1)/2,0,1);if(bands)t=Math.min(bands-1,Math.floor(t*bands))/(bands-1);return ramp(DIV,t);}
+function colorbar(ctx,x,y,w,h,v0,v1,label,div){const n=60;for(let i=0;i<n;i++){const t=i/(n-1);ctx.fillStyle=div?dmap(2*t-1):cmap(t);ctx.fillRect(x,y+h-(i+1)*h/n,w,h/n+1);}
+  ctx.strokeStyle=TOK.line;ctx.strokeRect(x,y,w,h);ctx.fillStyle=TOK.fg;ctx.font='11px '+getComputedStyle(document.body).getPropertyValue('--f-mono');ctx.textAlign='left';ctx.textBaseline='middle';
+  const d=Math.abs(v1-v0)<5?2:Math.abs(v1-v0)<50?1:0;[0,.5,1].forEach(t=>ctx.fillText(fmt(v0+t*(v1-v0),d),x+w+4,y+h-t*h));
+  ctx.textBaseline='bottom';ctx.fillText(label,x-2,y-4);}
+function quadPath(ctx,pts){ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();}
+/* analogue dial gauge */
+function dial(ctx,cx,cy,r,val,label,unit){ctx.save();ctx.fillStyle=TOK.panel2;ctx.strokeStyle=TOK.metal2;ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,r,0,2*PI);ctx.fill();ctx.stroke();
+  ctx.strokeStyle=TOK.muted;ctx.lineWidth=1;for(let i=0;i<100;i++){const a=-PI/2+i/100*2*PI,l=i%10?r*.1:r*.2;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*(r-2),cy+Math.sin(a)*(r-2));ctx.lineTo(cx+Math.cos(a)*(r-2-l),cy+Math.sin(a)*(r-2-l));ctx.stroke();}
+  const frac=((val%1)+1)%1,a=-PI/2+frac*2*PI;ctx.strokeStyle=TOK.acc;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*(r*.82),cy+Math.sin(a)*(r*.82));ctx.stroke();
+  ctx.fillStyle=TOK.fg;ctx.beginPath();ctx.arc(cx,cy,3,0,2*PI);ctx.fill();
+  ctx.font='600 11px '+getComputedStyle(document.body).getPropertyValue('--f-mono');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(fmt(val,unit==='mm'?2:3),cx,cy+r*.45);
+  if(label){ctx.fillStyle=TOK.muted;ctx.font='11px '+getComputedStyle(document.body).getPropertyValue('--f-mono');ctx.fillText(label,cx,cy-r-9);}ctx.restore();}
+
+/* ---------- UI builders ---------- */
+const decOf=s=>(String(s).split('.')[1]||'').length;
+const R_=(id,label,min,max,step,val,unit,dec)=>`<div class="ctl"><label for="${id}">${label}</label><output id="${id}-o" for="${id}"></output><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit||''}" data-dec="${dec??''}"></div>`;
+const S_=(id,label,opts,val)=>`<fieldset class="seg" id="${id}"><legend>${label}</legend><div class="opts">${opts.map(([v,t])=>`<label><input type="radio" name="${id}" id="${id}-${String(v).replace(/\W/g,'_')}" value="${v}" ${v==val?'checked':''}><span>${t}</span></label>`).join('')}</div></fieldset>`;
+const Sel_=(id,label,opts,val)=>`<div class="ctl"><label for="${id}">${label}</label><select id="${id}">${opts.map(([v,t])=>`<option value="${v}" ${v==val?'selected':''}>${t}</option>`).join('')}</select></div>`;
+const D_=(id,label,unit)=>`<div class="dcell"><span class="dl">${label}</span><span class="dv" id="${id}">—</span><span class="du">${unit}</span></div>`;
+const protoHTML=(id,title)=>`<div class="card"><div class="cap row"><span>${title}</span><span class="pbtns"><button class="btn sm ghost" data-copy="${id}">Kopiuj do Excela</button><button class="btn sm ghost" data-clear="${id}">Wyczyść</button></span></div><div class="tw" id="${id}"></div></div>`;
+const num=id=>+document.getElementById(id).value;
+const segv=id=>document.querySelector(`#${id} input:checked`).value;
+function setOut(id,text){const o=document.getElementById(id+'-o');if(o)o.textContent=text;}
+function bindOutputs(root){$$('input[type=range]',root).forEach(inp=>{const o=document.getElementById(inp.id+'-o');if(!o)return;const upd=()=>{if(inp.dataset.custom)return;const d=inp.dataset.dec===''?decOf(inp.step):+inp.dataset.dec;o.textContent=fmt(+inp.value,d)+(inp.dataset.unit?' '+inp.dataset.unit:'');};inp.addEventListener('input',upd);upd();});}
+function setDisp(id,v,d){const e=document.getElementById(id);if(e)e.textContent=typeof v==='string'?v:fmt(v,d);}
+function kv(id,rows){document.getElementById(id).innerHTML=rows.map(r=>r==='-'?'<div class="sep"></div>':`<dt>${r[0]}</dt><dd class="${r[2]?'hl':''}">${r[1]}</dd>`).join('');}
+const PROTOS={};
+class Proto{constructor(id,cols,empty){this.id=id;this.el=document.getElementById(id);this.cols=cols;this.rows=[];this.empty=empty||'Brak zapisanych pomiarów. Wykonaj próbę i zapisz wynik.';PROTOS[id]=this;this.onchange=null;this.render();}
+  add(r){this.rows.push(r);this.render();}clear(){this.rows=[];this.render();}
+  cell(c,r,i){const v=c.f?c.f(r[c.k],r,i):r[c.k];return v??'';}
+  render(){const head=this.cols.map(c=>`<th>${c.h}${c.u?`<span class="u">${c.u}</span>`:''}</th>`).join('');
+    const body=this.rows.length?this.rows.map((r,i)=>`<tr>${this.cols.map(c=>`<td>${this.cell(c,r,i)}</td>`).join('')}</tr>`).join(''):`<tr class="empty"><td colspan="${this.cols.length}">${this.empty}</td></tr>`;
+    this.el.innerHTML=`<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;if(this.onchange)this.onchange();}
+  tsv(){const strip=s=>String(s).replace(/<[^>]+>/g,'');return[this.cols.map(c=>strip(c.h)+(c.u?' '+strip(c.u):'')).join('\t'),...this.rows.map((r,i)=>this.cols.map(c=>strip(this.cell(c,r,i))).join('\t'))].join('\n');}}
+document.addEventListener('click',e=>{const c=e.target.closest('[data-copy]'),x=e.target.closest('[data-clear]');
+  if(c){const p=PROTOS[c.dataset.copy],t=p.tsv();const done=()=>{c.textContent='Skopiowano';setTimeout(()=>c.textContent='Kopiuj do Excela',1500);};
+    try{navigator.clipboard.writeText(t).then(done,()=>fallbackCopy(t,done));}catch(_){fallbackCopy(t,done);}}
+  if(x){PROTOS[x.dataset.clear].clear();}});
+function fallbackCopy(t,done){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(_){}ta.remove();}
+function panelHTML(o){return`<div class="ex-head"><div class="eyebrow">Ćwiczenie ${o.n}</div><h2>${o.title}</h2><p class="cel">${o.cel}</p><div class="chips">${o.chips.map(c=>`<span class="chip ${c[1]||''}">${c[0]}</span>`).join('')}</div></div>
+<div class="ex-body"><aside class="ctrl">${o.ctrl}</aside><div class="view">${o.view}${o.model?`<details class="model"><summary>Jak działa model</summary>${o.model}</details>`:''}</div></div>`;}
+const fnum=(v,d)=>Number.isFinite(v)?fmt(v,d):'—';
+
+/* ================= Ćw. 2 — ściskanie ================= */
+const C2={sh:0,run:false};
+function c2init(){
+  const p=$('#cw2');
+  p.innerHTML=panelHTML({n:2,title:'Próba statyczna ściskania metali',
+    cel:'Wyznacz wyraźną (R<sub>plc</sub>) lub umowną (R<sub>c0,2</sub>) granicę plastyczności przy ściskaniu, wytrzymałość na ściskanie R<sub>c</sub> materiału kruchego, skrócenie względne a<sub>c</sub> i wykres ściskania. Próbki walcowe d₀ ≈ 20 mm, h = (1…2)·d₀.',
+    chips:[['MES · CalculiX, CAX8R, duże odkształcenia','fe'],['żeliwo: model analityczny','an']],
+    ctrl:`<div class="grp"><h3>Próbka</h3>${Sel_('c2m','Materiał',[['stal','Stal niskowęglowa S235'],['aluminium','Aluminium (stop wyżarzony)'],['miedz','Miedź M1E (wyżarzona)'],['zeliwo','Żeliwo szare EN-GJL-250']],'stal')}
+      ${S_('c2h','Wysokość h / d₀',[['1','1,0'],['1.5','1,5'],['2','2,0']],'1.5')}
+      ${S_('c2f','Powierzchnie czołowe',[['przyleganie','suche (tarcie)'],['bez_tarcia','smarowane']],'przyleganie')}
+      <button class="btn ghost" id="c2new">Nowa próbka (zmierz d₀)</button></div>
+    <div class="grp"><h3>Maszyna wytrzymałościowa</h3>${R_('c2t','Skrócenie Δl / l₀',0,30,0.1,0,'%',1)}
+      <div class="btns"><button class="btn" id="c2go">Obciążaj</button><button class="btn ghost" id="c2reset">Odciąż · nowa próba</button></div>
+      <div class="disp">${D_('c2F','Siła P','kN')}${D_('c2dl','Skrócenie Δl','mm')}${D_('c2s','σ = P / A₀','MPa')}${D_('c2ac','a_c','%')}</div>
+      <p class="warn" id="c2w" hidden></p></div>
+    <div class="grp"><h3>Wyniki próby</h3><dl class="kv" id="c2kv"></dl><button class="btn" id="c2save">Zapisz do tabeli 2.1</button></div>`,
+    view:`<div class="pair"><div class="card"><div class="cap">Przekrój osiowy próbki · odkształcenie plastyczne zastępcze</div><canvas id="c2rig" data-ratio="0.95" data-max="440"></canvas></div>
+      <div class="card"><div class="cap">Wykres ściskania P = f(Δl)</div><canvas id="c2ch" data-ratio="0.95" data-max="440"></canvas></div></div>
+      ${protoHTML('c2p','Tabela 2.1 · wyniki próby ściskania')}`,
+    model:`<p>Metale plastyczne: osiowosymetryczny model MES (CalculiX 2.21, CAX8R, NLGEOM, plastyczność J2 ze wzmocnieniem izotropowym) połówki próbki d₀ = 20 mm, dla 3 materiałów × 3 smukłości × 2 warunków na czołach (pełne przyleganie do płyty albo brak tarcia). Próbkę skracano do 30 % — dalej boczna powierzchnia beczki zawija się na płytę, czego model bez kontaktu nie odwzorowuje. Pierwszy 1 % skrócenia liczony jest analitycznie (jednorodne ściskanie), by pokazać zakres sprężysty i półkę plastyczności stali.</p><p>Żeliwo: krzywa σ(ε) wykładnicza z niszczeniem przy ε ≈ 3 %; bez tarcia wytrzymałość spada o ok. 15 % i zmienia się postać pęknięcia (podłużne zamiast stożków), jak opisuje instrukcja.</p>`});
+  bindOutputs(p);
+  C2.proto=new Proto('c2p',[{h:'Nr',k:'i',f:(v,r,i)=>i+1},{h:'Materiał',k:'mat'},{h:'Czoła',k:'fr'},{h:'d₀',u:'mm',k:'d0',f:v=>fmt(v,2)},{h:'l₀',u:'mm',k:'l0',f:v=>fmt(v,1)},{h:'A₀',u:'mm²',k:'A0',f:v=>fmt(v,1)},
+    {h:'P<sub>plc</sub> / P<sub>c0,2</sub>',u:'kN',k:'Ppl',f:v=>fnum(v,2)},{h:'R<sub>plc</sub> / R<sub>c0,2</sub>',u:'MPa',k:'Rpl',f:v=>fnum(v,0)},{h:'P<sub>c</sub>',u:'kN',k:'Pc',f:v=>fnum(v,1)},{h:'R<sub>c</sub>',u:'MPa',k:'Rc',f:v=>fnum(v,0)},{h:'Δl',u:'mm',k:'dl',f:v=>fmt(v,2)},{h:'a<sub>c</sub>',u:'%',k:'ac',f:v=>fmt(v,1)}]);
+  const reset=()=>{C2.sh=0;$('#c2t').value=0;c2stop();c2draw();};
+  ['c2m','c2h','c2f'].forEach(id=>$('#'+id).addEventListener('change',()=>{c2sample();reset();}));
+  $('#c2new').onclick=()=>{c2sample();reset();};
+  $('#c2reset').onclick=reset;
+  $('#c2t').addEventListener('input',()=>{C2.sh=num('c2t')/100;c2draw();});
+  $('#c2go').onclick=()=>{if(C2.run)c2stop();else c2start();};
+  $('#c2save').onclick=()=>{const r=c2results();C2.proto.add(r);};
+  c2sample();c2draw();
+}
+function c2sample(){const mat=$('#c2m').value,fr=segv('c2f'),hd=+segv('c2h');
+  C2.mat=mat;C2.fr=fr;C2.hd=hd;C2.d0=roundTo(20+N(0.012),0.01);C2.l0=roundTo(hd*20+N(0.03),0.01);C2.k=1+N(0.02);
+  const Rc=820*(1+N(0.04))*(fr==='bez_tarcia'?0.85:1)*(1+0.06*(1.5-hd));C2.cast={Rc,e0:0.009,ef:0.032*(1+N(0.05))*(fr==='bez_tarcia'?0.85:1)};}
+const c2key=()=>`${C2.mat}_${C2.fr}_${C2.hd}`;
+const c2run=()=>DATA.sc.runs[c2key()];
+function c2sig(mat,ep){const c=DATA.sc.curves[mat];return lerp1(c.ep,c.s,ep);}
+function c2homog(mat,eps){const E=DATA.sc.curves[mat].E,s0=c2sig(mat,0);if(E*eps<=s0)return E*eps;let lo=0,hi=0.06;for(let i=0;i<40;i++){const m=(lo+hi)/2;if(c2sig(mat,m)/E+m<eps)lo=m;else hi=m;}return c2sig(mat,lo);}
+function c2F(sh){const A0=PI*C2.d0**2/4;
+  if(C2.mat==='zeliwo'){const z=C2.cast;if(sh>z.ef)return 0;return z.Rc*(1-Math.exp(-sh/z.e0))/(1-Math.exp(-z.ef/z.e0))*A0/1000;}
+  const run=c2run(),sc=(C2.d0/20)**2*C2.k,K=sh/DATA.sc.short*DATA.sc.ninc;
+  if(K<=1){const fa=s=>c2homog(C2.mat,-Math.log(1-s))*PI*100/(1-s)/1000;const corr=(run.F[1]/1000)/fa(0.01);return fa(sh)*(1+(corr-1)*K)*sc;}
+  const i=Math.min(Math.floor(K),run.F.length-2),t=K-i;return(run.F[i]+t*(run.F[i+1]-run.F[i]))/1000*sc;}
+function c2yield(){if(C2.mat==='zeliwo')return null;const E=DATA.sc.curves[C2.mat].E;
+  const R=C2.mat==='stal'?c2sig('stal',0)*C2.k:c2sig(C2.mat,0.002)*C2.k;return{R,eps:R/E+(C2.mat==='stal'?0:0.002),name:C2.mat==='stal'?'plc':'c0,2'};}
+function c2results(){const A0=PI*C2.d0**2/4,y=c2yield(),sh=C2.sh,matN={stal:'stal S235',aluminium:'aluminium',miedz:'miedź',zeliwo:'żeliwo szare'}[C2.mat];
+  const r={mat:matN,fr:C2.fr==='bez_tarcia'?'smar.':'suche',d0:C2.d0,l0:C2.l0,A0,dl:sh*C2.l0,ac:sh*100};
+  if(y&&-Math.log(1-sh)>=y.eps){r.Rpl=y.R;r.Ppl=y.R*A0/1000;}
+  if(C2.mat==='zeliwo'&&sh>C2.cast.ef){r.Pc=c2F(C2.cast.ef);r.Rc=r.Pc*1000/A0;r.dl=C2.cast.ef*C2.l0;r.ac=C2.cast.ef*100;}
+  return r;}
+function c2start(){if(C2.sh>=0.3)C2.sh=0;C2.run=true;$('#c2go').textContent='Zatrzymaj';let last=performance.now();
+  const step=t=>{if(!C2.run)return;const dt=(t-last)/1000;last=t;const rate=C2.mat==='zeliwo'?0.006:(C2.sh<0.02?0.004:0.03);C2.sh=Math.min(0.3,C2.sh+rate*dt);
+    if(C2.mat==='zeliwo'&&C2.sh>C2.cast.ef+0.004){C2.sh=C2.cast.ef+0.004;c2stop();}
+    if(C2.sh>=0.3)c2stop();$('#c2t').value=C2.sh*100;setOut('c2t',fmt(C2.sh*100,1)+' %');c2draw();if(C2.run)requestAnimationFrame(step);};requestAnimationFrame(step);}
+function c2stop(){C2.run=false;$('#c2go').textContent='Obciążaj';}
+function c2frame(sh){const run=c2run(),K=sh/DATA.sc.short*DATA.sc.ninc,fr=run.frames,n=run.xy.length;
+  if(K<=0)return{u:run.xy.map(()=>[0,0]),pe:new Array(n).fill(0)};
+  if(K<1)return{u:fr[0].u.map(v=>[v[0]*K,v[1]*K]),pe:fr[0].peeq.map(v=>v*K)};
+  const i=Math.min(Math.floor(K)-1,fr.length-1),j=Math.min(i+1,fr.length-1),t=K-Math.floor(K);
+  return{u:fr[i].u.map((v,k)=>[v[0]+t*(fr[j].u[k][0]-v[0]),v[1]+t*(fr[j].u[k][1]-v[1])]),pe:fr[i].peeq.map((v,k)=>v+t*(fr[j].peeq[k]-v))};}
+function c2draw(){if($('#cw2').hidden)return;
+  const sh=C2.sh,A0=PI*C2.d0**2/4,F=c2F(sh),cast=C2.mat==='zeliwo',broken=cast&&sh>C2.cast.ef;
+  setDisp('c2F',F,2);setDisp('c2dl',sh*C2.l0,2);setDisp('c2s',F*1000/A0,0);setDisp('c2ac',sh*100,1);
+  const w=$('#c2w');w.hidden=!broken;w.textContent=broken?(C2.fr==='bez_tarcia'?'Próbka pękła wzdłużnie (brak tarcia na czołach).':'Próbka rozkruszona — pęknięcie poślizgowe pod kątem ok. 45°.'):'';
+  const y=c2yield(),r=c2results();
+  kv('c2kv',[['d₀ (śruba mikrometryczna)',fmt(C2.d0,2)+' mm'],['l₀',fmt(C2.l0,2)+' mm'],['A₀ = π d₀² / 4',fmt(A0,1)+' mm²'],'-',
+    cast?['P<sub>c</sub> (siła niszcząca)',r.Pc?fmt(r.Pc,1)+' kN':'próba trwa',!!r.Pc]:[y.name==='plc'?'P<sub>plc</sub> (wyraźna granica)':'P<sub>c0,2</sub> (umowna, 0,2 %)',r.Ppl?fmt(r.Ppl,2)+' kN':'nie osiągnięto',false],
+    cast?['R<sub>c</sub> = P<sub>c</sub> / A₀',r.Rc?fmt(r.Rc,0)+' MPa':'—',true]:[y.name==='plc'?'R<sub>plc</sub> = P<sub>plc</sub> / A₀':'R<sub>c0,2</sub>',r.Rpl?fmt(r.Rpl,0)+' MPa':'—',true],
+    ['a<sub>c</sub> = Δl / l₀',fmt(r.ac,1)+' %'],
+    cast?['R<sub>c</sub> / R<sub>m</sub> (R<sub>m</sub> ≈ 250 MPa)',r.Rc?fmt(r.Rc/250,1):'—']:['R<sub>c</sub>','nie określa się (brak zniszczenia)']]);
+  /* rig */
+  const cv=$('#c2rig'),{ctx,w:W,h:H}=fit(cv),h0=C2.hd*20,cbw=74;
+  const rmax=cast?11:13.5,s=Math.min((W-cbw-30)/(2*rmax*1.25),(H-60)/(h0+4)),cx=(W-cbw)/2,cy=H/2,zt=h0/2*(1-Math.min(sh,broken?C2.cast.ef:sh));
+  const plW=2*rmax*1.25*s;ctx.fillStyle=TOK.metal;ctx.strokeStyle=TOK.metal2;
+  [[-1],[1]].forEach(([sg])=>{const yy=sg<0?cy-zt*s-16:cy+zt*s;ctx.fillRect(cx-plW/2,yy,plW,16);ctx.strokeRect(cx-plW/2,yy,plW,16);});
+  ctx.beginPath();ctx.arc(cx,cy-zt*s-16,18,PI,2*PI);ctx.fill();ctx.stroke();
+  ctx.fillStyle=TOK.muted;ctx.font='11px '+getComputedStyle(document.body).getPropertyValue('--f-mono');ctx.textAlign='left';ctx.fillText('płyta z przegubem kulistym',cx-plW/2,cy-zt*s-40);
+  if(!cast){const run=c2run(),fr=c2frame(sh);ctx.lineWidth=.5;
+    for(const q of run.quads){let pe=0;const pts=q.map(i=>{pe+=fr.pe[i]/4;return[run.xy[i][0]+fr.u[i][0],run.xy[i][1]+fr.u[i][1]];});const c=pe<0.002?TOK.metal:cmap(pe/0.8);
+      for(const sx of[1,-1])for(const sy of[1,-1]){quadPath(ctx,pts.map(p=>[cx+sx*p[0]*s,cy-sy*p[1]*s]));ctx.fillStyle=c;ctx.fill();ctx.strokeStyle=c;ctx.stroke();}}
+    colorbar(ctx,W-cbw+14,50,14,H-100,0,0.8,'ε_pl',false);ctx.fillStyle=TOK.metal;ctx.fillRect(W-cbw+14,H-36,14,10);ctx.fillStyle=TOK.muted;ctx.textBaseline='middle';ctx.fillText('sprężyste',W-cbw+32,H-31);
+  }else{const z=C2.cast,e=Math.min(sh,z.ef),bul=0.6*e/z.ef*(C2.fr==='bez_tarcia'?0.25:1),pts=[];
+    for(let i=0;i<=20;i++){const zz=-zt+2*zt*i/20,rr=C2.d0/2*(1+e*0.25)+bul*(1-(zz/zt)**2);pts.push([cx+rr*s,cy-zz*s]);}
+    for(let i=20;i>=0;i--){const zz=-zt+2*zt*i/20,rr=C2.d0/2*(1+e*0.25)+bul*(1-(zz/zt)**2);pts.push([cx-rr*s,cy-zz*s]);}
+    quadPath(ctx,pts);ctx.fillStyle=TOK.metal2;ctx.fill();ctx.strokeStyle=TOK.fg;ctx.lineWidth=1;ctx.stroke();
+    if(broken){ctx.strokeStyle=TOK.acc;ctx.lineWidth=2.2;ctx.beginPath();const R0=C2.d0/2*s;
+      if(C2.fr==='bez_tarcia'){[-0.5,0.1,0.55].forEach(f=>{ctx.moveTo(cx+f*R0,cy-zt*s);ctx.lineTo(cx+f*R0+4,cy);ctx.lineTo(cx+f*R0-2,cy+zt*s);});}
+      else{ctx.moveTo(cx-R0,cy-zt*s);ctx.lineTo(cx,cy);ctx.lineTo(cx+R0,cy-zt*s);ctx.moveTo(cx-R0,cy+zt*s);ctx.lineTo(cx,cy);ctx.lineTo(cx+R0,cy+zt*s);}ctx.stroke();}
+    ctx.fillStyle=TOK.muted;ctx.font='12px '+getComputedStyle(document.body).fontFamily;ctx.textAlign='center';ctx.fillText('żeliwo: odkształcenia niemal sprężyste, zniszczenie kruche',cx,H-8);}
+  ctx.strokeStyle=TOK.muted;ctx.setLineDash([6,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx,22);ctx.lineTo(cx,H-22);ctx.stroke();ctx.setLineDash([]);
+  /* chart */
+  const shMax=cast?Math.max(0.04,C2.cast.ef+0.006):0.3,pts=[],full=[];const nP=160;
+  for(let i=0;i<=nP;i++){const t=shMax*(i/nP)**1.6;full.push([t*C2.l0,c2F(t)]);if(t<=sh)pts.push([t*C2.l0,c2F(t)]);}
+  pts.push([sh*C2.l0,F]);
+  let ymax=Math.max(...full.map(p=>p[1]))*1.08;
+  const hl=[];if(y&&r.Ppl)hl.push({y:r.Ppl,label:y.name==='plc'?'P_plc':'P_c0,2',color:'c2'});if(r.Pc)hl.push({y:r.Pc,label:'P_c',color:'acc'});
+  plot($('#c2ch'),{xlabel:'Δl [mm]',ylabel:'P [kN]',xmin:0,xmax:shMax*C2.l0,ymin:0,ymax,hlines:hl,series:[{pts,color:'acc',width:2.2,marker:[sh*C2.l0,F]}]});
+}
+
+/* ================= Ćw. 3 — udarność ================= */
+const CH={alpha:rad(150),L:0.75,E0:300};CH.GR=CH.E0/(1-Math.cos(CH.alpha));
+const CHM={s235:{n:'Stal S235JR',up:165,lo:6,T0:-18,C:13},s355:{n:'Stal S355J2',up:195,lo:7,T0:-42,C:12},c45:{n:'Stal C45 normalizowana',up:58,lo:4,T0:22,C:17},
+  x5:{n:'Stal austenityczna X5CrNi18-10',up:245,lo:245,T0:0,C:1},s235t:{n:'S235JR, próbka poprzeczna do walcowania',up:98,lo:5,T0:-8,C:14,lam:true}};
+const C3={theta:CH.alpha,ptr:null,anim:null,res:null};
+function c3init(){const p=$('#cw3');
+  p.innerHTML=panelHTML({n:3,title:'Próba udarności metali (młot Charpy’ego)',
+    cel:'Złam próbkę z karbem jednym uderzeniem wahadła, odczytaj pracę łamania K [J] i oblicz udarność KC = K / S₀. Zbadaj, jak udarność zależy od temperatury — wyznacz krzywą przejścia w stan kruchy.',
+    chips:[['Dynamika wahadła: K = G·R·(cos β − cos α)','an'],['Krzywe przejścia: model empiryczny','an']],
+    ctrl:`<div class="grp"><h3>Próbka</h3>${Sel_('c3m','Materiał',Object.entries(CHM).map(([k,v])=>[k,v.n]),'s235')}
+      ${S_('c3n','Karb',[['V','V (głęb. 2 mm)'],['U','U (głęb. 5 mm)']],'V')}
+      ${S_('c3b','Szerokość b',[['10','10 mm'],['7.5','7,5 mm'],['5','5 mm']],'10')}
+      ${R_('c3T','Temperatura próbki',-80,60,1,20,'°C',0)}</div>
+    <div class="grp"><h3>Młot wahadłowy 300 J</h3>${S_('c3k','Promień noża',[['2','2 mm'],['8','8 mm']],'2')}
+      <div class="btns"><button class="btn" id="c3go">Zwolnij wahadło</button><button class="btn ghost" id="c3idle">Wahnięcie bez próbki</button></div>
+      <div class="disp">${D_('c3v','Prędkość uderzenia','m/s')}${D_('c3K','Praca łamania K','J')}${D_('c3be','Kąt wzniosu β','°')}${D_('c3KC','Udarność KC','J/cm²')}</div>
+      <p class="note" id="c3msg">Kąt wzniosu α = 150°, ramię R = 0,75 m, G·R = ${fmt(CH.GR,1)} J.</p></div>
+    <div class="grp"><h3>Wynik</h3><dl class="kv" id="c3kv"></dl><button class="btn" id="c3save" disabled>Zapisz do protokołu</button></div>`,
+    view:`<div class="pair"><div class="card"><div class="cap">Młot Charpy’ego · skala energii</div><canvas id="c3rig" data-ratio="0.95" data-max="460"></canvas></div>
+      <div class="card"><div class="cap row"><span>Udarność w funkcji temperatury</span><label class="switch" for="c3model"><input type="checkbox" id="c3model"> krzywa modelu</label></div><canvas id="c3ch" data-ratio="0.95" data-max="460"></canvas></div></div>
+      ${protoHTML('c3p','Protokół próby udarności')}`,
+    model:`<p>Energia wahadła: G·R = 300 J / (1 − cos 150°). Po złamaniu próbki wahadło wznosi się na kąt β, dla którego cos β = cos α + K/(G·R); wskazówka wleczona zatrzymuje się na tej wartości, a skala jest wyskalowana bezpośrednio w dżulach. Prędkość uderzenia v = √(2gR(1 − cos α)) ≈ 5,2 m/s.</p><p>Praca łamania zależy od temperatury według typowej krzywej tangensowej (półka górna, półka dolna, temperatura przejścia) dobranej dla każdego gatunku; próbka z karbem U ma przejście przesunięte w stronę niższych temperatur. W zakresie przejściowym rozrzut wyników jest największy — tak jak w rzeczywistych próbach. Energia jest proporcjonalna do szerokości próbki.</p>`});
+  bindOutputs(p);
+  C3.proto=new Proto('c3p',[{h:'Nr',k:'i',f:(v,r,i)=>i+1},{h:'Materiał',k:'mat'},{h:'Oznaczenie',k:'sym'},{h:'T',u:'°C',k:'T',f:v=>fmt(v,0)},{h:'β',u:'°',k:'beta',f:v=>fmt(v,1)},{h:'K',u:'J',k:'Ks'},{h:'S₀',u:'cm²',k:'S0',f:v=>fmt(v,3)},{h:'KC',u:'J/cm²',k:'KC',f:v=>fnum(v,1)},{h:'Przełom',k:'frac'}]);
+  C3.proto.onchange=c3chart;
+  $('#c3go').onclick=()=>c3swing(true);$('#c3idle').onclick=()=>c3swing(false);
+  $('#c3save').onclick=()=>{if(C3.res){C3.proto.add(C3.res);$('#c3save').disabled=true;}};
+  ['c3m','c3n','c3b','c3k'].forEach(id=>$('#'+id).addEventListener('change',()=>{C3.res=null;C3.theta=CH.alpha;C3.ptr=null;c3draw();}));
+  $('#c3T').addEventListener('input',()=>{C3.res=null;C3.theta=CH.alpha;C3.ptr=null;c3draw();});
+  $('#c3model').addEventListener('change',c3chart);
+  c3draw();}
+function c3model(mk,notch,T,b,knife){const m=CHM[mk];let up=m.up,lo=m.lo,T0=m.T0,C=m.C;
+  if(notch==='U'){up*=0.82;lo*=1.6;T0-=18;}if(knife==='8'){up*=1.04;T0-=3;}
+  const x=(T-T0)/C,th=Math.tanh(x),K=(lo+(up-lo)*(1+th)/2)*b/10;return{K,fd:(1+th)/2,trans:1-th*th,up:up*b/10,lo:lo*b/10};}
+function c3swing(withSpec){if(C3.anim)return;const mk=$('#c3m').value,notch=segv('c3n'),b=+segv('c3b'),T=num('c3T'),knife=segv('c3k');
+  let K=0,res=null;
+  if(withSpec){const m=c3model(mk,notch,T,b,knife);K=Math.max(1,m.K+N(0.05*m.K+0.14*(m.up-m.lo)*m.trans+0.3));
+    const avail=CH.E0-0.6;let frac,Ks;const lam=CHM[mk].lam;const fd=clamp(m.fd+N(0.08*m.trans),0,1);
+    if(K>=avail){K=avail;frac='nie złamała się';Ks='&gt;'+fmt(CH.E0,0);}
+    else{Ks=fmt(K,0);frac=fd>0.85?(lam?'z rozwarstwieniem':'poślizgowy'):fd<0.2?'kruchy':'mieszany';
+      if(mk==='x5'&&K>200){frac='nie złamana (przeszła przez podpory)';Ks='('+fmt(K,0)+')';}}
+    const S0=(b/10)*((10-(notch==='V'?2:5))/10);const KC=frac.startsWith('nie złamała')?NaN:K/S0;
+    const sym=`K${notch}${knife}`+(b!==10?`/300/${fmt(b,1).replace(',0','')}`:'');
+    res={mat:CHM[mk].n,sym,T,K,Ks,S0,KC,frac,beta:deg(Math.acos(Math.cos(CH.alpha)+K/CH.GR)),b};}
+  else{K=0.6+N(0.15);}
+  const beta=Math.acos(clamp(Math.cos(CH.alpha)+K/CH.GR,-1,1));C3.ptr=null;C3.broken=false;C3.res=null;$('#c3save').disabled=true;
+  const t0=performance.now(),T1=620,T2=820;
+  const step=t=>{const e=t-t0;if(e<T1){C3.theta=CH.alpha*Math.cos(PI/2*e/T1);}else if(e<T1+T2){C3.broken=withSpec;C3.theta=-beta*Math.sin(PI/2*(e-T1)/T2);C3.ptr=Math.max(C3.ptr||0,-C3.theta);}
+    else{C3.theta=-beta;C3.ptr=beta;C3.anim=null;C3.res=res;C3.Kidle=withSpec?null:K;if(res)$('#c3save').disabled=false;c3draw();return;}
+    c3draw();C3.anim=requestAnimationFrame(step);};C3.anim=requestAnimationFrame(step);}
+function c3draw(){if($('#cw3').hidden)return;const r=C3.res;
+  setDisp('c3v',Math.sqrt(2*9.81*CH.L*(1-Math.cos(CH.alpha))),2);
+  setDisp('c3K',r?r.Ks.replace('&gt;','>'):(C3.Kidle!=null&&C3.ptr?fmt(C3.Kidle,1):'—'));setDisp('c3be',C3.ptr?deg(C3.ptr):NaN,1);setDisp('c3KC',r?r.KC:NaN,1);
+  kv('c3kv',r?[['Oznaczenie',r.sym+' = '+r.Ks.replace('&gt;','&gt;')+' J',true],['S₀ (pod karbem)',fmt(r.S0,3)+' cm²'],['KC = K / S₀',fnum(r.KC,1)+' J/cm²'],['Rodzaj przełomu',r.frac]]:
+    C3.Kidle!=null&&C3.ptr?[['Bieg jałowy (tarcie, opór powietrza)',fmt(C3.Kidle,1)+' J'],['Wymaganie',' ≤ 1 J — młot sprawny']]:[['Status','próbka na podporach, wahadło zablokowane']]);
+  const cv=$('#c3rig'),{ctx,w,h}=fit(cv),cx=w/2,py=h*0.40,L=h*0.40,mono=getComputedStyle(document.body).getPropertyValue('--f-mono');
+  /* frame */
+  ctx.fillStyle=TOK.metal2;ctx.fillRect(cx-w*0.36,h-26,w*0.72,18);ctx.fillStyle=TOK.metal;ctx.fillRect(cx-w*0.30,py-8,10,h-26-py+8);ctx.fillRect(cx+w*0.30-10,py-8,10,h-26-py+8);ctx.fillRect(cx-w*0.30,py-12,w*0.6,8);
+  /* supports and specimen */
+  const sy=py+L+14;ctx.fillStyle=TOK.metal2;ctx.fillRect(cx-46,sy+8,22,h-26-sy-8);ctx.fillRect(cx+24,sy+8,22,h-26-sy-8);
+  if(!C3.broken){ctx.fillStyle=TOK.fg;ctx.fillRect(cx-40,sy-2,80,10);ctx.fillStyle=TOK.panel;ctx.beginPath();ctx.moveTo(cx-3,sy+8);ctx.lineTo(cx,sy+3);ctx.lineTo(cx+3,sy+8);ctx.fill();}
+  else if(r){const fd=r.frac;ctx.fillStyle=TOK.fg;ctx.save();
+    if(fd.startsWith('nie złamana')||fd.startsWith('nie złamała')){ctx.translate(cx,sy+4);ctx.beginPath();ctx.moveTo(-40,-14);ctx.lineTo(0,4);ctx.lineTo(40,-14);ctx.lineWidth=9;ctx.strokeStyle=TOK.fg;ctx.stroke();}
+    else{const bend=fd==='kruchy'?0.04:fd==='mieszany'?0.18:0.35;[-1,1].forEach(sg=>{ctx.save();ctx.translate(cx+sg*(fd==='kruchy'?34:20),sy+3-(fd==='kruchy'?6:0));ctx.rotate(sg*-bend);ctx.fillRect(sg>0?0:-40,-5,40,10);ctx.restore();});}
+    ctx.restore();}
+  /* energy scale on the follow-through side */
+  const rs=L*0.42;ctx.strokeStyle=TOK.muted;ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,py,rs,PI/2-CH.alpha,PI/2,false);ctx.stroke();
+  ctx.font='10.5px '+mono;ctx.fillStyle=TOK.muted;ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let K=0;K<=300;K+=25){const b=Math.acos(clamp(Math.cos(CH.alpha)+K/CH.GR,-1,1)),x=cx+Math.sin(b)*rs,y=py+Math.cos(b)*rs,l=K%50?5:9;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(cx+Math.sin(b)*(rs+l),py+Math.cos(b)*(rs+l));ctx.stroke();if(K%50===0&&K!==300)ctx.fillText(K,cx+Math.sin(b)*(rs+20),py+Math.cos(b)*(rs+20));}
+  ctx.fillText('J',cx+rs*0.55,py-rs*0.95);
+  if(C3.ptr){const b=C3.ptr;ctx.strokeStyle=TOK.acc;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(cx,py);ctx.lineTo(cx+Math.sin(b)*(rs+4),py+Math.cos(b)*(rs+4));ctx.stroke();}
+  /* pendulum */
+  const th=C3.theta,hx=cx-Math.sin(th)*L,hy=py+Math.cos(th)*L;ctx.strokeStyle=TOK.fg;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(cx,py);ctx.lineTo(hx,hy);ctx.stroke();
+  ctx.save();ctx.translate(hx,hy);ctx.rotate(-th);ctx.fillStyle=TOK.metal2;ctx.strokeStyle=TOK.fg;ctx.lineWidth=1.5;ctx.beginPath();ctx.rect(-28,-14,56,30);ctx.fill();ctx.stroke();
+  ctx.fillStyle=TOK.acc;ctx.beginPath();ctx.moveTo(-6,16);ctx.lineTo(0,24);ctx.lineTo(6,16);ctx.fill();ctx.restore();
+  ctx.fillStyle=TOK.fg;ctx.beginPath();ctx.arc(cx,py,6,0,2*PI);ctx.fill();
+  ctx.fillStyle=TOK.muted;ctx.font='11px '+mono;ctx.textAlign='left';ctx.fillText('α = 150°',cx-w*0.30+16,py+16);
+  c3chart();}
+function c3chart(){if($('#cw3').hidden)return;const rows=C3.proto.rows,mk=$('#c3m').value,notch=segv('c3n'),b=+segv('c3b'),knife=segv('c3k');
+  const series=[];if($('#c3model').checked){const pts=[];for(let T=-80;T<=60;T+=2)pts.push([T,c3model(mk,notch,T,b,knife).K]);series.push({pts,color:'muted',dash:[5,4],width:1.5,label:'model: '+CHM[mk].n.split(',')[0]});}
+  const groups={};rows.forEach(r=>{const k=r.mat+' · '+r.sym;(groups[k]=groups[k]||[]).push([r.T,Math.min(r.K,300)]);});
+  const cols=['acc','c2','c3','c4','fg'];Object.entries(groups).forEach(([k,p],i)=>series.push({pts:p.sort((a,b)=>a[0]-b[0]),color:cols[i%5],dots:true,width:1.2,label:k}));
+  if(C3.res)series.push({pts:[[C3.res.T,Math.min(C3.res.K,300)]],dotsOnly:true,hollow:true,r:6,color:'acc'});
+  plot($('#c3ch'),{xlabel:'T [°C]',ylabel:'K [J]',xmin:-80,xmax:60,ymin:0,ymax:260,legend:series.some(s=>s.label),series,vlines:[{x:23,label:'23 ± 5 °C',color:'muted'}]});}
+
+/* ================= Ćw. 5 — zmęczenie, metoda Lehra ================= */
+const LM={c45:{n:'Stal C45 normalizowana',Rm:620,ratio:0.47,cls:'stal'},s235:{n:'Stal S235 (St3S)',Rm:420,ratio:0.47,cls:'stal'},gs:{n:'Staliwo GS-45',Rm:480,ratio:0.36,cls:'staliwo'},al:{n:'Stop Al AW-2017A',Rm:420,ratio:0.35,cls:'stopy lekkie'}};
+const CLS={stal:{k:0.47,re:0.65},staliwo:{k:0.36,re:0.55},'stopy lekkie':{k:0.35,re:0.65}};
+const C5={run:false,t:0,rev:0,brk:false,over:0};
+function c5init(){const p=$('#cw5');
+  p.innerHTML=panelHTML({n:5,title:'Wytrzymałość zmęczeniowa metali — próba przyspieszona Lehra',
+    cel:'Obciążaj wirującą próbkę (zginanie obustronne, 3000 obr/min) coraz większym momentem, notuj strzałkę ugięcia f i znajdź punkt załamania wykresu f(σ<sub>max</sub>) — to Z<sub>go</sub>. Następnie zbuduj uproszczony wykres Smitha i oblicz współczynnik bezpieczeństwa x<sub>z</sub> dla cyklu σ<sub>max</sub> / σ<sub>min</sub>.',
+    chips:[['Maszyna Schencka: 1 cm skali = 40 MPa','an'],['Wykres Smitha: konstrukcja A-G-H-J-B','an']],
+    ctrl:`<div class="grp"><h3>Próbka d = 7,52 mm</h3>${Sel_('c5m','Materiał',Object.entries(LM).map(([k,v])=>[k,v.n]),'c45')}<button class="btn ghost" id="c5new">Nowa próbka</button></div>
+    <div class="grp"><h3>Maszyna zmęczeniowa</h3><div class="btns"><button class="btn" id="c5mot">Uruchom silnik</button></div>
+      ${R_('c5s','Położenie obciążnika Q na dźwigni',0,12,0.5,0,'cm',1)}
+      <div class="disp">${D_('c5sg','σ_max = 32·M_g / πd³','MPa')}${D_('c5f','Ugięcie f (średnie)','mm')}${D_('c5T','Temperatura próbki','°C')}${D_('c5n','Licznik obrotów','')}</div>
+      <p class="warn" id="c5w" hidden></p>
+      <div class="btns"><button class="btn" id="c5rec">Zapisz odczyt</button></div>
+      <p class="note">Do 120 MPa zwiększaj obciążenie co 1 cm (40 MPa), dalej co 0,5 cm (20 MPa), aż do wyraźnego wygięcia próbki.</p></div>
+    <div class="grp"><h3>Wyniki</h3><dl class="kv" id="c5kv"></dl></div>
+    <div class="grp"><h3>Cykl niesymetryczny</h3>${R_('c5mx','σ_max',0,300,5,100,'MPa',0)}${R_('c5mn','σ_min',-200,200,5,-40,'MPa',0)}</div>`,
+    view:`<div class="card"><div class="cap">Schemat maszyny · zginanie obrotowe (ugięcie przesadzone)</div><canvas id="c5rig" data-ratio="0.42" data-max="300"></canvas></div>
+      <div class="pair"><div class="card"><div class="cap">Wykres Lehra f = f(σ_max)</div><canvas id="c5ch" data-ratio="0.85" data-max="420"></canvas></div>
+      <div class="card"><div class="cap">Uproszczony wykres Smitha</div><canvas id="c5sm" data-ratio="0.85" data-max="420"></canvas></div></div>
+      ${protoHTML('c5p','Tabela pomiarów')}`,
+    model:`<p>σ<sub>max</sub> = 40 MPa na każdy centymetr przesunięcia obciążnika (próbka d = 7,52 mm). Poniżej rzeczywistej granicy zmęczenia Z<sub>go</sub> ugięcie i temperatura rosną liniowo; powyżej — dochodzi składnik kwadratowy (rozpraszanie energii, mikroplastyczność), a przy σ &gt; 1,3·Z<sub>go</sub> próbka po kilku sekundach pęka zmęczeniowo. Z<sub>go</sub> każdej próbki jest losowane wokół wartości z tablicy 5.2.</p><p>Punkt załamania wyznacza się dopasowaniem modelu „prosta + parabola od Z” metodą najmniejszych kwadratów. R<sub>m</sub> i R<sub>e</sub> do wykresu Smitha szacowane są z tablicy 5.2 (np. stal: Z<sub>go</sub> ≈ 0,47 R<sub>m</sub>, R<sub>e</sub> = 0,65 R<sub>m</sub>), Z<sub>ro</sub> = 0,7 Z<sub>go</sub>.</p>`});
+  bindOutputs(p);
+  const so=()=>setOut('c5s',fmt(num('c5s'),1)+' cm  →  '+fmt(40*num('c5s'),0)+' MPa');$('#c5s').dataset.custom=1;$('#c5s').addEventListener('input',()=>{so();c5draw();});so();
+  C5.proto=new Proto('c5p',[{h:'Lp.',k:'i',f:(v,r,i)=>i+1},{h:'Skala',u:'cm',k:'s',f:v=>fmt(v,1)},{h:'σ_max',u:'MPa',k:'sg',f:v=>fmt(v,0)},{h:'f lewy',u:'mm',k:'fl',f:v=>fmt(v,3)},{h:'f prawy',u:'mm',k:'fp',f:v=>fmt(v,3)},{h:'f średnie',u:'mm',k:'f',f:v=>fmt(v,3)},{h:'T',u:'°C',k:'T',f:v=>fmt(v,1)}]);
+  C5.proto.onchange=c5draw;
+  $('#c5m').addEventListener('change',()=>{c5sample();C5.proto.clear();});$('#c5new').onclick=()=>{c5sample();C5.proto.clear();};
+  $('#c5mot').onclick=()=>{C5.run=!C5.run;$('#c5mot').textContent=C5.run?'Zatrzymaj silnik':'Uruchom silnik';if(C5.run)c5loop();else c5draw();};
+  $('#c5rec').onclick=()=>{if(C5.brk)return;if(!C5.run){$('#c5w').hidden=false;$('#c5w').textContent='Uruchom silnik — czujniki mierzą ugięcie wirującej próbki.';return;}const m=c5meas();C5.proto.add(m);};
+  ['c5mx','c5mn'].forEach(id=>$('#'+id).addEventListener('input',c5draw));
+  c5sample();c5draw();}
+function c5sample(){const m=LM[$('#c5m').value];C5.Z=m.ratio*m.Rm*(1+N(0.06));C5.c=0.0016*(1+N(0.03));C5.tilt=N(0.004);C5.brk=false;C5.over=0;C5.rev=0;C5.T=22;}
+function c5true(sg){const ex=Math.max(0,sg-C5.Z);return{f:C5.c*sg+C5.c/22*ex*ex,T:22+0.012*sg+0.0016*ex*ex};}
+function c5meas(){const s=num('c5s'),sg=40*s,t=c5true(sg);const fl=roundTo(t.f*(1+C5.tilt)+N(0.003),0.001),fp=roundTo(t.f*(1-C5.tilt)+N(0.003),0.001);return{s,sg,fl,fp,f:(fl+fp)/2,T:t.T+N(0.2)};}
+function c5loop(){let last=performance.now();const step=t=>{if(!C5.run)return;const dt=(t-last)/1000;last=t;C5.t+=dt;C5.rev+=50*dt;const sg=40*num('c5s');
+    if(sg>1.3*C5.Z&&!C5.brk){C5.over+=dt;if(C5.over>3){C5.brk=true;C5.run=false;$('#c5mot').textContent='Uruchom silnik';}}else C5.over=Math.max(0,C5.over-dt);
+    c5draw();if(C5.run)requestAnimationFrame(step);};requestAnimationFrame(step);}
+function c5fit(P){if(P.length<5)return null;let best=null;const sgs=P.map(p=>p[0]);const lo=Math.min(...sgs),hi=Math.max(...sgs);
+  for(let Z=lo+40;Z<=hi-10;Z+=1){const below=P.filter(p=>p[0]<=Z).length;if(below<3)continue;
+    let A=[[0,0,0],[0,0,0],[0,0,0]],bv=[0,0,0];for(const[x,y]of P){const v=[1,x,Math.max(0,x-Z)**2];for(let i=0;i<3;i++){bv[i]+=v[i]*y;for(let j=0;j<3;j++)A[i][j]+=v[i]*v[j];}}
+    const s=solve3(A,bv);if(!s||s[2]<=0)continue;let sse=0;for(const[x,y]of P){const e=s[0]+s[1]*x+s[2]*Math.max(0,x-Z)**2-y;sse+=e*e;}if(!best||sse<best.sse)best={Z,s,sse};}return best;}
+function solve3(A,b){const M=A.map((r,i)=>[...r,b[i]]);for(let i=0;i<3;i++){let p=i;for(let k=i+1;k<3;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;[M[i],M[p]]=[M[p],M[i]];if(Math.abs(M[i][i])<1e-14)return null;for(let k=0;k<3;k++)if(k!==i){const f=M[k][i]/M[i][i];for(let j=i;j<4;j++)M[k][j]-=f*M[i][j];}}return M.map((r,i)=>r[3]/r[i]);}
+function smith(Zro,Rm,Re){const up=x=>Zro+(Rm-Zro)/Rm*x,lo=x=>-Zro+(Rm+Zro)/Rm*x;const xG=(Re-Zro)*Rm/(Rm-Zro);
+  return{A:[0,Zro],G:[xG,Re],H:[Re,Re],J:[xG,lo(xG)],B:[0,-Zro],L:[Rm,Rm],up:x=>x<=xG?up(x):x<=Re?Re:NaN,lo:x=>x<=xG?lo(x):x<=Re?lo(xG)+(Re-lo(xG))*(x-xG)/(Re-xG):NaN};}
+function c5draw(){if($('#cw5').hidden)return;const s=num('c5s'),sg=40*s,t=c5true(sg),mono=getComputedStyle(document.body).getPropertyValue('--f-mono');
+  setDisp('c5sg',sg,0);setDisp('c5f',C5.run?t.f+N(0.0015):0,3);setDisp('c5T',C5.run?t.T:22,1);setDisp('c5n',String(Math.floor(C5.rev)));
+  const w=$('#c5w');w.hidden=!C5.brk;if(C5.brk)w.textContent='Próbka pękła (przełom zmęczeniowy: gładka strefa pęknięcia i matowy złom doraźny). Wymień próbkę.';
+  /* rig */
+  const cv=$('#c5rig'),{ctx,w:W,h:H}=fit(cv),cy=H*0.38,x0=W*0.06,x1=W*0.94,len=x1-x0,a1=x0+len*0.18,a2=x1-len*0.18,b1=x0+len*0.02,b2=x1-len*0.02;
+  const bow=C5.brk?0:Math.min(t.f*90,30)*(C5.run||s>0?1:0);ctx.lineWidth=1;
+  /* specimen as bent beam with rotating stripes */
+  const yAt=x=>{if(x<a1)return cy+bow*(x-b1)/(a1-b1)*0.6;if(x>a2)return cy+bow*(b2-x)/(b2-a2)*0.6;const u=(x-(a1+a2)/2)/((a2-a1)/2);return cy+bow*(0.6+0.4*(1-u*u));};
+  ctx.strokeStyle=TOK.metal2;ctx.lineWidth=16;ctx.lineCap='round';ctx.beginPath();for(let x=b1;x<=b2;x+=4){const y=yAt(x);x===b1?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.lineCap='butt';
+  ctx.strokeStyle=TOK.metal;ctx.lineWidth=2;const ph=(C5.rev*0.05)%1;for(let k=0;k<26;k++){const x=b1+((k+ph)/26)*(b2-b1);const y=yAt(x);ctx.beginPath();ctx.moveTo(x,y-6);ctx.lineTo(x+3,y+6);ctx.stroke();}
+  if(C5.brk){ctx.fillStyle=TOK.bg;ctx.fillRect((a1+a2)/2-3,cy-12,6,24);}
+  const brg=(x,col)=>{ctx.fillStyle=col;ctx.fillRect(x-10,yAt(x)-14,20,28);};brg(b1+6,TOK.fg);brg(b2-6,TOK.fg);brg(a1,TOK.acc);brg(a2,TOK.acc);
+  ctx.fillStyle=TOK.muted;ctx.font='11px '+mono;ctx.textAlign='center';ctx.fillText('łożysko stałe',b1+30,cy-24);ctx.fillText('łożysko stałe',b2-30,cy-24);ctx.fillText('P',a1,yAt(a1)+28);ctx.fillText('P',a2,yAt(a2)+28);
+  ctx.fillText('czyste zginanie M_g = P·a',(a1+a2)/2,cy-24);
+  /* lever + scale */
+  const ly=H*0.82;ctx.strokeStyle=TOK.fg;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(a1,yAt(a1)+14);ctx.lineTo(a1,ly-20);ctx.lineTo(a2,ly-20);ctx.lineTo(a2,yAt(a2)+14);ctx.moveTo((a1+a2)/2,ly-20);ctx.lineTo((a1+a2)/2,ly);ctx.stroke();
+  const sx0=W*0.3,sx1=W*0.82;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(sx0-20,ly);ctx.lineTo(sx1,ly);ctx.stroke();ctx.lineWidth=1;ctx.fillStyle=TOK.muted;
+  for(let c=0;c<=12;c++){const x=sx0+(sx1-sx0)*c/12;ctx.beginPath();ctx.moveTo(x,ly+3);ctx.lineTo(x,ly+9);ctx.strokeStyle=TOK.muted;ctx.stroke();ctx.fillText(c,x,ly+20);}
+  const qx=sx0+(sx1-sx0)*s/12;ctx.fillStyle=TOK.acc;ctx.fillRect(qx-11,ly-12,22,24);ctx.fillStyle=TOK.panel;ctx.font='600 11px '+mono;ctx.fillText('Q',qx,ly+4);
+  ctx.fillStyle=TOK.muted;ctx.font='11px '+mono;ctx.textAlign='left';ctx.fillText('skala obciążenia [cm]',sx0-20,ly+34>H?H-2:ly+34);
+  /* Lehr chart */
+  const rows=C5.proto.rows,P=rows.map(r=>[r.sg,r.f]),fitr=c5fit(P);const series=[{pts:P,color:'acc',dotsOnly:true,label:'pomiar'}];const vl=[];
+  if(fitr){const pts=[],sMax=Math.max(...P.map(p=>p[0]));for(let x=0;x<=sMax;x+=2)pts.push([x,fitr.s[0]+fitr.s[1]*x+fitr.s[2]*Math.max(0,x-fitr.Z)**2]);series.push({pts,color:'c2',width:1.6,label:'dopasowanie'});
+    const lin=[[0,fitr.s[0]],[sMax,fitr.s[0]+fitr.s[1]*sMax]];series.push({pts:lin,color:'muted',dash:[4,4],width:1});vl.push({x:fitr.Z,label:'Z_go = '+fmt(fitr.Z,0)+' MPa',color:'c2'});}
+  plot($('#c5ch'),{xlabel:'σ_max [MPa]',ylabel:'f [mm]',xmin:0,ymin:0,legend:true,series,vlines:vl,yinc:[0.2],xinc:[200]});
+  /* results + Smith */
+  const m=LM[$('#c5m').value],cl=CLS[m.cls];let rowsKV=[['Liczba punktów',String(rows.length)]];
+  const smx=num('c5mx'),smn=Math.min(num('c5mn'),smx),sm=(smx+smn)/2,sa=(smx-smn)/2;
+  if(fitr){const Zgo=fitr.Z,Zro=0.7*Zgo,Rm=Zgo/cl.k,Re=cl.re*Rm,S=smith(Zro,Rm,Re);
+    let xa=NaN,xb=NaN,M=null,Pp=null;
+    if(sm<=1e-9){xa=Zro/sa;xb=xa;}else{const k=smx/sm;let lo=0,hi=Re;for(let i=0;i<60;i++){const mid=(lo+hi)/2;if(k*mid<S.up(mid))lo=mid;else hi=mid;}M=[lo,k*lo];xa=M[1]/smx;
+      if(sm<=Re){Pp=[sm,S.up(sm)];xb=Pp[1]/smx;}}
+    rowsKV=rowsKV.concat([['Z<sub>go</sub> (punkt załamania)',fmt(Zgo,0)+' MPa',true],['Z<sub>ro</sub> = 0,7·Z<sub>go</sub>',fmt(Zro,0)+' MPa'],[`R<sub>m</sub> ≈ Z<sub>go</sub> / ${fmt(cl.k,2)}`,fmt(Rm,0)+' MPa'],[`R<sub>e</sub> = ${fmt(cl.re,2)}·R<sub>m</sub>`,fmt(Re,0)+' MPa'],'-',
+      ['σ<sub>m</sub> / σ<sub>a</sub> cyklu',fmt(sm,0)+' / '+fmt(sa,0)+' MPa'],['x<sub>z</sub> (σ<sub>a</sub>/σ<sub>m</sub> = const)',fnum(xa,2),true],['x<sub>z</sub> (σ<sub>m</sub> = const)',fnum(xb,2),true],
+      ['Rzeczywiste Z<sub>go</sub> próbki',noisy()?'ukryte (szum włączony)':fmt(C5.Z,0)+' MPa']]);
+    const lab=(p,t,dx,dy)=>({x:p[0],y:p[1],text:t,dx,dy,bold:true});
+    const ser=[{pts:[[0,0],[Rm*1.02,Rm*1.02]],color:'muted',dash:[3,4],width:1},{pts:[S.A,[Rm,Rm]],color:'muted',dash:[5,4],width:1},{pts:[S.B,[Rm,Rm]],color:'muted',dash:[5,4],width:1},
+      {pts:[S.A,S.G,S.H,S.J,S.B],color:'c2',width:2.4,fill:true,label:'A-G-H-J-B'},
+      {pts:[[sm,smn],[sm,smx]],color:'acc',width:2.2,dots:true,label:'cykl D–E'}];
+    if(M)ser.push({pts:[[0,0],M],color:'acc',dash:[2,3],width:1.2,dots:false,marker:M});if(Pp)ser.push({pts:[[sm,0],Pp],color:'c3',dash:[2,3],width:1.2,marker:Pp});
+    const labels=[lab(S.A,'A',6,-2),lab(S.G,'G',-4,-6),lab(S.H,'H',6,-2),lab(S.J,'J',6,14),lab(S.B,'B',6,14),lab(S.L,'L',-14,-4)];if(M)labels.push(lab(M,'M',6,-2));if(Pp)labels.push(lab(Pp,'P',6,14));
+    plot($('#c5sm'),{xlabel:'σ_m [MPa]',ylabel:'σ_max, σ_min [MPa]',xmin:0,xmax:Math.ceil(Rm*1.05/50)*50,ymin:-Math.ceil(Zro*1.3/50)*50,ymax:Math.ceil(Rm*1.05/50)*50,series:ser,labels,legend:true,hlines:[{y:Re,label:'R_e',color:'muted'}]});
+  }else{const{ctx,w,h}=fit($('#c5sm'));ctx.fillStyle=TOK.muted;ctx.font='14px '+getComputedStyle(document.body).fontFamily;ctx.textAlign='center';ctx.fillText('Zapisz co najmniej 5 punktów wyraźnie powyżej załamania,',w/2,h/2-10);ctx.fillText('aby wyznaczyć Z_go i zbudować wykres.',w/2,h/2+12);}
+  kv('c5kv',rowsKV);}
+
+/* ================= Ćw. 7 — moduł G, skręcanie ================= */
+const TM={stal:{n:'Stal C45',G:80000,Re:360},mos:{n:'Mosiądz CuZn37',G:37000,Re:250},al:{n:'Stop Al AW-2017A',G:27000,Re:280}};
+const C7={seq:[0,60,120,60,0],seqi:0,maxMs:0};
+function c7init(){const p=$('#cw7');
+  p.innerHTML=panelHTML({n:7,title:'Wyznaczanie modułu sprężystości postaciowej G przez pomiar kąta skręcenia',
+    cel:'Skręcaj próbkę momentami 0 → 60 → 120 → 60 → 0 N·m, odczytuj czujnik zegarowy na ramieniu R i oblicz G = M<sub>s</sub>·l<sub>p</sub> / (φ·I₀). Sprawdź, czy τ<sub>max</sub> nie przekroczyło k<sub>s</sub> = 80 MPa.',
+    chips:[['φ = M_s·l / (G·I₀), sprężysto-plastyczny powyżej τ_pl','an']],
+    ctrl:`<div class="grp"><h3>Próbka</h3>${Sel_('c7m','Materiał',Object.entries(TM).map(([k,v])=>[k,v.n]),'stal')}
+      ${R_('c7lp','Długość pomiarowa l_p',100,250,5,200,'mm',0)}${R_('c7R','Ramię czujnika R',60,120,1,100,'mm',0)}<button class="btn ghost" id="c7new">Nowa próbka (zmierz d₀)</button></div>
+    <div class="grp"><h3>Skręcarka</h3>${R_('c7M','Moment skręcający M_s (korba)',0,340,5,0,'N·m',0)}
+      <div class="btns"><button class="btn ghost" id="c7next">Następny krok wg instrukcji</button><button class="btn" id="c7rec">Zapisz odczyt</button></div>
+      <p class="note" id="c7seq"></p>
+      <div class="disp">${D_('c7A','Czujnik A_i','mm')}${D_('c7phi','Kąt φ','°')}${D_('c7tx','τ_max','MPa')}${D_('c7d','d₀ (zmierzona)','mm')}</div><p class="warn" id="c7w" hidden></p></div>
+    <div class="grp"><h3>Obliczenia</h3><dl class="kv" id="c7kv"></dl></div>`,
+    view:`<div class="card"><div class="cap">Próbka w skręcarce · tworząca skręca się w linię śrubową (kąt ×30)</div><canvas id="c7rig" data-ratio="0.5" data-max="320"></canvas></div>
+      <div class="pair"><div class="card"><div class="cap">Wykres M_s = f(φ)</div><canvas id="c7ch" data-ratio="0.8" data-max="400"></canvas></div>
+      <div class="card"><div class="cap">Rozkład naprężeń stycznych τ(ρ) w przekroju</div><canvas id="c7tau" data-ratio="0.8" data-max="400"></canvas></div></div>
+      ${protoHTML('c7p','Tabela 1 · wskazania czujnika')}`,
+    model:`<p>Kąt skręcenia odcinka pomiarowego φ = M<sub>s</sub>·l<sub>p</sub>/(G·I₀), I₀ = πd⁴/32; czujnik na ramieniu R wskazuje x = φ·R z rozdzielczością 0,01 mm i małym luzem przy odciążaniu. Dla materiału sprężysto-idealnie plastycznego (τ<sub>pl</sub> = 0,58·R<sub>e</sub>) po przekroczeniu M<sub>el</sub> = πr³τ<sub>pl</sub>/2 rdzeń sprężysty maleje (rys. 7.4), a po odciążeniu zostaje trwały kąt skręcenia. Moduł G każdej próbki ma rozrzut ok. 2 %.</p>`});
+  bindOutputs(p);
+  C7.proto=new Proto('c7p',[{h:'L.p.',k:'i',f:(v,r,i)=>i+1},{h:'M<sub>s</sub>',u:'N·m',k:'M',f:v=>fmt(v,0)},{h:'Wskazanie A<sub>i</sub>',u:'mm',k:'A',f:v=>fmt(v,2)},{h:'A<sub>i</sub> − A<sub>i−1</sub>',u:'mm',k:'d',f:(v,r,i)=>i?fmt(r.A-C7.proto.rows[i-1].A,2):''}]);
+  C7.proto.onchange=c7draw;
+  const re=()=>{C7.maxMs=0;c7draw();};
+  $('#c7m').addEventListener('change',()=>{c7sample();C7.proto.clear();$('#c7M').value=0;C7.seqi=0;re();});$('#c7new').onclick=()=>{c7sample();C7.proto.clear();$('#c7M').value=0;C7.seqi=0;re();};
+  ['c7lp','c7R'].forEach(id=>$('#'+id).addEventListener('input',()=>{C7.proto.clear();c7draw();}));
+  $('#c7M').addEventListener('input',c7draw);
+  $('#c7next').onclick=()=>{C7.seqi=(C7.seqi+1)%C7.seq.length;$('#c7M').value=C7.seq[C7.seqi];$('#c7M').dispatchEvent(new Event('input'));};
+  $('#c7rec').onclick=()=>{C7.proto.add({M:num('c7M'),A:C7.A});};
+  c7sample();c7draw();}
+function c7sample(){const m=TM[$('#c7m').value];C7.G=m.G*(1+N(0.02));C7.d=20+N(0.04);C7.dm=roundTo(C7.d+N(0.02),0.01);C7.A0=roundTo(0.3+rnd()*0.4,0.01);C7.maxMs=0;C7.res=0;C7.prev=0;}
+function c7phi(Ms){const m=TM[$('#c7m').value],r=C7.d/2,lp=num('c7lp'),I0=PI*C7.d**4/32,tpl=0.58*m.Re,Mel=PI*r**3*tpl/2/1000,Mpl=2*PI*r**3*tpl/3/1000;
+  const el=M=>M*1000*lp/(C7.G*I0);const tot=M=>{if(M<=Mel)return el(M);M=Math.min(M,0.995*Mpl);const rc=Math.cbrt(4*(r**3-3*M*1000/(2*PI*tpl)));return tpl*lp/(C7.G*rc);};
+  if(Ms>=C7.maxMs){C7.maxMs=Ms;C7.res=tot(Ms)-el(Ms);}return{phi:C7.res+el(Ms),Mel,Mpl,tpl,r};}
+function c7draw(){if($('#cw7').hidden)return;const Ms=num('c7M'),R=num('c7R'),lp=num('c7lp'),f=c7phi(Ms),mono=getComputedStyle(document.body).getPropertyValue('--f-mono');
+  const back=Ms<C7.prev?0.004:0;C7.prev=Ms;C7.A=roundTo(C7.A0+f.phi*R+back+N(0.002),0.01);
+  const tau=16*Ms*1000/(PI*C7.d**3);setDisp('c7A',C7.A,2);setDisp('c7phi',deg(f.phi),3);setDisp('c7tx',Math.min(tau,f.tpl),1);setDisp('c7d',C7.dm,2);
+  $('#c7seq').innerHTML='Sekwencja: '+C7.seq.map((v,i)=>i===C7.seqi?`<b style="color:var(--acc)">${v}</b>`:v).join(' → ')+' N·m';
+  const w=$('#c7w');w.hidden=!(tau>80);w.textContent=Ms>f.Mel?'Przekroczono granicę plastyczności przy skręcaniu — po odciążeniu zostanie trwały kąt skręcenia.':'τ_max > k_s = 80 MPa: przekroczono naprężenia dopuszczalne dla badanego materiału.';
+  /* calculations */
+  const rows=C7.proto.rows,I0=PI*C7.dm**4/32,m=TM[$('#c7m').value];let sdA=0,sdM=0;for(let i=1;i<rows.length;i++){sdA+=Math.abs(rows[i].A-rows[i-1].A);sdM+=Math.abs(rows[i].M-rows[i-1].M);}
+  const n=rows.length-1,G=n>0&&sdA>0?sdM*1000*lp*R/(I0*sdA):NaN;const xsr=n>0?sdA/n:NaN,Msr=n>0?sdM/n:NaN,phisr=xsr/R;const Mmax=rows.length?Math.max(...rows.map(r=>r.M)):NaN;
+  kv('c7kv',[['I₀ = π d₀⁴ / 32',fmt(I0,0)+' mm⁴'],['x<sub>śr</sub> = Σ|ΔA| / '+(n>0?n:'n'),fnum(xsr,3)+' mm'],['ΔM<sub>s</sub> śr.',fnum(Msr,1)+' N·m'],['φ<sub>śr</sub> = x<sub>śr</sub> / R',fnum(phisr,5)+' rad'],
+    ['G = ΔM<sub>s</sub>·l<sub>p</sub> / (φ<sub>śr</sub>·I₀)',Number.isFinite(G)?fmt(G/1000,1)+' GPa':'—',true],['G<sub>teor</sub>',fmt(m.G/1000,1)+' GPa'],['ΔG = (G − G<sub>teor</sub>)/G<sub>teor</sub>',Number.isFinite(G)?fmt((G-m.G)/m.G*100,1)+' %':'—'],
+    ['τ<sub>max</sub> = 16 M<sub>s,max</sub> / π d₀³',Number.isFinite(Mmax)?fmt(16*Mmax*1000/(PI*C7.dm**3),1)+' MPa '+(16*Mmax*1000/(PI*C7.dm**3)<=80?'≤ 80 ✓':'> 80 ✗'):'—']]);
+  /* rig */
+  const cv=$('#c7rig'),{ctx,w:W,h:H}=fit(cv),cy=H*0.36,x0=W*0.14,x1=W*0.86,rr=Math.min(H*0.12,22),amp=30;
+  ctx.fillStyle=TOK.metal2;ctx.fillRect(x0-W*0.1,cy-rr*2.2,W*0.1,rr*4.4);ctx.fillRect(x1,cy-rr*2.2,W*0.1,rr*4.4);
+  ctx.fillStyle=TOK.muted;ctx.font='11px '+mono;ctx.textAlign='center';ctx.fillText('uchwyt napędowy',x0-W*0.05,cy+rr*2.2+14);ctx.fillText('uchwyt pomiarowy',x1+W*0.05,cy+rr*2.2+14);
+  const g=ctx.createLinearGradient(0,cy-rr,0,cy+rr);g.addColorStop(0,TOK.metal);g.addColorStop(0.5,TOK.panel2);g.addColorStop(1,TOK.metal2);ctx.fillStyle=g;ctx.fillRect(x0,cy-rr,x1-x0,rr*2);
+  const m1=x0+(x1-x0)*0.15,m2=x1-(x1-x0)*0.15,phis=f.phi*amp;ctx.save();ctx.beginPath();ctx.rect(x0,cy-rr,x1-x0,rr*2);ctx.clip();
+  for(let k=0;k<6;k++){const psi=k/6*2*PI;ctx.strokeStyle=TOK.fg;ctx.globalAlpha=0.5;ctx.lineWidth=1;ctx.beginPath();let pen=false;
+    for(let x=x0;x<=x1;x+=3){const fr=clamp((x-m1)/(m2-m1),0,1),a=psi+phis*fr,z=Math.sin(a);if(z<0){pen=false;continue;}const y=cy-rr*Math.cos(a);pen?ctx.lineTo(x,y):ctx.moveTo(x,y);pen=true;}ctx.stroke();}ctx.restore();ctx.globalAlpha=1;
+  [m1,m2].forEach((x,i)=>{ctx.fillStyle=TOK.fg;ctx.fillRect(x-3,cy-rr*1.6,6,rr*3.2);});
+  const dr=Math.min(H*0.13,26),dy=cy+rr*1.6+dr+8;
+  ctx.strokeStyle=TOK.fg;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(m2,cy+rr*1.6);ctx.lineTo(m2,dy);ctx.lineTo(m1+dr+2,dy);ctx.moveTo(m1,cy+rr*1.6);ctx.lineTo(m1,dy-dr);ctx.stroke();
+  ctx.fillStyle=TOK.muted;ctx.textAlign='center';ctx.fillText('l_p = '+fmt(lp,0)+' mm',(m1+m2)/2,cy-rr*1.6-8);ctx.fillText('ramię R = '+fmt(R,0)+' mm',(m1+m2)/2+dr,dy-8);
+  dial(ctx,m1,dy,dr,C7.A,'','mm');
+  /* Ms-phi chart */
+  const curve=[];const save={max:C7.maxMs,res:C7.res};for(let M=0;M<=Math.max(C7.maxMs,Ms);M+=2){C7.maxMs=0;curve.push([deg(c7phi(M).phi),M]);}C7.maxMs=save.max;C7.res=save.res;
+  plot($('#c7ch'),{xlabel:'φ [°]',ylabel:'M_s [N·m]',xmin:0,ymin:0,ymax:Math.max(140,Ms*1.1),xinc:[deg(c7phi(0).phi)+0.5],series:[{pts:curve,color:'muted',dash:[4,4],width:1.2,label:'obciążanie (model)'},
+    {pts:rows.map(r=>[deg((r.A-C7.A0)/R),r.M]),color:'acc',dots:true,width:1.5,label:'odczyty (A−A₀)/R'}],legend:true,hlines:[{y:f.Mel,label:'M_el',color:'c2'}]});
+  /* tau(rho) */
+  const pts=[];const r=f.r;for(let i=0;i<=60;i++){const rho=r*i/60;let t;if(Ms<=f.Mel){t=Ms*1000*rho/(PI*C7.d**4/32);}else{const rc=Math.cbrt(4*(r**3-3*Math.min(Ms,0.995*f.Mpl)*1000/(2*PI*f.tpl)));t=rho<rc?f.tpl*rho/rc:f.tpl;}pts.push([rho,t]);}
+  plot($('#c7tau'),{xlabel:'ρ [mm]',ylabel:'τ [MPa]',xmin:0,xmax:r,ymin:0,ymax:f.tpl*1.15,series:[{pts:[[0,0],...pts,[r,0]],color:'c2',fill:true,width:2}],hlines:[{y:f.tpl,label:'τ_pl = 0,58·R_e',color:'acc'},{y:80,label:'k_s = 80 MPa',color:'muted'}]});}
+
+/* ================= Ćw. 8 — wyboczenie ================= */
+const BARS=[['S1','stal',210000,300,350,20,4],['S2','stal',210000,300,500,20,4],['S3','stal',210000,300,600,20,4],['S4','stal',210000,300,650,20,4],['S5','stal',210000,300,700,20,4],['S6','stal',210000,300,650,20,4],['S7','stal',210000,300,650,20,4],
+  ['S8','aluminium',70000,110,600,25,6],['S9','mosiądz',104000,150,600,25,6],['S10','miedź',125000,120,600,25,6],['S11','tworzywo',14000,null,600,25,10]];
+const REAL8={S9:[[0,0],[0.113,1050],[0.154,940],[0.197,1000],[0.25,1150],[0.35,1190],[0.542,1210],[1.095,1240],[1.413,1250],[1.915,1250],[2.563,1260],[3.087,1260]],
+  S10:[[0,0],[0.107,400],[0.205,610],[0.305,750],[0.402,840],[0.503,910],[0.755,1040],[1.034,1120],[1.531,1220],[2.114,1290],[2.523,1320],[2.971,1340],[3.525,1360],[3.992,1370]]};
+const C8={};
+function c8init(){const p=$('#cw8');
+  p.innerHTML=panelHTML({n:8,title:'Wyboczenie prętów ściskanych',
+    cel:'Obciążaj przegubowo podparty pręt i mierz ugięcie δ w połowie długości. Siłę krytyczną wyznacz metodą Southwella (nachylenie prostej δ = f(δ/P)) i metodą graficzną (półka na wykresie P(δ)), a następnie porównaj z siłą Eulera.',
+    chips:[['Pręt z imperfekcją: δ = a / (P_kr/P − 1)','an'],['Dane prętów S1–S11 z arkusza ćwiczenia','an']],
+    ctrl:`<div class="grp"><h3>Pręt</h3>${Sel_('c8b','Pręt',BARS.map(b=>[b[0],`${b[0]} · ${b[1]} · ${b[4]} mm · ${b[5]}×${b[6]}`]),'S5')}<button class="btn ghost" id="c8new">Nowy pręt tego typu</button></div>
+    <div class="grp"><h3>Stanowisko</h3>${R_('c8d','Ugięcie δ (obrót pokrętła śruby)',0,7,0.01,0,'mm',2)}
+      <div class="disp">${D_('c8P','Siła P (dynamometr)','N')}${D_('c8dd','Czujnik δ','mm')}${D_('c8s','σ_max = P/A + P(δ+a)/W','MPa')}${D_('c8n','Pomiarów','')}</div><p class="warn" id="c8w" hidden></p>
+      <div class="btns"><button class="btn" id="c8rec">Zapisz pomiar</button><button class="btn ghost" id="c8auto">Seria wg instrukcji</button></div>
+      <button class="btn ghost" id="c8real">Wczytaj pomiary laboratoryjne (S9, S10)</button>
+      <p class="note">Co 0,25 mm do 1 mm, dalej co 0,5 mm. Maks. 6 mm — powyżej grozi odkształcenie plastyczne.</p></div>
+    <div class="grp"><h3>Wyniki</h3><dl class="kv" id="c8kv"></dl></div>`,
+    view:`<div class="pair"><div class="card"><div class="cap">Pręt na stanowisku (ugięcie ×10)</div><canvas id="c8rig" data-ratio="1.05" data-max="480"></canvas></div>
+      <div class="card"><div class="cap">Wykres P = f(δ) · metoda graficzna</div><canvas id="c8ch" data-ratio="1.05" data-max="480"></canvas></div></div>
+      <div class="card"><div class="cap">Wykres Southwella δ = f(δ/P) · tg α = P<sub>kr</sub></div><canvas id="c8sw" data-ratio="0.45" data-max="360"></canvas></div>
+      ${protoHTML('c8p','Karta pomiarowa')}`,
+    model:`<p>Pręt z ugięciem wstępnym y₀ = a·sin(πx/l) obciążony siłą P ugina się w połowie długości o δ = a/(P<sub>kr</sub>/P − 1), więc przy sterowaniu przemieszczeniem śruby P = P<sub>kr</sub>·δ/(δ + a). Każdy egzemplarz ma losową imperfekcję a = 0,05…0,5 mm, rzeczywiste wymiary w tolerancji ±1 % i tarcie w ostrzach podporowych (P<sub>kr</sub> nieco większe od eulerowskiego). Dynamometr odczytuje co 10 N.</p><p>Pomiary S9 i S10 pochodzą z arkusza „Ćwiczenie_8.xlsx” dołączonego do instrukcji.</p>`});
+  bindOutputs(p);
+  C8.proto=new Proto('c8p',[{h:'#',k:'i',f:(v,r,i)=>i+1},{h:'Pręt',k:'bar'},{h:'Ugięcie δ',u:'mm',k:'d',f:v=>fmt(v,3)},{h:'Siła P',u:'N',k:'P',f:v=>fmt(v,0)},{h:'δ/P',u:'mm/N',k:'r',f:(v,r)=>r.P>0?fmt(r.d/r.P,6):'—'}]);
+  C8.proto.onchange=c8draw;
+  $('#c8b').addEventListener('change',()=>{c8sample();C8.proto.clear();$('#c8d').value=0;c8draw();});$('#c8new').onclick=()=>{c8sample();C8.proto.clear();$('#c8d').value=0;c8draw();};
+  $('#c8d').addEventListener('input',c8draw);
+  $('#c8rec').onclick=()=>{const m=c8meas(num('c8d'));C8.proto.add(m);};
+  $('#c8auto').onclick=()=>{if(C8.auto)return;const lim=C8.b[0]==='S5'?4:4.5,seq=[];for(let d=0;d<=1.0001;d+=0.25)seq.push(d);for(let d=1.5;d<=lim+1e-9;d+=0.5)seq.push(d);let i=0;C8.proto.clear();
+    C8.auto=setInterval(()=>{if(i>=seq.length){clearInterval(C8.auto);C8.auto=null;return;}$('#c8d').value=seq[i];$('#c8d').dispatchEvent(new Event('input'));C8.proto.add(c8meas(seq[i]));i++;},260);};
+  $('#c8real').onclick=()=>{const k=['S9','S10'].includes($('#c8b').value)?$('#c8b').value:'S9';$('#c8b').value=k;c8sample();C8.proto.clear();REAL8[k].forEach(([d,P])=>C8.proto.rows.push({bar:k+' (lab.)',d,P}));C8.proto.render();};
+  c8sample();c8draw();}
+function c8sample(){const b=BARS.find(x=>x[0]===$('#c8b').value);C8.b=b;const[,,E,,l,bw,t]=b;C8.bw=bw*(1+N(0.005));C8.t=t*(1+N(0.01));C8.a=0.05+rnd()*0.45;C8.fric=1+Math.abs(N(0.02));
+  C8.I=C8.bw*C8.t**3/12;C8.Pk=PI*PI*E*C8.I/l**2*C8.fric;}
+function c8meas(d){const P=d<=0?0:roundTo(C8.Pk*d/(d+C8.a)*(1+N(0.012)),10);return{bar:C8.b[0],d,P};}
+function c8draw(){if($('#cw8').hidden)return;const b=C8.b,[name,mat,E,Rpr,l,bw,t]=b,d=num('c8d'),A=bw*t,I=t**3*bw/12,i=Math.sqrt(I/A),s=l/i,sgr=Rpr?PI*Math.sqrt(E/Rpr):NaN,PE=PI*PI*E*I/l**2;
+  const P=d<=0?0:C8.Pk*d/(d+C8.a),W=C8.bw*C8.t**2/6,smax=P/A+P*(d+C8.a)/W;
+  setDisp('c8P',d<=0?0:roundTo(P*(1+N(0.004)),10),0);setDisp('c8dd',d,2);setDisp('c8s',smax,0);setDisp('c8n',String(C8.proto.rows.length));
+  const w=$('#c8w');w.hidden=!(d>6);w.textContent='Ugięcie powyżej 6 mm — ryzyko trwałego odkształcenia pręta. Zakończ próbę.';
+  const rows=C8.proto.rows.filter(r=>r.d>0&&r.P>0),pts=rows.map(r=>[r.d/r.P,r.d]);let sw=null;if(pts.length>=3){sw=linfit(pts);}
+  const Pg=rows.length?(()=>{const mx=Math.max(...rows.map(r=>r.P));const pl=rows.filter(r=>r.P>=0.985*mx);return pl.reduce((a,r)=>a+r.P,0)/pl.length;})():NaN;
+  kv('c8kv',[['A / I<sub>min</sub>',fmt(A,0)+' mm² / '+fmt(I,1)+' mm⁴'],['Smukłość s = l<sub>w</sub>/i<sub>min</sub>',fmt(s,0)],['s<sub>gr</sub> = π√(E/σ<sub>prop</sub>)',Rpr?fmt(sgr,0)+(s>sgr?'  → wzór Eulera ✓':'  → zakres niesprężysty'):'—'],
+    ['P<sub>E</sub> = π²EI<sub>min</sub>/l<sub>w</sub>²',fmt(PE,0)+' N',true],'-',['P<sub>kr</sub> Southwell (tg α)',sw?fmt(sw.b,0)+' N':'—',true],['ugięcie wstępne a (z wykresu)',sw?fmt(-sw.a,3)+' mm':'—'],
+    ['P<sub>kr</sub> graficznie (półka)',fnum(Pg,0)+' N',true],['błąd Southwell',sw?fmt((sw.b-PE)/PE*100,1)+' %':'—'],['błąd graficzny',Number.isFinite(Pg)?fmt((Pg-PE)/PE*100,1)+' %':'—']]);
+  /* rig */
+  const cv=$('#c8rig'),{ctx,w:Wd,h:H}=fit(cv),cx=Wd*0.45,top=34,bot=H-34,len=bot-top,mono=getComputedStyle(document.body).getPropertyValue('--f-mono');
+  ctx.fillStyle=TOK.metal;ctx.fillRect(Wd*0.12,top-24,10,H-20);ctx.fillRect(Wd*0.78,top-24,10,H-20);ctx.fillStyle=TOK.metal2;ctx.fillRect(Wd*0.12,top-26,Wd*0.66+10,14);ctx.fillRect(Wd*0.12,bot+8,Wd*0.66+10,14);
+  const amp=10*(d+C8.a*0.2)*len/l;ctx.strokeStyle=TOK.c2;ctx.lineWidth=Math.max(3,C8.t*1.2);ctx.beginPath();for(let k=0;k<=40;k++){const y=top+len*k/40,x=cx+amp*Math.sin(PI*k/40);k?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();
+  ctx.fillStyle=TOK.fg;[top,bot].forEach((y,j)=>{ctx.beginPath();if(j===0){ctx.moveTo(cx-9,y-12);ctx.lineTo(cx+9,y-12);ctx.lineTo(cx,y);}else{ctx.moveTo(cx-9,y+12);ctx.lineTo(cx+9,y+12);ctx.lineTo(cx,y);}ctx.fill();});
+  ctx.strokeStyle=TOK.fg;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,top-26);ctx.lineTo(cx,top-12);ctx.stroke();
+  ctx.fillStyle=TOK.acc;ctx.beginPath();ctx.moveTo(cx,top-26);ctx.lineTo(cx-7,top-36);ctx.lineTo(cx+7,top-36);ctx.fill();
+  const my=top+len/2,gx=cx+amp+46;ctx.strokeStyle=TOK.muted;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx+amp+4,my);ctx.lineTo(gx-18,my);ctx.stroke();dial(ctx,gx+6,my,24,d,'δ','mm');
+  ctx.fillStyle=TOK.muted;ctx.font='11px '+mono;ctx.textAlign='left';ctx.fillText(`${name}: ${bw}×${t} mm, l = ${l} mm`,Wd*0.12+14,H-4);
+  /* charts */
+  const all=C8.proto.rows.map(r=>[r.d,r.P]);const th=[];for(let x=0;x<=Math.max(4,d,...all.map(p=>p[0]));x+=0.05)th.push([x,C8.Pk*x/(x+C8.a)]);
+  plot($('#c8ch'),{xlabel:'δ [mm]',ylabel:'P [N]',xmin:0,ymin:0,ymax:Math.max(PE,...all.map(p=>p[1]))*1.15,legend:true,
+    series:[{pts:all,color:'acc',dots:true,width:1.4,label:'pomiar'},{pts:[[d,P]],dotsOnly:true,hollow:true,r:6,color:'acc'}],hlines:[{y:PE,label:'P_E (Euler)',color:'c2'},...(Number.isFinite(Pg)?[{y:Pg,label:'P_kr graf.',color:'acc'}]:[])]});
+  const ser=[{pts,color:'acc',dotsOnly:true,label:'δ, δ/P'}];if(sw){const xm=Math.max(...pts.map(p=>p[0]))*1.05;ser.push({pts:[[-sw.a/sw.b,0],[xm,sw.a+sw.b*xm]],color:'c2',width:1.6,label:'prosta: tg α = '+fmt(sw.b,0)+' N'});}
+  plot($('#c8sw'),{xlabel:'δ/P [mm/N]',ylabel:'δ [mm]',xmin:0,ymin:0,legend:true,series:ser});}
+
+/* ================= Ćw. 10 — sprężyny ================= */
+const SP={Dz:50,Dw:39.5,dz:4.7,dw:4,nz:4.5,nw:6,G:81500};
+const C10={P:100,hist:[]};
+function c10init(){const p=$('#cw10');
+  p.innerHTML=panelHTML({n:10,title:'Badanie odkształceń sprężyny śrubowej',
+    cel:'Obciążaj układ dwóch współosiowych sprężyn pracujących równolegle od 100 do 225 N i z powrotem co 25 N, odczytuj czujniki A i B. Wyznacz średnie skrócenie λ<sub>r</sub>, moduł G drutu, siły P<sub>z</sub>, P<sub>w</sub> w sprężynach i maksymalne naprężenia skręcające.',
+    chips:[['λ = 8PD³n / (G d⁴), układ statycznie niewyznaczalny','an']],
+    ctrl:`<div class="grp"><h3>Układ sprężyn</h3>${S_('c10c','Konfiguracja',[['obie','obie (rys. 10.8)'],['z','zewnętrzna'],['w','wewnętrzna']],'obie')}
+      <dl class="kv"><dt>Zewnętrzna</dt><dd>D<sub>z</sub> 50 · d<sub>z</sub> 4,7 · n<sub>z</sub> 4,5</dd><dt>Wewnętrzna</dt><dd>D<sub>w</sub> 39,5 · d<sub>w</sub> 4 · n<sub>w</sub> 6</dd></dl>
+      <button class="btn ghost" id="c10new">Nowy komplet sprężyn</button></div>
+    <div class="grp"><h3>Obciążanie (szalka)</h3><div class="btns"><button class="btn" id="c10up">Dołóż 25 N</button><button class="btn ghost" id="c10dn">Zdejmij 25 N</button><button class="btn ghost" id="c10auto">Cała seria</button></div>
+      <div class="disp">${D_('c10P','Obciążenie P','N')}${D_('c10A','Czujnik lewy A','mm')}${D_('c10B','Czujnik prawy B','mm')}${D_('c10m','Średnia','mm')}</div>
+      <p class="note">Odczyty zapisują się do tablicy 10.1 przy każdej zmianie obciążenia. Stan wyjściowy: 100 N (ciężar płyty, pręta i szalki pomijamy).</p></div>
+    <div class="grp"><h3>Obliczenia</h3><dl class="kv" id="c10kv"></dl></div>`,
+    view:`<div class="pair"><div class="card"><div class="cap">Stanowisko (rys. 10.9)</div><canvas id="c10rig" data-ratio="1.0" data-max="460"></canvas></div>
+      <div class="card"><div class="cap">Charakterystyka P = f(λ)</div><canvas id="c10ch" data-ratio="1.0" data-max="460"></canvas></div></div>
+      ${protoHTML('c10p','Tablica 10.1 · wyniki pomiarów')}`,
+    model:`<p>Każda sprężyna ma sztywność c = Gd⁴/(8D³n); przy połączeniu równoległym c<sub>z</sub> = c₁ + c₂, a siły dzielą się wg (10.21). Moduł G kompletu losowany jest wokół 81,5 GPa (±1,5 %). Płyta lekko się przechyla (różne wskazania A i B), a przy odciążaniu tarcie daje niewielką histerezę — dlatego bierze się średnią z obu czujników i z całej serii.</p>`});
+  bindOutputs(p);
+  C10.proto=new Proto('c10p',[{h:'Lp.',k:'i',f:(v,r,i)=>i+1},{h:'Obciążenie',u:'N',k:'P'},{h:'A<sub>i</sub>',u:'mm',k:'A',f:v=>fmt(v,2)},{h:'B<sub>i</sub>',u:'mm',k:'B',f:v=>fmt(v,2)},
+    {h:'c = A<sub>i+1</sub>−A<sub>i</sub>',u:'mm',k:'c',f:(v,r,i)=>{const n=C10.proto.rows[i+1];return n?fmt(n.A-r.A,2):'';}},{h:'d = B<sub>i+1</sub>−B<sub>i</sub>',u:'mm',k:'dd',f:(v,r,i)=>{const n=C10.proto.rows[i+1];return n?fmt(n.B-r.B,2):'';}},
+    {h:'e<sub>i</sub> = (c+d)/2',u:'mm',k:'e',f:(v,r,i)=>{const n=C10.proto.rows[i+1];return n?fmt(Math.abs((n.A-r.A+n.B-r.B)/2),3):'';}}]);
+  C10.proto.onchange=c10draw;
+  const ch=dP=>{const nP=clamp(C10.P+dP,100,225);if(nP===C10.P)return;C10.dir=Math.sign(dP);C10.P=nP;C10.proto.add(c10read());};
+  $('#c10up').onclick=()=>ch(25);$('#c10dn').onclick=()=>ch(-25);
+  $('#c10auto').onclick=()=>{if(C10.auto)return;c10reset();const seq=[125,150,175,200,225,200,175,150,125,100];let i=0;C10.auto=setInterval(()=>{if(i>=seq.length){clearInterval(C10.auto);C10.auto=null;return;}ch(seq[i]-C10.P);i++;},300);};
+  $$('#c10c input').forEach(e=>e.addEventListener('change',()=>{c10reset();}));
+  $('#c10new').onclick=()=>{c10sample();c10reset();};
+  c10sample();c10reset();}
+function c10sample(){C10.G=SP.G*(1+N(0.015));C10.A0=roundTo(0.5+rnd(),0.01);C10.B0=roundTo(0.5+rnd(),0.01);C10.tilt=N(0.05);}
+function c10reset(){C10.P=100;C10.dir=0;C10.proto.rows=[];C10.proto.add(c10read());}
+const cSpr=(G,d,D,n)=>G*d**4/(8*D**3*n);
+function c10k(G){const c=segv('c10c'),cz=cSpr(G,SP.dz,SP.Dz,SP.nz),cw=cSpr(G,SP.dw,SP.Dw,SP.nw);return c==='obie'?cz+cw:c==='z'?cz:cw;}
+function c10read(){const lam=(C10.P-100)/c10k(C10.G),hy=C10.dir<0?0.012:0;return{P:C10.P,A:roundTo(C10.A0+lam*(1+C10.tilt)+hy+N(0.004),0.01),B:roundTo(C10.B0+lam*(1-C10.tilt)+hy+N(0.004),0.01)};}
+function c10draw(){if($('#cw10').hidden)return;const rows=C10.proto.rows,last=rows[rows.length-1]||{A:C10.A0,B:C10.B0,P:100},cfg=segv('c10c'),mono=getComputedStyle(document.body).getPropertyValue('--f-mono');
+  setDisp('c10P',C10.P,0);setDisp('c10A',last.A,2);setDisp('c10B',last.B,2);setDisp('c10m',(last.A-C10.A0+last.B-C10.B0)/2,3);
+  let se=0,n=0;for(let i=1;i<rows.length;i++){se+=Math.abs((rows[i].A-rows[i-1].A+rows[i].B-rows[i-1].B)/2);n++;}const lr=n?se/n:NaN,cexp=25/lr;
+  const kz=SP.dz**4/(8*SP.Dz**3*SP.nz),kw=SP.dw**4/(8*SP.Dw**3*SP.nw),kk=cfg==='obie'?kz+kw:cfg==='z'?kz:kw,G=cexp/kk;
+  const P=225,ratio=SP.Dw**3*SP.nw*SP.dz**4/(SP.Dz**3*SP.nz*SP.dw**4),Pw=cfg==='obie'?P/(1+ratio):cfg==='w'?P:0,Pz=P-Pw;
+  const tz=8*Pz*SP.Dz/(PI*SP.dz**3),tw=8*Pw*SP.Dw/(PI*SP.dw**3),tzc=tz*(1+SP.dz/(2*SP.Dz)),twc=tw*(1+SP.dw/(2*SP.Dw));
+  kv('c10kv',[['λ<sub>r</sub> = Σe<sub>i</sub> / n'+(n?` (n = ${n})`:''),fnum(lr,3)+' mm'],['c<sub>z</sub> = ΔP / λ<sub>r</sub>',fnum(cexp,2)+' N/mm'],['G = c<sub>z</sub> / Σ d⁴/(8D³n)',Number.isFinite(G)?fmt(G/1000,1)+' GPa':'—',true],
+    ['c teoretyczne (G = 81,5 GPa)',fmt(c10k(SP.G),2)+' N/mm'],'-',['P<sub>w</sub> / P<sub>z</sub> przy P = 225 N',fmt(Pw,1)+' / '+fmt(Pz,1)+' N'],['τ<sub>z</sub> = 8P<sub>z</sub>D<sub>z</sub>/πd<sub>z</sub>³',fmt(tz,0)+' MPa (z poprawką '+fmt(tzc,0)+')'],
+    ['τ<sub>w</sub> = 8P<sub>w</sub>D<sub>w</sub>/πd<sub>w</sub>³',fmt(tw,0)+' MPa (z poprawką '+fmt(twc,0)+')'],['τ<sub>max</sub> występuje w sprężynie',cfg==='obie'?(twc>tzc?'wewnętrznej':'zewnętrznej'):(cfg==='w'?'wewnętrznej':'zewnętrznej'),true]]);
+  /* rig */
+  const cv=$('#c10rig'),{ctx,w,h}=fit(cv),cx=w/2,base=h*0.62,H0=h*0.36,lam=(C10.P)/c10k(C10.G),sc=H0/80,top=base-H0+lam*sc;
+  ctx.fillStyle=TOK.metal2;ctx.fillRect(cx-w*0.32,base,w*0.64,14);
+  const coil=(D,dw,nT,color)=>{const r=D/2*sc*2.1;ctx.strokeStyle=color;ctx.lineWidth=Math.max(2,dw*sc*0.55);ctx.beginPath();const N=Math.round(nT*24);for(let i=0;i<=N;i++){const a=i/24*2*PI,y=base-(base-top)*i/N,x=cx+r*Math.sin(a);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();};
+  if(cfg!=='w')coil(SP.Dz,SP.dz,SP.nz,TOK.metal2);if(cfg!=='z')coil(SP.Dw,SP.dw,SP.nw,TOK.c2);
+  const pw=w*0.5;ctx.fillStyle=TOK.fg;ctx.fillRect(cx-pw/2,top-12,pw,12);
+  ctx.strokeStyle=TOK.fg;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx,top);ctx.lineTo(cx,h*0.82);ctx.stroke();
+  ctx.fillStyle=TOK.metal;ctx.fillRect(cx-w*0.12,h*0.82,w*0.24,5);const nd=Math.round(C10.P/25);for(let i=0;i<nd;i++){ctx.fillStyle=i%2?TOK.acc:TOK.metal2;ctx.fillRect(cx-w*0.09,h*0.82-6-i*5,w*0.18,4.5);}
+  ctx.fillStyle=TOK.muted;ctx.font='11px '+mono;ctx.textAlign='center';ctx.fillText('szalka · '+C10.P+' N',cx,h*0.82+20);
+  dial(ctx,cx-pw/2-30,top-6,22,last.A,'A','mm');dial(ctx,cx+pw/2+30,top-6,22,last.B,'B','mm');
+  /* chart */
+  const pts=rows.map(r=>[(r.A-C10.A0+r.B-C10.B0)/2,r.P]);
+  plot($('#c10ch'),{xlabel:'λ (od stanu 100 N) [mm]',ylabel:'P [N]',xmin:0,ymin:100,ymax:225,xinc:[150/c10k(SP.G)*1.05],legend:true,
+    series:[{pts:[[0,100],[125/c10k(SP.G),225]],color:'muted',dash:[4,4],width:1.2,label:'teoria (G = 81,5 GPa)'},{pts,color:'acc',dots:true,width:1.6,label:'pomiar'}]});}
+
+/* ================= Ćw. 14 — zbiornik ================= */
+const ROS14=[...[0,30,60,87,115,143].map((x,i)=>({n:i+1,part:'dno',x})),...[25,30,37,39,43,47,54,64,78].map((x,i)=>({n:7+i,part:'plaszcz',x})),...[208,181,152,124,0].map((x,i)=>({n:16+i,part:'dennica',x}))];
+const C14={meas:null};
+function c14init(){const p=$('#cw14');
+  p.innerHTML=panelHTML({n:14,title:'Badanie zbiornika ciśnieniowego',
+    cel:'Podnieś ciśnienie wody pompką, odczytaj mostkiem odkształcenia 20 rozet tensometrycznych, oblicz naprężenia główne i zredukowane (prawo Hooke’a, hipoteza HMH) i porównaj je z teorią błonową, płytą kołową i z MES.',
+    chips:[['MES · CalculiX, model osiowosymetryczny CAX8','fe'],['Tensometry: ε z MES + szum mostka','an']],
+    ctrl:`<div class="grp"><h3>Pompka i manometr</h3>${R_('c14p','Ciśnienie wewnętrzne p',0,1.5,0.05,1,'MPa',2)}
+      ${S_('c14v','Mocowanie dna płaskiego (model MES)',[['sruby','linia śrub (r = 177,5)'],['klejone','pełne przyleganie']],'sruby')}
+      ${R_('c14k','Skala przemieszczeń na rysunku',0,300,5,40,'×',0)}
+      <div class="btns"><button class="btn" id="c14m">Pomiar mostkiem UGR-60</button></div>
+      <div class="disp">${D_('c14pp','Manometr','MPa')}${D_('c14mx','σ_red max (MES)','MPa')}</div></div>
+    <div class="grp"><h3>Porównanie z teorią</h3><dl class="kv" id="c14kv"></dl><p class="note">Zaburzenie brzegowe od kołnierza zanika na długości rzędu 2,5·√(R·g) ≈ 80 mm, więc rozeta 15 (z = 78 mm) leży jeszcze na jego skraju — stan błonowy MES osiąga dopiero dalej (wykres 2, ostatni wiersz tabeli).</p></div>`,
+    view:`<div class="card"><div class="cap">Przekrój osiowy zbiornika · σ<sub>red</sub> HMH z MES · rozety 1–20</div><canvas id="c14map" data-ratio="0.46" data-max="460"></canvas></div>
+      <div class="pair"><div class="card"><div class="cap">Wykres 1 · dno płaskie</div><canvas id="c14g1" data-ratio="0.8" data-max="360"></canvas></div>
+      <div class="card"><div class="cap">Wykres 2 · płaszcz przy kołnierzu</div><canvas id="c14g2" data-ratio="0.8" data-max="360"></canvas></div>
+      <div class="card"><div class="cap">Wykres 3 · dennica elipsoidalna</div><canvas id="c14g3" data-ratio="0.8" data-max="360"></canvas></div></div>
+      ${protoHTML('c14t','Wydruk wyników pomiarów (rys. 14.4)')}`,
+    model:`<p>Model MES (CalculiX 2.21, 2916 elementów CAX8): płaszcz ø400 × 5,3 mm, dennica R450/r45 × 5,4 mm, dno płaskie a = 170 mm, h = 15 mm na pierścieniowym kołnierzu 25 mm wspawanym w płaszcz, E = 210 GPa, ν = 0,3, p = 1 MPa (wyniki skalowane liniowo z ciśnieniem). Połączenie śrubowe dna zamodelowano na dwa sposoby: dno sklejone z kołnierzem na całym pierścieniu r = 170…185 mm (bliskie utwierdzeniu) albo współpracujące tylko od linii śrub na zewnątrz (część wewnętrzna może się odrywać) — rzeczywistość leży pomiędzy, co instrukcja każe wykazać.</p><p>Tensometry na powierzchni zewnętrznej mierzą ε₁, ε₂ wyliczone z naprężeń MES (płaski stan naprężenia) z szumem ±3 µm/m; naprężenia odtwarza się wzorami (14.1)–(14.3).</p>`});
+  bindOutputs(p);
+  C14.proto=new Proto('c14t',[{h:'Rozeta',k:'n'},{h:'Miejsce',k:'pl'},{h:'ε₁ obw.',u:'µm/m',k:'e1',f:v=>fmt(v,0)},{h:'ε₂ wzdł./prom.',u:'µm/m',k:'e2',f:v=>fmt(v,0)},{h:'σ₁',u:'MPa',k:'s1',f:v=>fmt(v,1)},{h:'σ₂',u:'MPa',k:'s2',f:v=>fmt(v,1)},{h:'σ<sub>red</sub>',u:'MPa',k:'sr',f:v=>fmt(v,1)},{h:'p',u:'MPa',k:'p',f:v=>fmt(v,2)}],'Ustaw ciśnienie i wykonaj pomiar mostkiem.');
+  C14.proto.onchange=c14draw;['c14p','c14k'].forEach(id=>$('#'+id).addEventListener('input',c14draw));$$('#c14v input').forEach(e=>e.addEventListener('change',()=>{C14.proto.clear();c14draw();}));
+  $('#c14m').onclick=()=>{C14.proto.clear();c14measure().forEach(r=>C14.proto.rows.push(r));C14.proto.render();};
+  c14draw();}
+const zb=()=>DATA.zb[segv('c14v')];
+function c14at(part,x){const d=zb()[part];const k=part==='dno'?'r':part==='plaszcz'?'z':'S';const xs=d.map(o=>o[k]);
+  if(part==='dno')return{s1:lerp1(xs,d.map(o=>o.st),x),s2:lerp1(xs,d.map(o=>o.sr),x)};if(part==='plaszcz')return{s1:lerp1(xs,d.map(o=>o.st),x),s2:lerp1(xs,d.map(o=>o.sz),x),s2in:lerp1(xs,d.map(o=>o.sz_in),x)};
+  return{s1:lerp1(xs,d.map(o=>o.st),x),s2:lerp1(xs,d.map(o=>o.sm),x)};}
+function c14measure(clean){const p=num('c14p'),E=210000,nu=0.3,pl={dno:'dno płaskie, r',plaszcz:'płaszcz, z',dennica:'dennica, S'};
+  return ROS14.map(r=>{const s=c14at(r.part,r.x);const s1=s.s1*p,s2=s.s2*p;const e1=(s1-nu*s2)/E*1e6+(clean?0:N(3)),e2=(s2-nu*s1)/E*1e6+(clean?0:N(3));
+    const S1=E/(1-nu*nu)*(e1+nu*e2)*1e-6,S2=E/(1-nu*nu)*(e2+nu*e1)*1e-6;return{n:r.n,pl:pl[r.part]+' = '+r.x+' mm',e1,e2,s1:S1,s2:S2,sr:Math.sqrt(S1*S1+S2*S2-S1*S2),p,part:r.part,x:r.x};});}
+function headXY(S){const g=zb().geo,Ro=g.RC+g.TH,phi=rad(g.phi),Sj=Ro*phi,RI=g.RO-g.TC;if(S<=Sj){const a=S/Ro;return[Ro*Math.sin(a),g.zcc+Ro*Math.cos(a)];}const rk=g.RK+g.TH,c=(S-Sj)/rk;return[RI-g.RK+rk*Math.sin(phi+c),g.ZT+rk*Math.cos(phi+c)];}
+function c14draw(){if($('#cw14').hidden)return;const p=num('c14p'),k=num('c14k'),d=zb(),g=d.geo,mono=getComputedStyle(document.body).getPropertyValue('--f-mono');
+  setDisp('c14pp',p+N(0.003)*(p>0),3);const vmax=Math.max(...d.siatka.nodes.map(n=>n[4]))*p;setDisp('c14mx',vmax,0);
+  /* map: tank lying, axis horizontal */
+  const cv=$('#c14map'),{ctx,w,h}=fit(cv),zmin=-30,zmax=g.zpole+30,cbw=70,s=Math.min((w-cbw-10)/(zmax-zmin),(h-30)/(2*235)),ox=8-zmin*s,cy=h/2;
+  const X=z=>ox+z*s,Y=(r,sg)=>cy-sg*r*s;const nodes=d.siatka.nodes,vm=Math.max(1e-9,...nodes.map(n=>n[4]));
+  ctx.lineWidth=0.6;for(const q of d.siatka.quads){let v=0;const pts=q.map(i=>{const n=nodes[i];v+=n[4]/4;return[n[0]+k*n[2]*p,n[1]+k*n[3]*p];});const c=cmap(v/vm);
+    for(const sg of[1,-1]){quadPath(ctx,pts.map(t=>[X(t[1]),Y(t[0],sg)]));ctx.fillStyle=c;ctx.fill();ctx.strokeStyle=c;ctx.stroke();}}
+  ctx.strokeStyle=TOK.muted;ctx.setLineDash([8,4,2,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(zmin),cy);ctx.lineTo(X(zmax),cy);ctx.stroke();ctx.setLineDash([]);
+  ctx.font='10px '+mono;ctx.textAlign='center';ctx.textBaseline='middle';
+  for(const r of ROS14){let rr,zz,nx,ny;if(r.part==='dno'){rr=r.x;zz=0;nx=-1;ny=0;}else if(r.part==='plaszcz'){rr=g.RO;zz=r.x;nx=0;ny=1;}else{const[a,b]=headXY(r.x);rr=a;zz=b;const[a2,b2]=headXY(r.x+1);const tx=b2-b,ty=a2-a,l=Math.hypot(tx,ty);nx=ty/l;ny=-tx/l;}
+    const px=X(zz),py=Y(rr,1);ctx.fillStyle=TOK.acc;ctx.fillRect(px-2.5,py-2.5,5,5);
+    if(r.part!=='plaszcz'||[7,11,15].includes(r.n)){const lx=px+(r.part==='dno'?-12:(r.part==='plaszcz'?0:nx*-14)),ly=py+(r.part==='plaszcz'?-12:(r.part==='dno'?0:-ny*14));ctx.fillStyle=TOK.fg;ctx.fillText(String(r.n),lx,ly);}}
+  ctx.fillStyle=TOK.muted;ctx.textAlign='left';ctx.fillText('rozety 7–15: z = 25…78 mm od czoła dna (nad kołnierzem)',X(100),Y(g.RO-30,1));
+  colorbar(ctx,w-cbw+16,30,12,h-60,0,vm*p,'σ_red',false);
+  /* comparisons */
+  const D=2*g.RO,tc=g.TC,tht=g.TH;const measured=C14.proto.rows.length>0,m=measured?C14.proto.rows:c14measure(true),src=measured?'pomiar':'MES';const R=n=>m.find(r=>r.n===n);
+  const s1t=p*D/(2*tc),s2t=p*D/(4*tc),ssp=p*900/(4*tht),ss=1.24*p*(g.a/g.h)**2,sc=0.75*p*(g.a/g.h)**2;
+  const r15=R(15),r1=R(1),r20=R(20),r7=R(7),sw=2*s2t-r7.s2;
+  kv('c14kv',[[`Płaszcz σ₁ = pD/2g · rozeta 15 (${src})`,fmt(s1t,1)+' · '+fmt(r15.s1,1)+' MPa'],[`Płaszcz σ₂ = pD/4g · rozeta 15 (${src})`,fmt(s2t,1)+' · '+fmt(r15.s2,1)+' MPa'],'-',
+    ['Dno: podparcie przegubowe 1,24p(a/h)²',fmt(ss,1)+' MPa'],['Dno: utwierdzenie 0,75p(a/h)²',fmt(sc,1)+' MPa'],[`Dno: rozeta 1 (${src})`,fmt(r1.s1,1)+' MPa',true],'-',
+    [`Dennica σ = pD/4g · rozeta 20 (${src})`,fmt(ssp,1)+' · '+fmt(r20.s1,1)+' MPa'],['Przy kołnierzu, wewn.: σ<sub>w</sub> = 2σ<sub>r</sub> − σ<sub>z</sub>(7)',fmt(sw,1)+' MPa'],['MES, wewn. ścianka, z = 45…80 mm (max)',fmt(Math.max(...d.plaszcz.filter(o=>o.z>=45&&o.z<=80).map(o=>o.sz_in))*p,1)+' MPa'],['MES, połowa płaszcza: σ₁ / σ₂',fmt(c14at('plaszcz',470).s1*p,1)+' / '+fmt(c14at('plaszcz',470).s2*p,1)+' MPa']]);
+  /* charts */
+  const meas=C14.proto.rows;const mp=(part,key)=>meas.filter(r=>r.part===part).map(r=>[r.x,r[key]]);
+  plot($('#c14g1'),{xlabel:'r [mm]',ylabel:'σ [MPa]',xmin:0,xmax:185,legend:true,series:[{pts:d.dno.map(o=>[o.r,o.st*p]),color:'acc',label:'σ₁ obw.'},{pts:d.dno.map(o=>[o.r,o.sr*p]),color:'c2',label:'σ₂ prom.'},
+    {pts:mp('dno','s1'),color:'acc',dotsOnly:true},{pts:mp('dno','s2'),color:'c2',dotsOnly:true,hollow:true}],hlines:[{y:ss,label:'przegub',color:'muted'},{y:sc,label:'utwierdz.',color:'muted'}],yinc:[ss*1.05]});
+  const pz=d.plaszcz.filter(o=>o.z<=200);
+  plot($('#c14g2'),{xlabel:'z od czoła dna [mm]',ylabel:'σ [MPa]',xmin:0,xmax:200,legend:true,series:[{pts:pz.map(o=>[o.z,o.st*p]),color:'acc',label:'σ₁ obw.'},{pts:pz.map(o=>[o.z,o.sz*p]),color:'c2',label:'σ₂ wzdł. (zewn.)'},{pts:pz.map(o=>[o.z,o.sz_in*p]),color:'c2',dash:[4,3],width:1.4,label:'wzdł. (wewn.)'},
+    {pts:mp('plaszcz','s1'),color:'acc',dotsOnly:true},{pts:mp('plaszcz','s2'),color:'c2',dotsOnly:true,hollow:true}],hlines:[{y:s1t,label:'pD/2g',color:'muted'},{y:s2t,label:'pD/4g',color:'muted'}],vlines:[{x:15,color:'muted'},{x:40,label:'kołnierz',color:'muted'}]});
+  plot($('#c14g3'),{xlabel:'S od bieguna [mm]',ylabel:'σ [MPa]',xmin:0,legend:true,series:[{pts:d.dennica.map(o=>[o.S,o.st*p]),color:'acc',label:'σ₁ obw.'},{pts:d.dennica.map(o=>[o.S,o.sm*p]),color:'c2',label:'σ₂ połudn.'},
+    {pts:mp('dennica','s1'),color:'acc',dotsOnly:true},{pts:mp('dennica','s2'),color:'c2',dotsOnly:true,hollow:true}],hlines:[{y:ssp,label:'pD/4g',color:'muted'}]});}
+
+/* ================= Ćw. 16 — tarcza z otworem ================= */
+const ROS16=[...[-160,-120,-80,-40,0,40,80,120,160].map((y,i)=>({n:i+1,typ:1,x:160,y,base:10})),{n:10,typ:1,x:3,y:21.5,base:3},
+  ...[[11,-3,24.5],[12,3,27.5],[13,-3,30.5],[14,3,33.5],[15,-3,37],[16,3,40],[17,-3,43]].map(([n,x,y])=>({n,typ:2,x,y,base:3})),
+  ...[[18,25],[19,30],[20,40],[21,60]].map(([n,x],i)=>({n,typ:2,x,y:0,base:3,extra:true}))];
+const C16={};
+function c16init(){const p=$('#cw16');
+  p.innerHTML=panelHTML({n:16,title:'Składowe płaskiego stanu naprężenia — tarcza z otworem',
+    cel:'Rozciągnij tarczę 400 × 600 × 2 mm z otworem ø40, zmierz odkształcenia tensometrami i rozetami, oblicz naprężenia σ<sub>x</sub>, σ<sub>y</sub>, σ<sub>red</sub>, współczynniki k₁, k₂ wzdłuż przekroju II-II i III-III oraz porównaj je z rozwiązaniem Kirscha i z MES.',
+    chips:[['MES · CalculiX, płaski stan naprężenia CPS8','fe'],['Kirsch (tarcza nieskończona)','an']],
+    ctrl:`<div class="grp"><h3>Obciążenie</h3>${R_('c16P','Siła rozciągająca P (śruba pociągowa)',0,24,0.1,12.8,'kN',1)}
+      <div class="disp">${D_('c16s0','σ₀ = P / (g·b)','MPa')}${D_('c16mx','σ_x max (brzeg otworu)','MPa')}</div>
+      <div class="btns"><button class="btn" id="c16m">Pomiar mostkiem (ε″ − ε′)</button></div></div>
+    <div class="grp"><h3>Mapa</h3>${S_('c16c','Składowa',[['sr','σ_red'],['sx','σ_x'],['sy','σ_y'],['txy','τ_xy']],'sr')}${S_('c16z','Widok',[['cala','cała tarcza'],['otw','okolice otworu']],'otw')}</div>
+    <div class="grp"><h3>Wyniki</h3><dl class="kv" id="c16kv"></dl></div>`,
+    view:`<div class="pair"><div class="card"><div class="cap">Pole naprężeń (MES) · tensometry 1–21</div><canvas id="c16map" data-ratio="1.05" data-max="520"></canvas></div>
+      <div class="card" style="display:grid;gap:10px"><div><div class="cap">Przekrój II-II (prostopadle do obciążenia): k = σ/σ₀</div><canvas id="c16k1" data-ratio="0.62" data-max="300"></canvas></div>
+      <div><div class="cap">Przekrój III-III (wzdłuż obciążenia): k′ = σ/σ₀</div><canvas id="c16k2" data-ratio="0.62" data-max="300"></canvas></div></div></div>
+      ${protoHTML('c16t','Tablica 16.2 · naprężenia główne i zredukowane')}`,
+    model:`<p>MES: ćwiartka tarczy (symetria), 5280 elementów CPS8, zagęszczenie przy otworze, σ₀ = 1 MPa na krótszym brzegu, E = 200 GPa, ν = 0,3. Spójność sprawdzona: siła w przekroju osłabionym = siła przyłożona (różnica 0,01 %), k na brzegu otworu = 3,05 wobec 3,03 z wzoru Heywooda dla d/b = 0,1 (Kirsch dla tarczy nieskończonej: 3,00).</p><p>Tensometry uśredniają odkształcenie na swojej bazie pomiarowej (10 mm dla TFs-10, 3 mm w rozetach), dlatego mierzą nieco mniej niż wartość punktowa przy otworze. Szum mostka ±2 µm/m. Rozety 18–21 na przekroju III-III to dodatkowe punkty wirtualne (brak ich w tablicy 16.1). Pojedynczy tensometr (typ 1) zakłada jednoosiowy stan: σ = E·ε.</p>`});
+  bindOutputs(p);
+  C16.proto=new Proto('c16t',[{h:'Nr rozety',k:'n'},{h:'Typ',k:'typ'},{h:'x, y',u:'mm',k:'pos'},{h:'ε<sub>x</sub>',u:'µm/m',k:'ex',f:v=>fmt(v,0)},{h:'ε<sub>y</sub>',u:'µm/m',k:'ey',f:v=>Number.isFinite(v)?fmt(v,0):'—'},{h:'σ<sub>x</sub>',u:'MPa',k:'sx',f:v=>fmt(v,1)},{h:'σ<sub>y</sub>',u:'MPa',k:'sy',f:v=>fmt(v,1)},{h:'σ<sub>red</sub>',u:'MPa',k:'sr',f:v=>fmt(v,1)},{h:'k = σ<sub>x</sub>/σ₀',k:'k',f:v=>fnum(v,2)}],'Ustaw siłę i wykonaj pomiar mostkiem.');
+  C16.proto.onchange=c16draw;
+  $('#c16P').addEventListener('input',c16draw);$$('#c16c input,#c16z input').forEach(e=>e.addEventListener('change',c16draw));
+  $('#c16m').onclick=()=>{C16.proto.clear();const r=c16measure();r.forEach(x=>C16.proto.rows.push(x));C16.proto.render();};
+  c16index();c16draw();}
+function c16index(){const t=DATA.tz,cell=10,B={};t.quads.forEach((q,qi)=>{let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;q.forEach(i=>{const n=t.nodes[i];x0=Math.min(x0,n[0]);x1=Math.max(x1,n[0]);y0=Math.min(y0,n[1]);y1=Math.max(y1,n[1]);});
+  for(let i=Math.floor(x0/cell);i<=Math.floor(x1/cell);i++)for(let j=Math.floor(y0/cell);j<=Math.floor(y1/cell);j++)(B[i+','+j]=B[i+','+j]||[]).push(qi);});C16.B=B;C16.cell=cell;}
+function c16field(x,y){/* quarter symmetry: tau changes sign with one reflection */const t=DATA.tz,ax=Math.abs(x),ay=Math.abs(y),sg=Math.sign(x||1)*Math.sign(y||1);
+  const cand=C16.B[Math.floor(ax/C16.cell)+','+Math.floor(ay/C16.cell)]||[];
+  for(const qi of cand){const q=t.quads[qi].map(i=>t.nodes[i]);let xi=0,et=0;
+    for(let it=0;it<12;it++){const Nn=[(1-xi)*(1-et),(1+xi)*(1-et),(1+xi)*(1+et),(1-xi)*(1+et)].map(v=>v/4);const dxi=[-(1-et),(1-et),(1+et),-(1+et)].map(v=>v/4),det=[-(1-xi),-(1+xi),(1+xi),(1-xi)].map(v=>v/4);
+      let fx=-ax,fy=-ay,a=0,b=0,c=0,d=0;for(let k=0;k<4;k++){fx+=Nn[k]*q[k][0];fy+=Nn[k]*q[k][1];a+=dxi[k]*q[k][0];b+=det[k]*q[k][0];c+=dxi[k]*q[k][1];d+=det[k]*q[k][1];}
+      const D=a*d-b*c;if(Math.abs(D)<1e-12)break;xi-=(d*fx-b*fy)/D;et-=(-c*fx+a*fy)/D;}
+    if(Math.abs(xi)<=1.0001&&Math.abs(et)<=1.0001){const Nn=[(1-xi)*(1-et),(1+xi)*(1-et),(1+xi)*(1+et),(1-xi)*(1+et)].map(v=>v/4);let sx=0,sy=0,txy=0;for(let k=0;k<4;k++){sx+=Nn[k]*q[k][4];sy+=Nn[k]*q[k][5];txy+=Nn[k]*q[k][6];}return{sx,sy,txy:txy*sg};}}
+  return null;}
+function c16measure(){const P=num('c16P'),s0=P*1000/(2*400),E=200000,nu=0.3,out=[];
+  for(const r of ROS16){let sx=0,sy=0,n=0;for(let k=-2;k<=2;k++){const f=c16field(r.x+k*r.base/4,r.y);if(f){sx+=f.sx;sy+=f.sy;n++;}}sx*=s0/n;sy*=s0/n;
+    const ex=(sx-nu*sy)/E*1e6+N(2),ey=(sy-nu*sx)/E*1e6+N(2);let Sx,Sy;if(r.typ===1){Sx=E*ex*1e-6;Sy=0;}else{Sx=E/(1-nu*nu)*(ex+nu*ey)*1e-6;Sy=E/(1-nu*nu)*(ey+nu*ex)*1e-6;}
+    out.push({n:r.n+(r.extra?'*':''),typ:r.typ===1?'1 (TFs)':'2 (T)',pos:fmt(r.x,1)+'; '+fmt(r.y,1),ex,ey:r.typ===1?NaN:ey,sx:Sx,sy:Sy,sr:Math.sqrt(Sx*Sx+Sy*Sy-Sx*Sy),r});}
+  const s0m=out.slice(0,7).reduce((a,o)=>a+o.sx,0)/7;out.forEach(o=>o.k=o.sx/s0m);C16.s0m=s0m;return out;}
+function kirsch(rho,line){const r2=rho*rho,r4=r2*r2;return line==='II'?{k1:(2+r2+3*r4)/2,k2:1.5*(r2-r4)}:{k1:(2-5*r2+3*r4)/2,k2:(r2-3*r4)/2};}
+function c16draw(){if($('#cw16').hidden)return;const P=num('c16P'),s0=P*1000/800,comp=segv('c16c'),zoom=segv('c16z'),t=DATA.tz,mono=getComputedStyle(document.body).getPropertyValue('--f-mono');
+  setDisp('c16s0',s0,2);const edge=c16field(0.01,20.0)||{sx:3};setDisp('c16mx',edge.sx*s0,1);
+  const cv=$('#c16map'),{ctx,w,h}=fit(cv),cbw=70,half=zoom==='cala'?{x:300,y:200}:{x:60,y:60},s=Math.min((w-cbw-16)/(2*half.y),(h-20)/(2*half.x)),cx=(w-cbw)/2,cy=h/2;
+  const val=n=>{const[,,,,sx,sy,txy]=n;return comp==='sx'?sx:comp==='sy'?sy:comp==='txy'?txy:Math.sqrt(sx*sx+sy*sy-sx*sy+3*txy*txy);};
+  const sym=comp!=='sr';let vmax=0;for(const n of t.nodes){if(Math.abs(n[0])<=half.x&&Math.abs(n[1])<=half.y)vmax=Math.max(vmax,Math.abs(val(n)));}
+  ctx.save();ctx.beginPath();ctx.rect(cx-half.y*s,cy-half.x*s,2*half.y*s,2*half.x*s);ctx.clip();ctx.lineWidth=0.5;
+  for(const q of t.quads){const ns=q.map(i=>t.nodes[i]);if(ns.every(n=>n[0]>half.x*1.05+20||n[1]>half.y*1.05+20))continue;let v=0;ns.forEach(n=>v+=val(n)/4);
+    for(const sxg of[1,-1])for(const syg of[1,-1]){const vv=comp==='txy'?v*sxg*syg:v,c=sym?dmap(vv/vmax):cmap(vv/vmax);quadPath(ctx,ns.map(n=>[cx+syg*n[1]*s,cy-sxg*n[0]*s]));ctx.fillStyle=c;ctx.fill();ctx.strokeStyle=c;ctx.stroke();}}
+  ctx.restore();ctx.strokeStyle=TOK.fg;ctx.lineWidth=1;ctx.strokeRect(cx-half.y*s,cy-half.x*s,2*half.y*s,2*half.x*s);
+  ctx.fillStyle=TOK.panel;ctx.beginPath();ctx.arc(cx,cy,20*s,0,2*PI);ctx.fill();ctx.stroke();
+  ctx.font='10px '+mono;ctx.textAlign='center';ctx.textBaseline='middle';
+  for(const r of ROS16){const px=cx+r.y*s,py=cy-r.x*s;if(Math.abs(r.x)>half.x||Math.abs(r.y)>half.y)continue;ctx.fillStyle=r.extra?TOK.c4:TOK.fg;ctx.fillRect(px-(r.typ===2?3:1.5),py-r.base*s/2,r.typ===2?6:3,Math.max(3,r.base*s));
+    if(zoom==='cala'||r.typ===2||r.n===10){ctx.fillText(String(r.n),px+(zoom==='cala'?0:(r.x>0?8:-8)),py+(zoom==='cala'?-10:(r.x>0?-8:8)));}}
+  ctx.fillStyle=TOK.muted;ctx.textAlign='left';ctx.fillText('X (kierunek P) ↑',cx-half.y*s+4,cy-half.x*s+10);
+  colorbar(ctx,w-cbw+16,30,12,h-60,sym?-vmax*s0:0,vmax*s0,{sr:'σ_red',sx:'σ_x',sy:'σ_y',txy:'τ_xy'}[comp],sym);
+  /* k plots */
+  const meas=C16.proto.rows;const K=(line,key)=>{const pts=[];for(let u=1;u<=(line==='II'?2.6:3.6);u+=0.02){pts.push([u,kirsch(1/u,line)[key]]);}return pts;};
+  const fe=(line,key)=>{const pts=[];for(let u=1.0;u<=(line==='II'?2.6:3.6);u+=0.025){const r=20*u,f=line==='II'?c16field(0.001,r):c16field(r,0.001);if(f)pts.push([u,line==='II'?(key==='k1'?f.sx:f.sy):(key==='k1'?f.sx:f.sy)]);}return pts;};
+  const mII=meas.filter(m=>m.r.typ===2&&!m.r.extra||m.r.n===10),mIII=meas.filter(m=>m.r.extra);const s0m=C16.s0m||s0;
+  plot($('#c16k1'),{xlabel:'1/ρ = r / r₀',ylabel:'k',xmin:1,xmax:2.6,ymin:-0.2,ymax:3.2,legend:true,series:[{pts:K('II','k1'),color:'acc',label:'k₁ Kirsch'},{pts:K('II','k2'),color:'c2',label:'k₂ Kirsch'},{pts:fe('II','k1'),color:'acc',dash:[3,3],width:1.2,label:'MES'},{pts:fe('II','k2'),color:'c2',dash:[3,3],width:1.2},
+    {pts:mII.map(m=>[m.r.y/20,m.sx/s0m]),color:'acc',dotsOnly:true},{pts:mII.filter(m=>m.r.typ===2).map(m=>[m.r.y/20,m.sy/s0m]),color:'c2',dotsOnly:true,hollow:true}]});
+  plot($('#c16k2'),{xlabel:'1/ρ = r / r₀',ylabel:'k′',xmin:1,xmax:3.6,ymin:-1.1,ymax:1.1,legend:true,series:[{pts:K('III','k1'),color:'acc',label:'k′₁ Kirsch'},{pts:K('III','k2'),color:'c2',label:'k′₂ Kirsch'},{pts:fe('III','k1'),color:'acc',dash:[3,3],width:1.2,label:'MES'},{pts:fe('III','k2'),color:'c2',dash:[3,3],width:1.2},
+    {pts:mIII.map(m=>[m.r.x/20,m.sx/s0m]),color:'acc',dotsOnly:true},{pts:mIII.map(m=>[m.r.x/20,m.sy/s0m]),color:'c2',dotsOnly:true,hollow:true}]});
+  const r10=meas.find(m=>m.r.n===10);
+  kv('c16kv',[['σ₀ = P / (g·b)',fmt(s0,2)+' MPa'],['σ₀ z rozet 1–7 (średnia)',meas.length?fmt(C16.s0m,2)+' MPa':'—',true],'-',['K<sub>t</sub> Kirsch (b → ∞)','3,00'],['K<sub>t</sub> Heywood, d/b = 0,1','3,03'],['K<sub>t</sub> MES (brzeg otworu)',fmt(edge.sx,2),true],
+    ['k rozety 10 (r = 21,5 mm)',r10?fmt(r10.k,2):'—'],['Kirsch w tym punkcie',fmt(kirsch(20/21.5,'II').k1,2)]]);}
+
+/* ================= tabs, theme, resize ================= */
+const EX=[['cw2','2','Ściskanie',c2init,c2draw],['cw3','3','Udarność',c3init,c3draw],['cw5','5','Zmęczenie',c5init,c5draw],['cw7','7','Skręcanie · G',c7init,c7draw],
+  ['cw8','8','Wyboczenie',c8init,c8draw],['cw10','10','Sprężyny',c10init,c10draw],['cw14','14','Zbiornik',c14init,c14draw],['cw16','16','Tarcza z otworem',c16init,c16draw]];
+let current=null;
+function show(id){const ex=EX.find(e=>e[0]===id)||EX[0];current=ex;$$('#tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.id===ex[0])));
+  $$('#main > section').forEach(s=>s.hidden=s.id!==ex[0]);if(!ex.inited){ex[3]();ex.inited=true;}ex[4]();try{localStorage.setItem('wlab-tab',ex[0]);}catch(_){}}
+function boot(){readTok();const nav=$('#tabs'),main=$('#main');
+  EX.forEach(([id,n,name])=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.dataset.id=id;b.innerHTML=`<b>${n}</b>${name}`;b.onclick=()=>{show(id);history.replaceState(null,'','#'+id);};nav.appendChild(b);
+    const s=document.createElement('section');s.id=id;s.hidden=true;main.appendChild(s);});
+  let start=(location.hash||'').slice(1);if(!EX.some(e=>e[0]===start)){try{start=localStorage.getItem('wlab-tab')||'cw2';}catch(_){start='cw2';}}show(start);
+  window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(EX.some(e=>e[0]===h))show(h);});
+  const redraw=()=>{readTok();if(current)current[4]();};
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  let rt;new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(redraw,60);}).observe(main);
+  $('#noise').addEventListener('change',redraw);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(redraw);}
+boot();
+</script>
